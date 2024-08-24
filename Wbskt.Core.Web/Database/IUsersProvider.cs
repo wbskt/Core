@@ -4,7 +4,7 @@
     {
         int AddUser(UserData user);
 
-        UserData GetUserDataByName(string username);
+        UserData GetUserDataByEmailId(string emailId);
 
         UserData GetUserDataById(int id);
     }

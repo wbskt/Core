@@ -4,7 +4,7 @@
     {
         User GetUserByName(string username);
 
-        User GetUserByEmail(string email);
+        User GetUserByEmailId(string emailId);
 
         User AddUser(User user);
     }

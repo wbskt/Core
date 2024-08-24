@@ -6,8 +6,8 @@
 
         string GenerateSalt();
 
-        bool ValidatePasswordWithSalt(LoginRequest loginRequest);
+        bool ValidatePassword(UserLoginRequest loginRequest);
 
-        User RegisterNewPlayer(UserRegistrationRequest request);
+        User RegisterUser(UserRegistrationRequest request);
     }
 }

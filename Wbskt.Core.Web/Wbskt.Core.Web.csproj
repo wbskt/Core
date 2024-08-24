@@ -8,5 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.0.2" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
   </ItemGroup>
 </Project>
