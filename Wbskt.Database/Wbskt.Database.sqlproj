@@ -71,6 +71,8 @@
     <Build Include="dbo\Stored Procedures\Channels_Insert.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetBy_Id.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetBy_UserId.sql" />
-    <Build Include="dbo\Stored Procedures\Channels_GetBy_ChannelKey.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="Wbskt.Database.refactorlog" />
   </ItemGroup>
 </Project>

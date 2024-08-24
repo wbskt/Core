@@ -79,11 +79,11 @@ namespace Wbskt.Core.Web.Database.Providers
         {
             var data = new User
             {
-                UserId = (int)reader.GetValue(mapping.UserId),
-                UserName = (string)reader.GetValue(mapping.UserName),
-                EmailId = (string)reader.GetValue(mapping.EmailId),
-                PasswordHash = (string)reader.GetValue(mapping.PasswordHash),
-                PasswordSalt = (string)reader.GetValue(mapping.PasswordSalt)
+                UserId = reader.GetInt32(mapping.UserId),
+                UserName = reader.GetString(mapping.UserName),
+                EmailId = reader.GetString(mapping.EmailId),
+                PasswordHash = reader.GetString(mapping.PasswordHash),
+                PasswordSalt = reader.GetString(mapping.PasswordSalt)
             };
 
             return data;

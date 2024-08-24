@@ -42,6 +42,7 @@ namespace Wbskt.Core.Web.Services.Implementations
                 {
                     new Claim(ClaimTypes.NameIdentifier, userData.EmailId.ToString()),
                     new Claim(ClaimTypes.Name, userData.UserName),
+                    new Claim("userId", userData.UserId.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),

@@ -15,8 +15,10 @@ BEGIN
 
   SELECT Id
        , ChannelName
-       , ChannelKey
+       , ChannelPublisherId
+       , ChannelSubscriberId
        , UserId
+       , RetentionTime
     FROM dbo.Channels 
    WHERE Id = @Id
 END;

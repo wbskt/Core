@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="110a6c4d-2199-494a-a57d-70b6063f3d40" ChangeDateTime="08/24/2024 16:36:15">
+    <Property Name="ElementName" Value="[dbo].[Channels].[ChannelClientToken]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Channels]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ChannelClientKey" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="20bc7a73-e016-4a1a-817a-284da409a3c8" ChangeDateTime="08/24/2024 16:41:02">
+    <Property Name="ElementName" Value="[dbo].[Channels].[ChannelClientKey]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Channels]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ChannelPublisherId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="8b229feb-6394-4cc9-b510-5e4701356919" ChangeDateTime="08/24/2024 16:41:08">
+    <Property Name="ElementName" Value="[dbo].[Channels].[ChannelKey]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Channels]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ChannelSubscriberId" />
+  </Operation>
+</Operations>

@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System.Security.Authentication;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -27,6 +30,18 @@ namespace Wbskt.Core.Web
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key))
                 };
             });
+        }
+
+        public static int GetUserId(this IPrincipal principal)
+        {
+            if (principal.Identity is not ClaimsIdentity claimsPrincipal)
+                throw new AuthenticationException("Unable to get userId");
+
+            var claim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type.Equals("userId", StringComparison.InvariantCulture));
+            if (claim == null)
+                throw new AuthenticationException("Unable to get userId");
+
+            return int.Parse(claim.Value);
         }
     }
 }

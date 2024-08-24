@@ -7,10 +7,12 @@
 /* -------------------------------- */
 CREATE PROCEDURE dbo.Channels_Insert
 (
-  @Id			INT OUTPUT
-, @ChannelName	VARCHAR(100)
-, @UserId		INT
-, @ChannelKey	UNIQUEIDENTIFIER
+  @Id			        INT OUTPUT
+, @ChannelName	        VARCHAR(100)
+, @UserId		        INT
+, @ChannelPublisherId	UNIQUEIDENTIFIER
+, @ChannelSubscriberId	UNIQUEIDENTIFIER
+, @RetentionTime        INT
 )
 AS
 BEGIN
@@ -19,12 +21,16 @@ BEGIN
     INSERT INTO dbo.Channels
     ( ChannelName
     , UserId
-    , ChannelKey
+    , ChannelPublisherId
+    , ChannelSubscriberId
+    , RetentionTime
     )
     VALUES
         ( @ChannelName
         , @UserId
-        , @ChannelKey
+        , @ChannelPublisherId
+        , @ChannelSubscriberId
+        , @RetentionTime
         );
     SELECT @Id = SCOPE_IDENTITY();
 END;
