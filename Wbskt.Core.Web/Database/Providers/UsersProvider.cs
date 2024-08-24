@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
+using Wbskt.Core.Web.Services;
 
 namespace Wbskt.Core.Web.Database.Providers
 {
@@ -14,7 +15,7 @@ namespace Wbskt.Core.Web.Database.Providers
             _connectionString = connectionStringProvider?.ConnectionString ?? throw new ArgumentNullException(nameof(connectionStringProvider));
         }
 
-        public int AddUser(UserData user)
+        public int AddUser(User user)
         {
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
@@ -40,7 +41,7 @@ namespace Wbskt.Core.Web.Database.Providers
             return user.UserId = (int)(ProviderExtensions.ReplaceDbNulls(id.Value) ?? 0);
         }
 
-        public UserData GetUserDataById(int id)
+        public User GetUserById(int id)
         {
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -57,7 +58,7 @@ namespace Wbskt.Core.Web.Database.Providers
             return ParseData(reader, mapping);
         }
 
-        public UserData GetUserDataByEmailId(string emailId)
+        public User GetUserByEmailId(string emailId)
         {
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -74,15 +75,15 @@ namespace Wbskt.Core.Web.Database.Providers
             return ParseData(reader, mapping);
         }
 
-        private static UserData ParseData(IDataRecord reader, OrdinalColumnMapping mapping)
+        private static User ParseData(IDataRecord reader, OrdinalColumnMapping mapping)
         {
-            var data = new UserData
+            var data = new User
             {
                 UserId = (int)reader.GetValue(mapping.UserId),
-                UserName = (string)reader.GetValue(mapping.EmailId),
+                UserName = (string)reader.GetValue(mapping.UserName),
                 EmailId = (string)reader.GetValue(mapping.EmailId),
-                PasswordHash = (string)reader.GetValue(mapping.EmailId),
-                PasswordSalt = (string)reader.GetValue(mapping.EmailId)
+                PasswordHash = (string)reader.GetValue(mapping.PasswordHash),
+                PasswordSalt = (string)reader.GetValue(mapping.PasswordSalt)
             };
 
             return data;

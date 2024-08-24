@@ -1,11 +1,13 @@
-﻿namespace Wbskt.Core.Web.Database
+﻿using Wbskt.Core.Web.Services;
+
+namespace Wbskt.Core.Web.Database
 {
     public interface IUsersProvider
     {
-        int AddUser(UserData user);
+        int AddUser(User user);
 
-        UserData GetUserDataByEmailId(string emailId);
+        User GetUserByEmailId(string emailId);
 
-        UserData GetUserDataById(int id);
+        User GetUserById(int id);
     }
 }

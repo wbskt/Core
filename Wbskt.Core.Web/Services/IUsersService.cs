@@ -2,7 +2,7 @@
 {
     public interface IUsersService
     {
-        User GetUserByName(string username);
+        User GetUserById(int userId);
 
         User GetUserByEmailId(string emailId);
 
