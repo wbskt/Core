@@ -22,6 +22,8 @@ namespace Wbskt.Core.Web
             builder.Services.AddSingleton<IChannelsProvider, ChannelsProvider>();
             builder.Services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 
+            builder.Services.AddJwtAuthentication(builder.Configuration);
+
             builder.Services.AddControllers();
 
             var app = builder.Build();

@@ -25,7 +25,7 @@ namespace Wbskt.Core.Web.Database.Providers
 
             using var command = connection.CreateCommand();
             command.CommandType = CommandType.StoredProcedure;
-            command.CommandText = "dbo.User_Insert";
+            command.CommandText = "dbo.Users_Insert";
 
             command.Parameters.Add(new SqlParameter("@UserName", ProviderExtensions.ReplaceDbNulls(user.UserName)));
             command.Parameters.Add(new SqlParameter("@EmailId", ProviderExtensions.ReplaceDbNulls(user.EmailId)));
@@ -48,7 +48,7 @@ namespace Wbskt.Core.Web.Database.Providers
 
             using var command = connection.CreateCommand();
             command.CommandType = CommandType.StoredProcedure;
-            command.CommandText = "dbo.User_GetBy_Id";
+            command.CommandText = "dbo.Users_GetBy_Id";
 
             command.Parameters.Add(new SqlParameter("@Id", id));
 
@@ -65,7 +65,7 @@ namespace Wbskt.Core.Web.Database.Providers
 
             using var command = connection.CreateCommand();
             command.CommandType = CommandType.StoredProcedure;
-            command.CommandText = "dbo.User_GetBy_EmailId";
+            command.CommandText = "dbo.Users_GetBy_EmailId";
 
             command.Parameters.Add(new SqlParameter("@EmailId", emailId));
 

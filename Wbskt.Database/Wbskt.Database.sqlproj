@@ -65,8 +65,12 @@
   <ItemGroup>
     <Build Include="dbo\Tables\Users.sql" />
     <Build Include="dbo\Tables\Channels.sql" />
-    <Build Include="dbo\Stored Procedures\User_GetBy_Id.sql" />
-    <Build Include="dbo\Stored Procedures\User_GetBy_EmailId.sql" />
-    <Build Include="dbo\Stored Procedures\User_Insert.sql" />
+    <Build Include="dbo\Stored Procedures\Users_GetBy_Id.sql" />
+    <Build Include="dbo\Stored Procedures\Users_GetBy_EmailId.sql" />
+    <Build Include="dbo\Stored Procedures\Users_Insert.sql" />
+    <Build Include="dbo\Stored Procedures\Channels_Insert.sql" />
+    <Build Include="dbo\Stored Procedures\Channels_GetBy_Id.sql" />
+    <Build Include="dbo\Stored Procedures\Channels_GetBy_UserId.sql" />
+    <Build Include="dbo\Stored Procedures\Channels_GetBy_ChannelKey.sql" />
   </ItemGroup>
 </Project>

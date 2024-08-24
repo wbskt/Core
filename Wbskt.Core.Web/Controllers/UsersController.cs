@@ -42,15 +42,3 @@ namespace Wbskt.Core.Web.Controllers
         }
     }
 }
-
-/*
-
-Create user
-
-- name email password (contract) -> email unique check -> generate passhash, salt -> save to DB -> create token -> send response
-
-Login User
-
-- email password (contract) -> get user by email -> verify password hash -> create token -> send response
- 
- */

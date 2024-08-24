@@ -1,11 +1,11 @@
 ﻿/* -------------------------------- */
-/* User_Insert                      */
+/* Users_Insert                     */
 /* Author:	Richard Joy             */
 /* Updated by: Richard Joy          */
 /* Create date: 24-Aug-2024         */
 /* Description: Self explanatory    */
 /* -------------------------------- */
-CREATE PROCEDURE dbo.User_Insert
+CREATE PROCEDURE dbo.Users_Insert
 (
   @Id			INT OUTPUT
 , @UserName		VARCHAR(100)

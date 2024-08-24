@@ -1,23 +1,22 @@
 ﻿/* -------------------------------- */
-/* User_GetBy_EmailId               */
+/* Channels_GetBy_Id                */
 /* Author:	Richard Joy             */
 /* Updated by: Richard Joy          */
 /* Create date: 24-Aug-2024         */
 /* Description: Self explanatory    */
 /* -------------------------------- */
-CREATE PROCEDURE dbo.User_GetBy_EmailId
+CREATE PROCEDURE dbo.Channels_GetBy_Id
 (
-  @EmailId VARCHAR(100)
+  @Id INT
 )
 AS
 BEGIN
   SET NOCOUNT ON;
 
   SELECT Id
-       , UserName
-       , EmailId
-       , PasswordHash
-       , PasswordSalt
-    FROM dbo.Users 
-   WHERE EmailId = @EmailId
+       , ChannelName
+       , ChannelKey
+       , UserId
+    FROM dbo.Channels 
+   WHERE Id = @Id
 END;
