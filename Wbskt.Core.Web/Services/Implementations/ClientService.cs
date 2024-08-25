@@ -33,7 +33,7 @@ namespace Wbskt.Core.Web.Services.Implementations
                     new Claim("tid", tokenId.ToString()),
                     new Claim("csid", request.ChannelSubscriberId.ToString()),
                     new Claim("name", request.ClientName.ToString()),
-                    new Claim("uid", request.ClientUniqueId),
+                    new Claim("uid", request.ClientUniqueId), // todo: donot expose the uid, hash it and expose
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),

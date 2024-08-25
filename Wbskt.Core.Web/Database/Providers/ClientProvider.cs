@@ -29,7 +29,6 @@ namespace Wbskt.Core.Web.Database.Providers
 
             command.Parameters.Add(new SqlParameter("@TokenId", ProviderExtensions.ReplaceDbNulls(clientConenction.TokenId)));
             command.Parameters.Add(new SqlParameter("@Disabled", ProviderExtensions.ReplaceDbNulls(clientConenction.Disabled)));
-            command.Parameters.Add(new SqlParameter("@ClientId", ProviderExtensions.ReplaceDbNulls(clientConenction.ClientId)));
             command.Parameters.Add(new SqlParameter("@ClientName", ProviderExtensions.ReplaceDbNulls(clientConenction.ClientName)));
             command.Parameters.Add(new SqlParameter("@ClientUniqueId", ProviderExtensions.ReplaceDbNulls(clientConenction.ClientUniqueId)));
             command.Parameters.Add(new SqlParameter("@ChannelSubscriberId", ProviderExtensions.ReplaceDbNulls(clientConenction.ChannelSubscriberId)));

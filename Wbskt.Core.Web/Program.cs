@@ -17,9 +17,12 @@ namespace Wbskt.Core.Web
             
             builder.Services.AddSingleton<IAuthService, AuthService>();
             builder.Services.AddSingleton<IUsersService, UsersService>();
+            builder.Services.AddSingleton<IHealthService, HealthService>();
+            builder.Services.AddSingleton<IClientService, ClientService>();
             builder.Services.AddSingleton<IChannelsService, ChannelsService>();
 
             builder.Services.AddSingleton<IUsersProvider, UsersProvider>();
+            builder.Services.AddSingleton<IClientProvider, ClientProvider>();
             builder.Services.AddSingleton<IChannelsProvider, ChannelsProvider>();
             builder.Services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 
