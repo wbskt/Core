@@ -1,24 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-  <Operation Name="Rename Refactor" Key="110a6c4d-2199-494a-a57d-70b6063f3d40" ChangeDateTime="08/24/2024 16:36:15">
-    <Property Name="ElementName" Value="[dbo].[Channels].[ChannelClientToken]" />
+  <Operation Name="Rename Refactor" Key="5f71cb4e-5590-4ed6-bf19-ef90388f9a9a" ChangeDateTime="08/25/2024 13:24:39">
+    <Property Name="ElementName" Value="[dbo].[Clients].[Enable]" />
     <Property Name="ElementType" Value="SqlSimpleColumn" />
-    <Property Name="ParentElementName" Value="[dbo].[Channels]" />
+    <Property Name="ParentElementName" Value="[dbo].[Clients]" />
     <Property Name="ParentElementType" Value="SqlTable" />
-    <Property Name="NewName" Value="ChannelClientKey" />
+    <Property Name="NewName" Value="Disable" />
   </Operation>
-  <Operation Name="Rename Refactor" Key="20bc7a73-e016-4a1a-817a-284da409a3c8" ChangeDateTime="08/24/2024 16:41:02">
-    <Property Name="ElementName" Value="[dbo].[Channels].[ChannelClientKey]" />
+  <Operation Name="Rename Refactor" Key="cd17d7f6-eac2-4c5d-8a93-95fe4576e3d6" ChangeDateTime="08/25/2024 17:04:20">
+    <Property Name="ElementName" Value="[dbo].[Clients].[Disable]" />
     <Property Name="ElementType" Value="SqlSimpleColumn" />
-    <Property Name="ParentElementName" Value="[dbo].[Channels]" />
+    <Property Name="ParentElementName" Value="[dbo].[Clients]" />
     <Property Name="ParentElementType" Value="SqlTable" />
-    <Property Name="NewName" Value="ChannelPublisherId" />
-  </Operation>
-  <Operation Name="Rename Refactor" Key="8b229feb-6394-4cc9-b510-5e4701356919" ChangeDateTime="08/24/2024 16:41:08">
-    <Property Name="ElementName" Value="[dbo].[Channels].[ChannelKey]" />
-    <Property Name="ElementType" Value="SqlSimpleColumn" />
-    <Property Name="ParentElementName" Value="[dbo].[Channels]" />
-    <Property Name="ParentElementType" Value="SqlTable" />
-    <Property Name="NewName" Value="ChannelSubscriberId" />
+    <Property Name="NewName" Value="Disabled" />
   </Operation>
 </Operations>

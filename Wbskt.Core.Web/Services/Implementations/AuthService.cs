@@ -35,7 +35,7 @@ namespace Wbskt.Core.Web.Services.Implementations
             var tokenHandler = new JsonWebTokenHandler();
             var configurationKey = configuration["Jwt:Key"];
 
-            var key = Encoding.ASCII.GetBytes(configurationKey!);
+            var key = Encoding.UTF8.GetBytes(configurationKey!);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
