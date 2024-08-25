@@ -37,8 +37,6 @@ namespace Wbskt.Core.Web.Services.Implementations
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
-                Issuer = configuration["Jwt:ValidIssuer"],
-                Audience = configuration["Jwt:ValidAudience"]
             };
 
             var connectionData = new ClientConenction
