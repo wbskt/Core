@@ -41,9 +41,34 @@ namespace Wbskt.Core.Web.Database.Providers
             return clientConenction.ClientId = (int)(ProviderExtensions.ReplaceDbNulls(id.Value) ?? 0);
         }
 
-        public ClientConenction GetClientConenctionByUId(string clientUniqueId)
+        public ClientConenction GetClientConenctionById(int clientId)
         {
-            throw new NotImplementedException();
+            using var connection = new SqlConnection(_connectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "dbo.Clients_GetBy_Id";
+
+            command.Parameters.Add(new SqlParameter("@Id", clientId));
+
+            using var reader = command.ExecuteReader();
+            var mapping = GetColumnMapping(reader);
+            reader.Read();
+            return ParseData(reader, mapping);
+        }
+
+        public void InvalidateToken(int clientId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "dbo.Clients_InvalidateToken";
+
+            command.Parameters.Add(new SqlParameter("@Id", clientId));
+            command.ExecuteNonQuery();
         }
 
         public IReadOnlyCollection<ClientConenction> GetClientConenctionsBySubcriberId(Guid channelSubcriberId)

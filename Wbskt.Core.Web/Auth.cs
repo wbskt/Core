@@ -11,8 +11,8 @@ namespace Wbskt.Core.Web
     {
         public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration config)
         {
-            var key = config["Jwt:key"]!;
-            var serverKey = config["Jwt:Serverkey"]!;
+            var key = config["Jwt:Key"]!;
+            var serverKey = config["Jwt:ServerKey"]!;
             services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

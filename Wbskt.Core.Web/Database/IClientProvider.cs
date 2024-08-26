@@ -4,10 +4,12 @@ namespace Wbskt.Core.Web.Database
 {
     public interface IClientProvider
     {
-        ClientConenction GetClientConenctionByUId(string clientUniqueId);
+        ClientConenction GetClientConenctionById(int clientId);
 
         IReadOnlyCollection<ClientConenction> GetClientConenctionsBySubcriberId(Guid channelSubcriberId);
 
         int AddClientConnection(ClientConenction clientConenction);
+
+        void InvalidateToken(int clientId);
     }
 }

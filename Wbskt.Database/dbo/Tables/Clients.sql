@@ -3,8 +3,8 @@
     [ClientName]          VARCHAR (100)    NOT NULL,
     [ClientUniqueId]      VARCHAR (100)    NOT NULL,
     [ChannelSubscriberId] UNIQUEIDENTIFIER NOT NULL,
-    [Disabled] BIT NOT NULL, 
-    [TokenId] UNIQUEIDENTIFIER NULL, 
+    [Disabled] BIT NOT NULL,
+    [TokenId] UNIQUEIDENTIFIER DEFAULT (CAST( CAST(0 AS BINARY) AS UNIQUEIDENTIFIER)) NOT NULL,
     CONSTRAINT [Pk_Clients] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [Fk_Clients] FOREIGN KEY ([ChannelSubscriberId]) REFERENCES [dbo].[Channels] ([ChannelSubscriberId]),
     CONSTRAINT [Unq_Clients] UNIQUE NONCLUSTERED ([ClientUniqueId] ASC, [ChannelSubscriberId] ASC)

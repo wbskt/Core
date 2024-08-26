@@ -1,11 +1,11 @@
 ﻿/* -------------------------------- */
-/* Channels_GetBy_Id                */
+/* Clients_GetBy_Id                 */
 /* Author: Richard Joy              */
 /* Updated by: Richard Joy          */
-/* Create date: 24-Aug-2024         */
+/* Create date: 26-Aug-2024         */
 /* Description: Self explanatory    */
 /* -------------------------------- */
-CREATE PROCEDURE dbo.Channels_GetBy_Id
+CREATE PROCEDURE dbo.Clients_GetBy_Id
 (
   @Id INT
 )
@@ -14,11 +14,11 @@ BEGIN
   SET NOCOUNT ON;
 
   SELECT Id
-       , ChannelName
-       , ChannelPublisherId
+       , ClientName
+       , ClientUniqueId
+       , TokenId
+       , Disabled
        , ChannelSubscriberId
-       , UserId
-       , RetentionTime
-    FROM dbo.Channels 
+    FROM dbo.Clients 
    WHERE Id = @Id
 END;

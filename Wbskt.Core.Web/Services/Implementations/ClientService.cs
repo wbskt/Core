@@ -25,20 +25,6 @@ namespace Wbskt.Core.Web.Services.Implementations
             var configurationKey = configuration["Jwt:ClientKey"];
             var tokenId = Guid.NewGuid();
 
-            var key = Encoding.UTF8.GetBytes(configurationKey!);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim("tid", tokenId.ToString()),
-                    new Claim("csid", request.ChannelSubscriberId.ToString()),
-                    new Claim("name", request.ClientName.ToString()),
-                    new Claim("uid", request.ClientUniqueId), // todo: donot expose the uid, hash it and expose
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
-            };
-
             var connectionData = new ClientConenction
             {
                 ClientName = request.ClientName,
@@ -48,6 +34,20 @@ namespace Wbskt.Core.Web.Services.Implementations
             };
 
             connectionData.ClientId = clientProvider.AddClientConnection(connectionData);
+
+            var key = Encoding.UTF8.GetBytes(configurationKey!);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim("tid", tokenId.ToString()),
+                    new Claim("csid", connectionData.ChannelSubscriberId.ToString()),
+                    new Claim("name", connectionData.ClientName.ToString()),
+                    new Claim("cid", connectionData.ClientId.ToString()),
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
+            };
 
             return tokenHandler.CreateToken(tokenDescriptor);
         }

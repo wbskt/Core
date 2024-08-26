@@ -1,6 +1,6 @@
 ﻿/* -------------------------------- */
 /* Channels_GetBy_UserId            */
-/* Author:	Richard Joy             */
+/* Author: Richard Joy              */
 /* Updated by: Richard Joy          */
 /* Create date: 24-Aug-2024         */
 /* Description: Self explanatory    */
