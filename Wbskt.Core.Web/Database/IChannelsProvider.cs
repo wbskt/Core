@@ -7,5 +7,7 @@ namespace Wbskt.Core.Web.Database
         int CreateChannel(ChannelDetails channel);
 
         IReadOnlyCollection<ChannelDetails> GetChannelsByUser(int userId);
+
+        ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿
+
 namespace Wbskt.Core.Web.Services
 {
     public interface IChannelsService
@@ -6,5 +7,6 @@ namespace Wbskt.Core.Web.Services
         ChannelDetails CreateChannel(Channel channel);
 
         IEnumerable<ChannelDetails> GetChannelsForUser(int userId);
+        ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId);
     }
 }

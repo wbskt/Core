@@ -14,4 +14,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="Disabled" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="9da6ba10-471d-41b0-98a4-263db62c5450" ChangeDateTime="08/26/2024 12:31:18">
+    <Property Name="ElementName" Value="[dbo].[Channels].[SocketServerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Channels]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ServerId" />
+  </Operation>
 </Operations>

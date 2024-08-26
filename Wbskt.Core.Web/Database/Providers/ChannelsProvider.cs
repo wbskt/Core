@@ -29,6 +29,7 @@ namespace Wbskt.Core.Web.Database.Providers
             command.CommandText = "dbo.Channels_Insert";
 
             command.Parameters.Add(new SqlParameter("@UserId", ProviderExtensions.ReplaceDbNulls(channel.UserId)));
+            command.Parameters.Add(new SqlParameter("@ServerId", ProviderExtensions.ReplaceDbNulls(channel.ServerId)));
             command.Parameters.Add(new SqlParameter("@ChannelName", ProviderExtensions.ReplaceDbNulls(channel.ChannelName)));
             command.Parameters.Add(new SqlParameter("@RetentionTime", ProviderExtensions.ReplaceDbNulls(channel.RetentionTime)));
             command.Parameters.Add(new SqlParameter("@ChannelPublisherId", ProviderExtensions.ReplaceDbNulls(channel.ChannelPublisherId)));
@@ -63,11 +64,29 @@ namespace Wbskt.Core.Web.Database.Providers
             return result;
         }
 
+        public ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "dbo.Clients_GetBy_ChannelSubscriberId";
+
+            command.Parameters.Add(new SqlParameter("@ChannelSubscriberId", channelSubscriberId));
+
+            using var reader = command.ExecuteReader();
+            var mapping = GetColumnMapping(reader);
+            reader.Read();
+            return ParseData(reader, mapping);
+        }
+
         private static ChannelDetails ParseData(IDataRecord reader, OrdinalColumnMapping mapping)
         {
             var data = new ChannelDetails
             {
                 UserId = reader.GetInt32(mapping.UserId),
+                ServerId = reader.GetInt32(mapping.ServerId),
                 ChannelId = reader.GetInt32(mapping.ChannelId),
                 ChannelName = reader.GetString(mapping.ChannelName),
                 RetentionTime = reader.GetInt32(mapping.RetentionTime),
@@ -83,6 +102,7 @@ namespace Wbskt.Core.Web.Database.Providers
             var mapping = new OrdinalColumnMapping();
 
             mapping.UserId = reader.GetOrdinal("UserId");
+            mapping.ServerId = reader.GetOrdinal("ServerId");
             mapping.ChannelId = reader.GetOrdinal("Id");
             mapping.ChannelName = reader.GetOrdinal("ChannelName");
             mapping.RetentionTime = reader.GetOrdinal("RetentionTime");
@@ -95,6 +115,7 @@ namespace Wbskt.Core.Web.Database.Providers
         private class OrdinalColumnMapping
         {
             public int UserId;
+            public int ServerId;
             public int ChannelId;
             public int ChannelName;
             public int RetentionTime;

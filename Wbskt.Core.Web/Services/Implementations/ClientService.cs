@@ -11,12 +11,16 @@ namespace Wbskt.Core.Web.Services.Implementations
         private readonly ILogger<ClientService> logger;
         private readonly IClientProvider clientProvider;
         private readonly IConfiguration configuration;
+        private readonly IChannelsService channelsService;
+        private readonly IServerInfoService serverInfoService;
 
-        public ClientService(ILogger<ClientService> logger, IClientProvider clientProvider, IConfiguration configuration)
+        public ClientService(ILogger<ClientService> logger, IClientProvider clientProvider, IConfiguration configuration, IChannelsService channelsService, IServerInfoService serverInfoService)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.clientProvider = clientProvider ?? throw new ArgumentNullException(nameof(clientProvider));
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            this.channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
+            this.serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
         }
 
         public string RegisterClientConnection(ClientConnectionRequest request)
@@ -33,6 +37,8 @@ namespace Wbskt.Core.Web.Services.Implementations
                 TokenId = tokenId,
             };
 
+            var channel = channelsService.GetChannelSubscriberId(request.ChannelSubscriberId);
+            var server = serverInfoService.GetServerById(channel.ServerId);
             connectionData.ClientId = clientProvider.AddClientConnection(connectionData);
 
             var key = Encoding.UTF8.GetBytes(configurationKey!);
@@ -44,6 +50,7 @@ namespace Wbskt.Core.Web.Services.Implementations
                     new Claim("csid", connectionData.ChannelSubscriberId.ToString()),
                     new Claim("name", connectionData.ClientName.ToString()),
                     new Claim("cid", connectionData.ClientId.ToString()),
+                    new Claim("sad", $"{server.ServerId}:{server.Address}")
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),

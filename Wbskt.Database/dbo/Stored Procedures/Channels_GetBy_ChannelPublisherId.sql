@@ -18,7 +18,7 @@ BEGIN
        , ChannelPublisherId
        , ChannelSubscriberId
        , UserId
-       , SocketServerId
+       , ServerId
     FROM dbo.Channels 
    WHERE ChannelPublisherId = @ChannelPublisherId
 END;

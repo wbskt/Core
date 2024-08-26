@@ -7,6 +7,8 @@
         public Guid ChannelPublisherId { get; set; }
 
         public Guid ChannelSubscriberId { get; set; }
+
+        public int ServerId { get; set; }
     }
 
     public class Channel

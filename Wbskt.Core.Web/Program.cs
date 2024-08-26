@@ -8,6 +8,8 @@ namespace Wbskt.Core.Web
 {
     public class Program
     {
+        private static readonly CancellationTokenSource Cts = new();
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -37,8 +39,12 @@ namespace Wbskt.Core.Web
 
             app.UseAuthorization();
 
+            app.Lifetime.ApplicationStopping.Register(Cts.Cancel);
 
             app.MapControllers();
+            var smh = app.Services.GetRequiredService<ServerHealthMonitor>();
+
+            var tasks = new[] { app.RunAsync(), smh.Ping(Cts.Token) };
 
             app.Run();
         }
