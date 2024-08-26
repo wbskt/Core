@@ -63,25 +63,27 @@
     <Folder Include="dbo\Stored Procedures\" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="dbo\Tables\Users.sql" />
+    <RefactorLog Include="Wbskt.Database.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
     <Build Include="dbo\Tables\Channels.sql" />
+    <Build Include="dbo\Tables\SocketServers.sql" />
     <Build Include="dbo\Tables\Clients.sql" />
-    <Build Include="dbo\Stored Procedures\User_GetBy_Id.sql" />
+    <Build Include="dbo\Tables\Users.sql" />
     <Build Include="dbo\Stored Procedures\User_GetBy_EmailId.sql" />
+    <Build Include="dbo\Stored Procedures\User_GetBy_Id.sql" />
     <Build Include="dbo\Stored Procedures\User_Insert.sql" />
-    <Build Include="dbo\Stored Procedures\Channels_Insert.sql" />
-    <Build Include="dbo\Stored Procedures\Channels_GetBy_Id.sql" />
-    <Build Include="dbo\Stored Procedures\Channels_GetBy_UserId.sql" />
-    <Build Include="dbo\Stored Procedures\Channels_GetBy_ChannelKey.sql" />
     <Build Include="dbo\Stored Procedures\Users_GetBy_EmailId.sql" />
     <Build Include="dbo\Stored Procedures\Users_GetBy_Id.sql" />
     <Build Include="dbo\Stored Procedures\Users_Insert.sql" />
-    <Build Include="dbo\Stored Procedures\Clients_Insert.sql" />
     <Build Include="dbo\Stored Procedures\Clients_GetBy_ChannelSubscriberId.sql" />
+    <Build Include="dbo\Stored Procedures\Clients_Insert.sql" />
     <Build Include="dbo\Stored Procedures\Clients_GetBy_Id.sql" />
     <Build Include="dbo\Stored Procedures\Clients_InvalidateToken.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <RefactorLog Include="Wbskt.Database.refactorlog" />
+    <Build Include="dbo\Stored Procedures\Channels_GetBy_SocketServerId.sql" />
+    <Build Include="dbo\Stored Procedures\Channels_GetBy_ChannelPublisherId.sql" />
+    <Build Include="dbo\Stored Procedures\Channels_GetBy_Id.sql" />
+    <Build Include="dbo\Stored Procedures\Channels_GetBy_UserId.sql" />
+    <Build Include="dbo\Stored Procedures\Channels_Insert.sql" />
   </ItemGroup>
 </Project>

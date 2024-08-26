@@ -19,6 +19,7 @@ BEGIN
        , ChannelSubscriberId
        , UserId
        , RetentionTime
+       , SocketServerId
     FROM dbo.Channels 
    WHERE UserId = @UserId
 END;

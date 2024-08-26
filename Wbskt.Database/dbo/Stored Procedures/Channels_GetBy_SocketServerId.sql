@@ -1,13 +1,13 @@
 ﻿/* -------------------------------- */
-/* Channels_GetBy_Id                */
+/* Channels_GetBy_SocketServerId    */
 /* Author: Richard Joy              */
 /* Updated by: Richard Joy          */
 /* Create date: 24-Aug-2024         */
 /* Description: Self explanatory    */
 /* -------------------------------- */
-CREATE PROCEDURE dbo.Channels_GetBy_Id
+CREATE PROCEDURE dbo.Channels_GetBy_SocketServerId
 (
-  @Id INT
+  @SocketServerId INT
 )
 AS
 BEGIN
@@ -21,5 +21,5 @@ BEGIN
        , RetentionTime
        , SocketServerId
     FROM dbo.Channels 
-   WHERE Id = @Id
+   WHERE SocketServerId = @SocketServerId
 END;

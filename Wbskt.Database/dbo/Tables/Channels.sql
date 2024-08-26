@@ -4,8 +4,10 @@
     [UserId]              INT              NOT NULL,
     [ChannelSubscriberId] UNIQUEIDENTIFIER NOT NULL,
     [ChannelPublisherId]  UNIQUEIDENTIFIER NOT NULL,
+    [SocketServerId]      INT              NOT NULL,
     [RetentionTime]       INT              DEFAULT ((0)) NOT NULL,
     CONSTRAINT [Pk_Channels] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [Fk_channels_socketservers] FOREIGN KEY ([SocketServerId]) REFERENCES [dbo].[SocketServers] ([Id]),
     CONSTRAINT [Fk_Channels_Users] FOREIGN KEY ([UserId]) REFERENCES [dbo].[Users] ([Id]),
     CONSTRAINT [Unq_Channels_ChannelSubscriberId] UNIQUE NONCLUSTERED ([ChannelSubscriberId] ASC),
     CONSTRAINT [Unq_Channels_UserId_ChannelName] UNIQUE NONCLUSTERED ([UserId] ASC, [ChannelName] ASC)
