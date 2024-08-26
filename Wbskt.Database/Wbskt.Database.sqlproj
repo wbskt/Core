@@ -85,5 +85,8 @@
     <Build Include="dbo\Stored Procedures\Channels_GetBy_UserId.sql" />
     <Build Include="dbo\Stored Procedures\Channels_Insert.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetBy_ServerId.sql" />
+    <Build Include="dbo\Stored Procedures\Channels_GetAll.sql" />
+    <Build Include="dbo\Stored Procedures\Servers_GetAll.sql" />
+    <Build Include="dbo\Stored Procedures\Servers_UpdateStatus.sql" />
   </ItemGroup>
 </Project>

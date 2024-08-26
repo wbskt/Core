@@ -8,12 +8,17 @@ namespace Wbskt.Core.Web.Services.Implementations
         private IDictionary<int, ServerInfo> allServers;
         private readonly ILogger<ServerInfoService> logger;
         private readonly IServerInfoProvider serverInfoProvider;
+        private readonly IChannelsService channelsService;
+        private readonly IDictionary<int, Stack<int>> serverChannelMap;
 
-        public ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoProvider serverInfoProvider)
+        public ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoProvider serverInfoProvider, IChannelsService channelsService)
         {
             allServers = new Dictionary<int, ServerInfo>();
+            serverChannelMap = new Dictionary<int, Stack<int>>();
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.serverInfoProvider = serverInfoProvider ?? throw new ArgumentNullException(nameof(serverInfoProvider));
+            this.channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
+            MapAllChannels();
         }
         
         public IReadOnlyCollection<ServerInfo> GetAll()
@@ -25,19 +30,50 @@ namespace Wbskt.Core.Web.Services.Implementations
 
         public ServerInfo GetServerById(int id)
         {
-            if (allServers.ContainsKey(id))
+            return allServers[id];
+        }
+
+        public int GetAvailableServerId()
+        {
+            return serverChannelMap.MinBy(kv => kv.Value.Count).Key;
+        }
+
+        public void UpdateServerStatus(int id, bool active)
+        {
+            allServers[id].Active = active;
+            serverInfoProvider.UpdateServerStatus(id, active);
+
+            if (!active)
             {
-                return allServers[id];
-            }
-            else 
-            {
-                throw new ArgumentException();
+                // the re-balance logic
+                var channelsIds = serverChannelMap[id];
+                serverChannelMap.Remove(id);
+                foreach (var channelId in channelsIds)
+                {
+                    var stack = serverChannelMap.MinBy(kv => kv.Value.Count).Value;
+                    stack.Push(channelId);
+                }
             }
         }
 
-        public void UpdateServerStatus(bool active)
+        private void MapAllChannels()
         {
-            throw new NotImplementedException();
+            GetAll();
+            var channels = channelsService.GetAll();
+            foreach (var server in allServers.Values)
+            {
+                var serverChannels = channels.Where(c => c.ServerId == server.ServerId);
+                if (!serverChannels.Any())
+                {
+                    continue;
+                }
+
+                var stack = new Stack<int>();
+                foreach (var channel in serverChannels)
+                {
+                    stack.Push(channel.ServerId);
+                }
+            }
         }
     }
 }

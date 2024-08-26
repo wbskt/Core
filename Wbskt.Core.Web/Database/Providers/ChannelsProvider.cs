@@ -17,7 +17,6 @@ namespace Wbskt.Core.Web.Database.Providers
 
         public int CreateChannel(ChannelDetails channel)
         {
-
             if (channel == null)
                 throw new ArgumentNullException(nameof(channel));
 

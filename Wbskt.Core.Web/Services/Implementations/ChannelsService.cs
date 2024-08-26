@@ -6,13 +6,13 @@ namespace Wbskt.Core.Web.Services.Implementations
     {
         private readonly ILogger<ChannelsService> logger;
         private readonly IChannelsProvider channelsProvider;
-        private readonly IServerHealthMonitor serverHealthMonitor;
+        private readonly IServerInfoService serverInfoService;
 
-        public ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider channelsProvider, IServerHealthMonitor serverHealthMonitor)
+        public ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider channelsProvider, IServerInfoService serverInfoService)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.channelsProvider = channelsProvider ?? throw new ArgumentNullException(nameof(channelsProvider));
-            this.serverHealthMonitor = serverHealthMonitor ?? throw new ArgumentNullException(nameof(serverHealthMonitor));
+            this.serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
         }
 
         public ChannelDetails CreateChannel(Channel channel)
@@ -24,7 +24,7 @@ namespace Wbskt.Core.Web.Services.Implementations
                 RetentionTime = channel.RetentionTime,
                 ChannelPublisherId = Guid.NewGuid(),
                 ChannelSubscriberId = Guid.NewGuid(),
-                ServerId = serverHealthMonitor.GetAvailableServerId()
+                ServerId = serverInfoService.GetAvailableServerId()
             };
             
             details.ChannelId = channelsProvider.CreateChannel(details);

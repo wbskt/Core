@@ -3,7 +3,11 @@
     public interface IServerInfoService
     {
         IReadOnlyCollection<ServerInfo> GetAll();
+        
         ServerInfo GetServerById(int id);
-        void UpdateServerStatus(bool active);
+
+        void UpdateServerStatus(int id, bool active);
+
+        int GetAvailableServerId();
     }
 }
