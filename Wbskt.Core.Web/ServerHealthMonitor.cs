@@ -2,52 +2,56 @@
 
 namespace Wbskt.Core.Web
 {
-    public class ServerHealthMonitor : IServerHealthMonitor
+    public class ServerHealthMonitor
     {
         private readonly ILogger<ServerHealthMonitor> logger;
         private readonly IServerInfoService serverInfoService;
-
-        private readonly HashSet<int> activeServers;
+        private Timer timer;
 
         public ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInfoService serverInfoService)
         {
-            activeServers = new HashSet<int>();
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
+            timer = new Timer(Ping, null, 0, 10 * 1000);
         }
 
-        public async Task Ping(CancellationToken ct)
+        private async void Ping(object? state)
         {
             var servers = serverInfoService.GetAll();
 
-            while (!ct.IsCancellationRequested)
+            var tasks = new List<Task>();
+            var handler = new HttpClientHandler()
             {
-                foreach (var server in servers)
-                {
-                    var httpClient = new HttpClient
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+            foreach (var server in servers)
+            {
+                var task = Task.Run(async () => { 
+                    var httpClient = new HttpClient(handler)
                     {
                         BaseAddress = new Uri($"https://{server.Address}"),
                     };
-
-                    var result = await httpClient.GetAsync("ping");
-
-                    if (result.IsSuccessStatusCode != server.Active)
+                    HttpResponseMessage? result = null; 
+                    try
                     {
-                        server.Active = result.IsSuccessStatusCode;
-                        serverInfoService.UpdateServerStatus(server.ServerId, result.IsSuccessStatusCode);
-
-                        if (server.Active)
-                        {
-                            activeServers.Add(server.ServerId);
-                        }
-                        else
-                        {
-                            activeServers.Remove(server.ServerId);
-                        }
+                        result = await httpClient.GetAsync("ping");
                     }
-                }
-                await Task.Delay(10 * 1000);
+                    catch(Exception ex)
+                    {
+                        logger.LogInformation($"cannot reach server:{httpClient.BaseAddress}");
+                    }
+
+                    if (result?.IsSuccessStatusCode ?? false != server.Active)
+                    {
+                        server.Active = result?.IsSuccessStatusCode ?? false;
+                        serverInfoService.UpdateServerStatus(server.ServerId, result?.IsSuccessStatusCode ?? false);
+                    }
+                });
+
+                tasks.Add(task);
             }
+
+            await Task.WhenAll(tasks);
         }
     }
 }

@@ -22,13 +22,16 @@ namespace Wbskt.Core.Web
             builder.Services.AddSingleton<IClientService, ClientService>();
             builder.Services.AddSingleton<IChannelsService, ChannelsService>();
             builder.Services.AddSingleton<IServerInfoService, ServerInfoService>();
+            // to avoid cyclic-dependancy
+            builder.Services.AddSingleton(sp => new Lazy<IServerInfoService>(() => sp.GetRequiredService<IServerInfoService>()));
 
-            builder.Services.AddSingleton<IServerHealthMonitor, ServerHealthMonitor>();
+            builder.Services.AddSingleton<ServerHealthMonitor>();
 
             builder.Services.AddSingleton<IUsersProvider, UsersProvider>();
             builder.Services.AddSingleton<IClientProvider, ClientProvider>();
             builder.Services.AddSingleton<IChannelsProvider, ChannelsProvider>();
             builder.Services.AddSingleton<IServerInfoProvider, ServerInfoProvider>();
+
             builder.Services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 
             builder.Services.AddJwtAuthentication(builder.Configuration);
@@ -44,11 +47,9 @@ namespace Wbskt.Core.Web
             app.UseAuthorization();
 
             app.Lifetime.ApplicationStopping.Register(Cts.Cancel);
+            app.Lifetime.ApplicationStarted.Register(() => app.Services.GetRequiredService<ServerHealthMonitor>());
 
             app.MapControllers();
-            var smh = app.Services.GetRequiredService<ServerHealthMonitor>();
-
-            var tasks = new[] { app.RunAsync(), smh.Ping(Cts.Token) };
 
             app.Run();
         }

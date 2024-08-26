@@ -63,6 +63,24 @@ namespace Wbskt.Core.Web.Database.Providers
             return result;
         }
 
+        public IReadOnlyCollection<ChannelDetails> GetAll()
+        {
+            using var connection = new SqlConnection(_connectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "dbo.Channels_GetAll";
+
+            var result = new List<ChannelDetails>();
+            using var reader = command.ExecuteReader();
+            var mapping = GetColumnMapping(reader);
+
+            while (reader.Read()) result.Add(ParseData(reader, mapping));
+
+            return result;
+        }
+
         public ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId)
         {
             using var connection = new SqlConnection(_connectionString);

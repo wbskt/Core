@@ -3,6 +3,7 @@ using Wbskt.Core.Web.Database;
 
 namespace Wbskt.Core.Web.Services.Implementations
 {
+    // todo logical problems.. imagine ss registering in between
     public class ServerInfoService : IServerInfoService
     {
         private IDictionary<int, ServerInfo> allServers;
@@ -43,11 +44,10 @@ namespace Wbskt.Core.Web.Services.Implementations
             allServers[id].Active = active;
             serverInfoProvider.UpdateServerStatus(id, active);
 
-            if (!active)
+            if (active)
             {
                 // the re-balance logic
                 var channelsIds = serverChannelMap[id];
-                serverChannelMap.Remove(id);
                 foreach (var channelId in channelsIds)
                 {
                     var stack = serverChannelMap.MinBy(kv => kv.Value.Count).Value;
@@ -63,16 +63,18 @@ namespace Wbskt.Core.Web.Services.Implementations
             foreach (var server in allServers.Values)
             {
                 var serverChannels = channels.Where(c => c.ServerId == server.ServerId);
-                if (!serverChannels.Any())
-                {
-                    continue;
-                }
+                //if (!serverChannels.Any())
+                //{
+                //    continue;
+                //}
 
                 var stack = new Stack<int>();
                 foreach (var channel in serverChannels)
                 {
-                    stack.Push(channel.ServerId);
+                    stack.Push(channel.ChannelId);
                 }
+
+                serverChannelMap.TryAdd(server.ServerId, stack);
             }
         }
     }

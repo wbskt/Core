@@ -16,5 +16,6 @@ BEGIN
        , ChannelSubscriberId
        , UserId
        , ServerId
+       , RetentionTime
     FROM dbo.Channels 
 END;

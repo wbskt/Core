@@ -6,9 +6,9 @@ namespace Wbskt.Core.Web.Services.Implementations
     {
         private readonly ILogger<ChannelsService> logger;
         private readonly IChannelsProvider channelsProvider;
-        private readonly IServerInfoService serverInfoService;
+        private readonly Lazy<IServerInfoService> serverInfoService;
 
-        public ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider channelsProvider, IServerInfoService serverInfoService)
+        public ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider channelsProvider, Lazy<IServerInfoService> serverInfoService)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.channelsProvider = channelsProvider ?? throw new ArgumentNullException(nameof(channelsProvider));
@@ -24,11 +24,16 @@ namespace Wbskt.Core.Web.Services.Implementations
                 RetentionTime = channel.RetentionTime,
                 ChannelPublisherId = Guid.NewGuid(),
                 ChannelSubscriberId = Guid.NewGuid(),
-                ServerId = serverInfoService.GetAvailableServerId()
+                ServerId = serverInfoService.Value.GetAvailableServerId()
             };
             
             details.ChannelId = channelsProvider.CreateChannel(details);
             return details;
+        }
+
+        public IReadOnlyCollection<ChannelDetails> GetAll()
+        {
+            return channelsProvider.GetAll();
         }
 
         public IEnumerable<ChannelDetails> GetChannelsForUser(int userId)

@@ -88,5 +88,6 @@
     <Build Include="dbo\Stored Procedures\Channels_GetAll.sql" />
     <Build Include="dbo\Stored Procedures\Servers_GetAll.sql" />
     <Build Include="dbo\Stored Procedures\Servers_UpdateStatus.sql" />
+    <Build Include="dbo\Stored Procedures\Servers_Insert.sql" />
   </ItemGroup>
 </Project>
