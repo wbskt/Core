@@ -22,7 +22,8 @@ namespace Wbskt.Core.Web
             var tasks = new List<Task>();
             var handler = new HttpClientHandler()
             {
-                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                // todo: only for development
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator 
             };
             foreach (var server in servers)
             {

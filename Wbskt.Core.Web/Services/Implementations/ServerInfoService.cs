@@ -25,7 +25,15 @@ namespace Wbskt.Core.Web.Services.Implementations
         public IReadOnlyCollection<ServerInfo> GetAll()
         {
             var servers = serverInfoProvider.GetAll();
+            var existingServersIds = allServers.Keys.ToList();
             allServers = servers.ToDictionary(s => s.ServerId, s => s);
+            var newServerIds = allServers.Keys.Except(existingServersIds).ToList();
+
+            foreach ( var serverIds in newServerIds)
+            {
+                serverChannelMap.TryAdd(serverIds, new Stack<int>());
+            }
+
             return servers;
         }
 
