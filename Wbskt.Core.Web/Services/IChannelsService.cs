@@ -12,4 +12,5 @@ public interface IChannelsService
     IEnumerable<ChannelDetails> GetChannelsForUser(int userId);
     ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId);
     bool VerifyChannel(Guid requestChannelSubscriberId, string requestChannelSecret);
+    void UpdateServerId(int channelId, int serverId);
 }

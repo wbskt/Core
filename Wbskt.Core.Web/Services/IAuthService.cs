@@ -10,4 +10,5 @@ public interface IAuthService
     bool ValidatePassword(UserLoginRequest loginRequest);
 
     User RegisterUser(UserRegistrationRequest request);
+    string CreateCoreServerToken();
 }

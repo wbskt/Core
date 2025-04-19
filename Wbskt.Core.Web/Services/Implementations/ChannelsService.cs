@@ -47,4 +47,9 @@ public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider 
     {
         return GetChannelSubscriberId(channelSubscriberId).ChannelSecret.Equals(channelSecret);
     }
+
+    public void UpdateServerId(int channelId, int serverId)
+    {
+        channelsProvider.UpdateServerId(channelId, serverId);
+    }
 }

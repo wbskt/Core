@@ -9,11 +9,12 @@ namespace Wbskt.Core.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ChannelsController(ILogger<ChannelsController> logger, IChannelsService channelsService, IClientService clientService) : ControllerBase
+public class ChannelsController(ILogger<ChannelsController> logger, IChannelsService channelsService, IClientService clientService, IServerInfoService serverInfoService) : ControllerBase
 {
     private readonly ILogger<ChannelsController> logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IChannelsService channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
     private readonly IClientService clientService = clientService ?? throw new ArgumentNullException(nameof(clientService));
+    private readonly IServerInfoService serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
 
     [HttpGet]
     [Authorize(AuthenticationSchemes = Constants.AuthSchemes.UserScheme)]
@@ -45,5 +46,24 @@ public class ChannelsController(ILogger<ChannelsController> logger, IChannelsSer
 
         string clientToken = clientService.AddClientConnection(request);
         return Ok(clientToken);
+    }
+
+    [HttpGet("{publisherId:guid}/dispatch")]
+    [Authorize(AuthenticationSchemes = Constants.AuthSchemes.UserScheme)]
+    public async Task<IActionResult> Dispatch(Guid publisherId)
+    {
+        var payload = new ClientPayload()
+        {
+            Data = "null"
+        };
+        return await Dispatch(publisherId, payload);
+    }
+
+    [HttpPost("{publisherId:guid}/dispatch")]
+    [Authorize(AuthenticationSchemes = Constants.AuthSchemes.UserScheme)]
+    public async Task<IActionResult> Dispatch(Guid publisherId, ClientPayload payload)
+    {
+        await serverInfoService.DispatchPayload(publisherId, payload);
+        return Ok();
     }
 }

@@ -39,6 +39,21 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         return channel.ChannelId = (int)(ProviderExtensions.ReplaceDbNulls(id.Value) ?? 0);
     }
 
+    public void UpdateServerId(int channelId, int serverId)
+    {
+        using var connection = new SqlConnection(connectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Channels_ServerId_UpdateBy_Id";
+
+        command.Parameters.Add(new SqlParameter("@Id", ProviderExtensions.ReplaceDbNulls(channelId)));
+        command.Parameters.Add(new SqlParameter("@ServerId", ProviderExtensions.ReplaceDbNulls(serverId)));
+
+        command.ExecuteNonQuery();
+    }
+
     public IReadOnlyCollection<ChannelDetails> GetChannelsByUser(int userId)
     {
         using var connection = new SqlConnection(connectionString);
@@ -92,6 +107,26 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         var mapping = GetColumnMapping(reader);
         reader.Read();
         return ParseData(reader, mapping);
+    }
+
+    public IReadOnlyCollection<ChannelDetails> GetChannelPublisherId(Guid channelPublisherId)
+    {
+        using var connection = new SqlConnection(connectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Channels_GetBy_ChannelPublisherId";
+
+        command.Parameters.Add(new SqlParameter("@ChannelPublisherId", channelPublisherId));
+
+        var result = new List<ChannelDetails>();
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+
+        while (reader.Read()) result.Add(ParseData(reader, mapping));
+
+        return result;
     }
 
     private static ChannelDetails ParseData(IDataRecord reader, OrdinalColumnMapping mapping)

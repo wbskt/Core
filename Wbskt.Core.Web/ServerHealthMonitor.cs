@@ -1,10 +1,5 @@
 ﻿using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
-using Wbskt.Common;
 using Wbskt.Core.Web.Services;
 
 namespace Wbskt.Core.Web;
@@ -14,15 +9,17 @@ public class ServerHealthMonitor
     private Timer timer;
     private readonly string token;
     private readonly IConfiguration configuration;
+    private readonly IAuthService authService;
     private readonly ILogger<ServerHealthMonitor> logger;
     private readonly IServerInfoService serverInfoService;
 
-    public ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInfoService serverInfoService, IConfiguration configuration)
+    public ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInfoService serverInfoService, IConfiguration configuration, IAuthService authService)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        token = CreateCoreServerToken();
+        this.authService = authService ?? throw new ArgumentNullException(nameof(authService));
+        token = this.authService.CreateCoreServerToken();
         timer = new Timer(Ping, null, 0, 10 * 1000);
     }
 
@@ -57,11 +54,11 @@ public class ServerHealthMonitor
                 }
 
                 // only update if the status changed i.e. Active or NotActive
-                if ((result?.IsSuccessStatusCode ?? false) != server.Active)
+                // if ((result?.IsSuccessStatusCode ?? false) != server.Active)
                 {
                     server.Active = result?.IsSuccessStatusCode ?? false;
                     logger.LogInformation("health of socket server: {ss} - {active}", server.Address, server.Active);
-                    serverInfoService.UpdateServerStatus(server.ServerId, result?.IsSuccessStatusCode ?? false);
+                    serverInfoService.UpdateServerStatus(server.ServerId, server.Active);
                 }
             });
 
@@ -69,23 +66,5 @@ public class ServerHealthMonitor
         }
 
         await Task.WhenAll(tasks);
-    }
-
-    private string CreateCoreServerToken()
-    {
-        var tokenHandler = new JsonWebTokenHandler();
-        var configurationKey = configuration[Constants.JwtKeyNames.CoreServerTokenKey];
-
-        var key = Encoding.UTF8.GetBytes(configurationKey!);
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(new Claim[]
-            {
-                new Claim(Constants.Claims.CoreServer, Guid.NewGuid().ToString())
-            }),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
-        };
-
-        return tokenHandler.CreateToken(tokenDescriptor);
     }
 }

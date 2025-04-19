@@ -37,6 +37,24 @@ public class AuthService(ILogger<AuthService> logger, IConfiguration configurati
         return tokenHandler.CreateToken(tokenDescriptor);
     }
 
+    public string CreateCoreServerToken()
+    {
+        var tokenHandler = new JsonWebTokenHandler();
+        var configurationKey = configuration[Constants.JwtKeyNames.CoreServerTokenKey];
+
+        var key = Encoding.UTF8.GetBytes(configurationKey!);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(Constants.Claims.CoreServer, Guid.NewGuid().ToString())
+            }),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
+        };
+
+        return tokenHandler.CreateToken(tokenDescriptor);
+    }
+
     public User RegisterUser(UserRegistrationRequest request)
     {
         string salt = GenerateSalt();

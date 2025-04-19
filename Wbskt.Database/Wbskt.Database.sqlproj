@@ -87,4 +87,7 @@
     <Build Include="dbo\Stored Procedures\Servers_UpdateStatus.sql" />
     <Build Include="dbo\Stored Procedures\Servers_Insert.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="dbo\Stored Procedures\Channels_ServerId_UpadteBy_Id.sql" />
+  </ItemGroup>
 </Project>
