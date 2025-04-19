@@ -1,13 +1,13 @@
-﻿namespace Wbskt.Core.Web.Services
+﻿using Wbskt.Common;
+using Wbskt.Common.Contracts;
+
+namespace Wbskt.Core.Web.Services;
+
+public interface IAuthService
 {
-    public interface IAuthService
-    {
-        string GenerateToken(User userData);
+    string GenerateToken(User userData);
 
-        string GenerateSalt();
+    bool ValidatePassword(UserLoginRequest loginRequest);
 
-        bool ValidatePassword(UserLoginRequest loginRequest);
-
-        User RegisterUser(UserRegistrationRequest request);
-    }
+    User RegisterUser(UserRegistrationRequest request);
 }

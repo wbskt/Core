@@ -2,61 +2,54 @@
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
-using Wbskt.Core.Web.Database;
+using Wbskt.Common;
+using Wbskt.Common.Contracts;
+using Wbskt.Common.Providers;
 
-namespace Wbskt.Core.Web.Services.Implementations
+namespace Wbskt.Core.Web.Services.Implementations;
+
+public class ClientService(ILogger<ClientService> logger, IClientProvider clientProvider, IConfiguration configuration, IChannelsService channelsService, IServerInfoService serverInfoService) : IClientService
 {
-    public class ClientService : IClientService
+    private readonly ILogger<ClientService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IClientProvider clientProvider = clientProvider ?? throw new ArgumentNullException(nameof(clientProvider));
+    private readonly IConfiguration configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    private readonly IChannelsService channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
+    private readonly IServerInfoService serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
+
+    public string AddClientConnection(ClientConnectionRequest request)
     {
-        private readonly ILogger<ClientService> logger;
-        private readonly IClientProvider clientProvider;
-        private readonly IConfiguration configuration;
-        private readonly IChannelsService channelsService;
-        private readonly IServerInfoService serverInfoService;
+        var tokenHandler = new JsonWebTokenHandler();
+        var configurationKey = configuration[Constants.JwtKeyNames.ClientServerTokenKey];
+        var tokenId = Guid.NewGuid();
 
-        public ClientService(ILogger<ClientService> logger, IClientProvider clientProvider, IConfiguration configuration, IChannelsService channelsService, IServerInfoService serverInfoService)
+        var connectionData = new ClientConnection
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.clientProvider = clientProvider ?? throw new ArgumentNullException(nameof(clientProvider));
-            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            this.channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
-            this.serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
-        }
+            TokenId = tokenId,
+            ClientName = request.ClientName,
+            ChannelSecret = request.ChannelSecret,
+            ClientUniqueId = request.ClientUniqueId,
+            ChannelSubscriberId = request.ChannelSubscriberId,
+        };
 
-        public string RegisterClientConnection(ClientConnectionRequest request)
+        var channel = channelsService.GetChannelSubscriberId(request.ChannelSubscriberId);
+        var server = serverInfoService.GetServerById(channel.ServerId);
+        connectionData.ClientId = clientProvider.AddOrUpdateClientConnection(connectionData);
+
+        var key = Encoding.UTF8.GetBytes(configurationKey!);
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            var tokenHandler = new JsonWebTokenHandler();
-            var configurationKey = configuration["Jwt:ClientKey"];
-            var tokenId = Guid.NewGuid();
-
-            var connectionData = new ClientConenction
+            Subject = new ClaimsIdentity(new Claim[]
             {
-                ClientName = request.ClientName,
-                ClientUniqueId = request.ClientUniqueId,
-                ChannelSubscriberId = request.ChannelSubscriberId,
-                TokenId = tokenId,
-            };
+                new Claim(Constants.Claims.TokenId, tokenId.ToString()),
+                new Claim(Constants.Claims.ChannelSubscriberId, connectionData.ChannelSubscriberId.ToString()),
+                new Claim(Constants.Claims.ClientName, connectionData.ClientName),
+                new Claim(Constants.Claims.ClientId, connectionData.ClientId.ToString()),
+                new Claim(Constants.Claims.SocketServer, $"{server.ServerId}:{server.Address}") // todo: bit wonky
+            }),
+            Expires = DateTime.UtcNow.AddMinutes(Constants.ExpiryTimes.ClientTokenExpiry),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
+        };
 
-            var channel = channelsService.GetChannelSubscriberId(request.ChannelSubscriberId);
-            var server = serverInfoService.GetServerById(channel.ServerId);
-            connectionData.ClientId = clientProvider.AddClientConnection(connectionData);
-
-            var key = Encoding.UTF8.GetBytes(configurationKey!);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim("tid", tokenId.ToString()),
-                    new Claim("csid", connectionData.ChannelSubscriberId.ToString()),
-                    new Claim("name", connectionData.ClientName.ToString()),
-                    new Claim("cid", connectionData.ClientId.ToString()),
-                    new Claim("sad", $"{server.ServerId}:{server.Address}")
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
-            };
-
-            return tokenHandler.CreateToken(tokenDescriptor);
-        }
+        return tokenHandler.CreateToken(tokenDescriptor);
     }
 }

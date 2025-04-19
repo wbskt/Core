@@ -1,12 +1,15 @@
 ﻿
 
-namespace Wbskt.Core.Web.Services
+using Wbskt.Common;
+using Wbskt.Common.Contracts;
+
+namespace Wbskt.Core.Web.Services;
+
+public interface IChannelsService
 {
-    public interface IChannelsService
-    {
-        ChannelDetails CreateChannel(Channel channel);
-        IReadOnlyCollection<ChannelDetails> GetAll();
-        IEnumerable<ChannelDetails> GetChannelsForUser(int userId);
-        ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId);
-    }
+    ChannelDetails CreateChannel(ChannelRequest channel);
+    IReadOnlyCollection<ChannelDetails> GetAll();
+    IEnumerable<ChannelDetails> GetChannelsForUser(int userId);
+    ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId);
+    bool VerifyChannel(Guid requestChannelSubscriberId, string requestChannelSecret);
 }

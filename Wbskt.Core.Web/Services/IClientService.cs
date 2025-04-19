@@ -1,7 +1,9 @@
-﻿namespace Wbskt.Core.Web.Services
+﻿using Wbskt.Common;
+using Wbskt.Common.Contracts;
+
+namespace Wbskt.Core.Web.Services;
+
+public interface IClientService
 {
-    public interface IClientService
-    {
-        string RegisterClientConnection(ClientConnectionRequest request);
-    }
+    string AddClientConnection(ClientConnectionRequest request);
 }

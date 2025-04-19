@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{707a7510-f213-47b4-bbfe-a6550bc2214c}</ProjectGuid>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql150DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
@@ -60,12 +60,9 @@
     <Folder Include="Properties" />
     <Folder Include="dbo\" />
     <Folder Include="dbo\Tables\" />
-    <Folder Include="dbo\Stored Procedures\" />
   </ItemGroup>
   <ItemGroup>
-    <RefactorLog Include="Wbskt.Database.refactorlog" />
-  </ItemGroup>
-  <ItemGroup>
+    <Build Include="dbo\Stored Procedures\Channels_GetBy_ChannelSubscriberId.sql" />
     <Build Include="dbo\Tables\Channels.sql" />
     <Build Include="dbo\Tables\Servers.sql" />
     <Build Include="dbo\Tables\Clients.sql" />
@@ -77,7 +74,7 @@
     <Build Include="dbo\Stored Procedures\Users_GetBy_Id.sql" />
     <Build Include="dbo\Stored Procedures\Users_Insert.sql" />
     <Build Include="dbo\Stored Procedures\Clients_GetBy_ChannelSubscriberId.sql" />
-    <Build Include="dbo\Stored Procedures\Clients_Insert.sql" />
+    <Build Include="dbo\Stored Procedures\Clients_Upsert.sql" />
     <Build Include="dbo\Stored Procedures\Clients_GetBy_Id.sql" />
     <Build Include="dbo\Stored Procedures\Clients_InvalidateToken.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetBy_ChannelPublisherId.sql" />

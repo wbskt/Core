@@ -10,9 +10,9 @@ CREATE PROCEDURE dbo.Clients_Insert
   @Id			        INT OUTPUT
 , @TokenId              UNIQUEIDENTIFIER
 , @ClientName           VARCHAR(100)
-, @ClientUniqueId       VARCHAR(100)
+, @ClientUniqueId       UNIQUEIDENTIFIER
 , @ChannelSubscriberId  UNIQUEIDENTIFIER
-, @Disabled             BIT
+, @Disabled             BIT                 = 0
 )
 AS
 BEGIN

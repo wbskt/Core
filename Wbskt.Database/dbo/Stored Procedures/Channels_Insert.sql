@@ -9,6 +9,7 @@ CREATE PROCEDURE dbo.Channels_Insert
 (
   @Id			        INT OUTPUT
 , @ChannelName	        VARCHAR(100)
+, @ChannelSecret        VARCHAR(100)
 , @UserId		        INT
 , @ServerId             INT
 , @ChannelPublisherId	UNIQUEIDENTIFIER
@@ -25,6 +26,7 @@ BEGIN
     , ChannelPublisherId
     , ChannelSubscriberId
     , RetentionTime
+    , ChannelSecret
     , ServerId
     )
     VALUES
@@ -33,6 +35,7 @@ BEGIN
         , @ChannelPublisherId
         , @ChannelSubscriberId
         , @RetentionTime
+        , @ChannelSecret
         , @ServerId
         );
     SELECT @Id = SCOPE_IDENTITY();

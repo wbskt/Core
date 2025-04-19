@@ -1,49 +1,50 @@
-﻿using Wbskt.Core.Web.Database;
+﻿using Wbskt.Common;
+using Wbskt.Common.Contracts;
+using Wbskt.Common.Providers;
 
-namespace Wbskt.Core.Web.Services.Implementations
+namespace Wbskt.Core.Web.Services.Implementations;
+
+public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider channelsProvider, Lazy<IServerInfoService> serverInfoService) : IChannelsService
 {
-    public class ChannelsService : IChannelsService
+    private readonly ILogger<ChannelsService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IChannelsProvider channelsProvider = channelsProvider ?? throw new ArgumentNullException(nameof(channelsProvider));
+    private readonly Lazy<IServerInfoService> serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
+
+    public ChannelDetails CreateChannel(ChannelRequest channel)
     {
-        private readonly ILogger<ChannelsService> logger;
-        private readonly IChannelsProvider channelsProvider;
-        private readonly Lazy<IServerInfoService> serverInfoService;
-
-        public ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider channelsProvider, Lazy<IServerInfoService> serverInfoService)
+        var details = new ChannelDetails
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.channelsProvider = channelsProvider ?? throw new ArgumentNullException(nameof(channelsProvider));
-            this.serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
-        }
+            UserId = channel.UserId,
+            ChannelName = channel.ChannelName,
+            RetentionTime = channel.RetentionTime,
+            ChannelSecret = channel.ChannelSecret,
+            ChannelPublisherId = Guid.NewGuid(),
+            ChannelSubscriberId = Guid.NewGuid(),
+            // todo: this is only required for multi S.S setup, kept it since i guess the logic under the hood works
+            ServerId = serverInfoService.Value.GetAvailableServerId()
+        };
 
-        public ChannelDetails CreateChannel(Channel channel)
-        {
-            var details = new ChannelDetails
-            {
-                UserId = channel.UserId,
-                ChannelName = channel.ChannelName,
-                RetentionTime = channel.RetentionTime,
-                ChannelPublisherId = Guid.NewGuid(),
-                ChannelSubscriberId = Guid.NewGuid(),
-                ServerId = serverInfoService.Value.GetAvailableServerId()
-            };
-            
-            details.ChannelId = channelsProvider.CreateChannel(details);
-            return details;
-        }
+        details.ChannelId = channelsProvider.CreateChannel(details);
+        return details;
+    }
 
-        public IReadOnlyCollection<ChannelDetails> GetAll()
-        {
-            return channelsProvider.GetAll();
-        }
+    public IReadOnlyCollection<ChannelDetails> GetAll()
+    {
+        return channelsProvider.GetAll();
+    }
 
-        public IEnumerable<ChannelDetails> GetChannelsForUser(int userId)
-        {
-            return channelsProvider.GetChannelsByUser(userId);
-        }
+    public IEnumerable<ChannelDetails> GetChannelsForUser(int userId)
+    {
+        return channelsProvider.GetChannelsByUser(userId);
+    }
 
-        public ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId)
-        {
-            return channelsProvider.GetChannelSubscriberId(channelSubscriberId);
-        }
+    public ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId)
+    {
+        return channelsProvider.GetChannelSubscriberId(channelSubscriberId);
+    }
+
+    public bool VerifyChannel(Guid channelSubscriberId, string channelSecret)
+    {
+        return GetChannelSubscriberId(channelSubscriberId).ChannelSecret.Equals(channelSecret);
     }
 }

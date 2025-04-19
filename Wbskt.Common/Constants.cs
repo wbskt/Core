@@ -1,0 +1,38 @@
+﻿namespace Wbskt.Common;
+
+public static class Constants
+{
+    public static class JwtKeyNames
+    {
+        public const string UserTokenKey = "Jwt:UserTokenKey";
+        public const string CoreServerTokenKey = "Jwt:CoreServerTokenKey";
+        public const string SocketServerTokenKey = "Jwt:SocketServerTokenKey";
+        public const string ClientServerTokenKey = "Jwt:ClientServerTokenKey";
+    }
+
+    public static class AuthSchemes
+    {
+        public const string UserScheme = "Bearer";
+        public const string ClientScheme = "Client";
+        public const string SocketServerScheme = "Server";
+        public const string CoreServerScheme = "Core";
+    }
+
+    public static class Claims
+    {
+        public const string Name = "Name";
+        public const string EmailId = "Email";
+        public const string TokenId = "TokenId";
+        public const string ClientId = "ClientId";
+        public const string UserData = "UserData";
+        public const string CoreServer = "CoreServer";
+        public const string ClientName = "ClientName";
+        public const string SocketServer = "SocketServer";
+        public const string ChannelSubscriberId = "ChannelSubscriberId";
+    }
+
+    public static class ExpiryTimes // in minuets
+    {
+        public const int ClientTokenExpiry = 60 * 24; // one day
+    }
+}

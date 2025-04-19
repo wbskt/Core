@@ -1,57 +1,62 @@
 using Microsoft.AspNetCore.Identity;
-using Wbskt.Core.Web.Database;
-using Wbskt.Core.Web.Database.Providers;
+using Wbskt.Common;
+using Wbskt.Common.Contracts;
+using Wbskt.Common.Extensions;
+using Wbskt.Common.Providers;
+using Wbskt.Common.Providers.Implementations;
 using Wbskt.Core.Web.Services;
 using Wbskt.Core.Web.Services.Implementations;
 
-namespace Wbskt.Core.Web
+namespace Wbskt.Core.Web;
+
+public static class Program
 {
-    public class Program
+    private static readonly CancellationTokenSource Cts = new();
+
+    public static void Main(string[] args)
     {
-        private static readonly CancellationTokenSource Cts = new();
+        var builder = WebApplication.CreateBuilder(args);
 
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        // Add services to the container.
+        // todo: Add a new implementation that wraps PasswordHasher<User>
+        builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
-            // Add services to the container.
-            builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
-            
-            builder.Services.AddSingleton<IAuthService, AuthService>();
-            builder.Services.AddSingleton<IUsersService, UsersService>();
-            builder.Services.AddSingleton<IClientService, ClientService>();
-            builder.Services.AddSingleton<IChannelsService, ChannelsService>();
-            builder.Services.AddSingleton<IServerInfoService, ServerInfoService>();
-            // to avoid cyclic-dependancy
-            builder.Services.AddSingleton(sp => new Lazy<IServerInfoService>(() => sp.GetRequiredService<IServerInfoService>()));
+        builder.Services.AddSingleton<IAuthService, AuthService>();
+        builder.Services.AddSingleton<IUsersService, UsersService>();
+        builder.Services.AddSingleton<IClientService, ClientService>();
+        builder.Services.AddSingleton<IChannelsService, ChannelsService>();
+        builder.Services.AddSingleton<IServerInfoService, ServerInfoService>();
+        // to avoid cyclic-dependency
+        builder.Services.AddSingleton(sp => new Lazy<IServerInfoService>(sp.GetRequiredService<IServerInfoService>));
 
-            builder.Services.AddSingleton<ServerHealthMonitor>();
+        builder.Services.AddSingleton<ServerHealthMonitor>();
 
-            builder.Services.AddSingleton<IUsersProvider, UsersProvider>();
-            builder.Services.AddSingleton<IClientProvider, ClientProvider>();
-            builder.Services.AddSingleton<IChannelsProvider, ChannelsProvider>();
-            builder.Services.AddSingleton<IServerInfoProvider, ServerInfoProvider>();
+        builder.Services.ConfigureCommonServices();
 
-            builder.Services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
+        builder.Services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = Constants.AuthSchemes.UserScheme;
+                opt.DefaultChallengeScheme = Constants.AuthSchemes.UserScheme;
+            })
+            .AddUserAuthScheme(builder.Configuration)
+            .AddClientAuthScheme(builder.Configuration)
+            .AddSocketServerAuthScheme(builder.Configuration);
 
-            builder.Services.AddJwtAuthentication(builder.Configuration);
+        builder.Services.AddControllers();
 
-            builder.Services.AddControllers();
+        var app = builder.Build();
 
-            var app = builder.Build();
+        // Configure the HTTP request pipeline.
 
-            // Configure the HTTP request pipeline.
+        app.UseHttpsRedirection();
 
-            app.UseHttpsRedirection();
+        app.UseAuthorization();
 
-            app.UseAuthorization();
+        app.Lifetime.ApplicationStopping.Register(Cts.Cancel);
+        app.Lifetime.ApplicationStarted.Register(() => app.Services.GetRequiredService<ServerHealthMonitor>());
 
-            app.Lifetime.ApplicationStopping.Register(Cts.Cancel);
-            app.Lifetime.ApplicationStarted.Register(() => app.Services.GetRequiredService<ServerHealthMonitor>());
+        app.MapControllers();
 
-            app.MapControllers();
-
-            app.Run();
-        }
+        app.Run();
     }
 }
