@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Identity;
+using Serilog;
 using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Extensions;
-using Wbskt.Common.Providers;
-using Wbskt.Common.Providers.Implementations;
 using Wbskt.Core.Web.Services;
 using Wbskt.Core.Web.Services.Implementations;
 
@@ -12,10 +11,25 @@ namespace Wbskt.Core.Web;
 public static class Program
 {
     private static readonly CancellationTokenSource Cts = new();
+    private static readonly string ProgramDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Wbskt");
 
     public static void Main(string[] args)
     {
+        if (!Directory.Exists(ProgramDataPath))
+        {
+            Directory.CreateDirectory(ProgramDataPath);
+        }
+
         var builder = WebApplication.CreateBuilder(args);
+
+        // Configure Serilog
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)
+            .WriteTo.Console()
+            .WriteTo.File(Path.Combine(ProgramDataPath, "CoreLog_.log"), rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+
+        builder.Host.UseSerilog(Log.Logger);
 
         // Add services to the container.
         // todo: Add a new implementation that wraps PasswordHasher<User>
