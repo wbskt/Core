@@ -2,5 +2,5 @@
 
 public class ClientPayload
 {
-    public string Data { get; set; }
+    public required string Data { get; set; }
 }

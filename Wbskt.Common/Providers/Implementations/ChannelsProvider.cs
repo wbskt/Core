@@ -13,6 +13,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public int CreateChannel(ChannelDetails channel)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(CreateChannel));
         ArgumentNullException.ThrowIfNull(channel);
 
         using var connection = new SqlConnection(connectionString);
@@ -41,6 +42,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public void UpdateServerId(int channelId, int serverId)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(UpdateServerId));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 
@@ -56,6 +58,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public IReadOnlyCollection<ChannelDetails> GetChannelsByUser(int userId)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetChannelsByUser));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 
@@ -76,6 +79,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public IReadOnlyCollection<ChannelDetails> GetAll()
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 
@@ -94,6 +98,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetChannelSubscriberId));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 
@@ -111,6 +116,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public IReadOnlyCollection<ChannelDetails> GetChannelPublisherId(Guid channelPublisherId)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetChannelPublisherId));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 

@@ -65,7 +65,9 @@ public class ServerInfoService : IServerInfoService
     public int GetAvailableServerId()
     {
         // gets the S.S with the least amount of channels. (for a rudimentary load balancing)
-        return serverChannelMap.Where(s => allServers[s.Key].Active).MinBy(kv => kv.Value.Count).Key;
+        var serverId = serverChannelMap.Where(s => allServers[s.Key].Active).MinBy(kv => kv.Value.Count).Key;
+        logger.LogDebug("available serverId: {serverId}", serverId);
+        return serverId;
     }
 
     public async Task DispatchPayload(Guid publisherId, ClientPayload payload)
@@ -76,6 +78,7 @@ public class ServerInfoService : IServerInfoService
         {
             if (serverChannel.Value.Contains(channels[publisherId]))
             {
+                logger.LogDebug("Dispatcher task queued for socket server: {serverId}, publisherId: {publisherId}", serverChannel.Key, payload);
                 tasks.Add(DispatchPayloadToServer(serverChannel.Key, publisherId, payload));
             }
         }
@@ -86,11 +89,13 @@ public class ServerInfoService : IServerInfoService
     public void UpdateServerStatus(int id, bool active)
     {
         allServers[id].Active = active;
+        logger.LogDebug("updating status of server: {serverId} - {active}", id, active);
         serverInfoProvider.UpdateServerStatus(id, active);
 
         // the re-balance logic
         if (!active)
         {
+            logger.LogInformation("re-balancing socket-server:channel (server-{serverId} is inactive)", id);
             // gets the channels of the inactive server
             var channelsIds = serverChannelMap[id];
             foreach (var channelId in channelsIds)
@@ -99,7 +104,8 @@ public class ServerInfoService : IServerInfoService
                 var activeServers = serverChannelMap.Where(s => allServers[s.Key].Active).ToList();
                 if (activeServers.Count == 0)
                 {
-                    continue;
+                    logger.LogWarning("failed re-balancing (no active socket-server)");
+                    break;
                 }
 
                 var availableServerChannel = activeServers.MinBy(kv => kv.Value.Count);
@@ -141,15 +147,17 @@ public class ServerInfoService : IServerInfoService
 
         try
         {
+            logger.LogDebug("post: {url}/dispatch/{publisher}", httpClient.BaseAddress, publisherId);
             var result = await httpClient.PostAsync($"dispatch/{publisherId}", JsonContent.Create(payload));
             if (!result.IsSuccessStatusCode)
             {
-                logger.LogError("dispatch to {server} failed with: {reason}", server.Address, result.ReasonPhrase);
+                logger.LogError("dispatch to {server} Id:({serverId}) failed with: {reason}", server.Address, server.ServerId, result.ReasonPhrase);
             }
         }
         catch(Exception ex)
         {
-            logger.LogError(ex.ToString());
+            logger.LogWarning("error while request to {url}/dispatch/{publisher}, error: {details}", httpClient.BaseAddress, publisherId, ex.Message);
+            logger.LogTrace("error while request to {url}/dispatch/{publisher}, error: {details}", httpClient.BaseAddress, publisherId, ex.ToString());
         }
     }
 }

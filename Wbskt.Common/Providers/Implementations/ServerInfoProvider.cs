@@ -14,6 +14,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 
     public IReadOnlyCollection<ServerInfo> GetAll()
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 
@@ -32,6 +33,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 
     public int RegisterServer(ServerInfo serverInfo)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
         ArgumentNullException.ThrowIfNull(serverInfo);
 
         using var connection = new SqlConnection(connectionString);
@@ -55,6 +57,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 
     public void UpdateServerStatus(int id, bool active)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 

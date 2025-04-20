@@ -34,5 +34,11 @@ public static class Constants
     public static class ExpiryTimes // in minuets
     {
         public const int ClientTokenExpiry = 60 * 24; // one day
+        public const int ServerTokenExpiry = 60 * 24; // one day
+    }
+
+    public static class LoggingConstants
+    {
+        public const string LogTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}";
     }
 }
