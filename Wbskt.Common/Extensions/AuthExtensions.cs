@@ -72,8 +72,9 @@ public static class AuthExtensions
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = false,
-                ValidateLifetime = false,
+                ValidateIssuer = true,
+                ValidIssuer = "wbskt.core",
+                ValidateLifetime = true,
                 ValidateAudience = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),

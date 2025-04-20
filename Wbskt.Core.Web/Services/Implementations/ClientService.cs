@@ -44,12 +44,13 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
                 new Claim(Constants.Claims.ChannelSubscriberId, connectionData.ChannelSubscriberId.ToString()),
                 new Claim(Constants.Claims.ClientName, connectionData.ClientName),
                 new Claim(Constants.Claims.ClientId, connectionData.ClientId.ToString()),
-                new Claim(Constants.Claims.SocketServer, $"{server.ServerId}:{server.Address}") // todo: bit wonky
+                new Claim(Constants.Claims.SocketServer, $"{server.ServerId}:{server.Address}")
             }),
             Expires = DateTime.UtcNow.AddMinutes(Constants.ExpiryTimes.ClientTokenExpiry),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
         };
 
+        logger.LogDebug("token {tokenId} created for client {clientName}-{clientId}", tokenId, request.ClientName, request.ClientUniqueId);
         return tokenHandler.CreateToken(tokenDescriptor);
     }
 }

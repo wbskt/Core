@@ -13,6 +13,7 @@ internal sealed class UsersProvider(ILogger<UsersProvider> logger, IConnectionSt
 
     public int AddUser(User user)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(AddUser));
         ArgumentNullException.ThrowIfNull(user);
 
         using var connection = new SqlConnection(connectionString);
@@ -38,6 +39,7 @@ internal sealed class UsersProvider(ILogger<UsersProvider> logger, IConnectionSt
 
     public User GetUserById(int id)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetUserById));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 
@@ -55,6 +57,7 @@ internal sealed class UsersProvider(ILogger<UsersProvider> logger, IConnectionSt
 
     public User GetUserByEmailId(string emailId)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetUserByEmailId));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 

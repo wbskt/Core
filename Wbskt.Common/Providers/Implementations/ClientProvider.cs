@@ -13,6 +13,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     public int AddOrUpdateClientConnection(ClientConnection clientConnection)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(AddOrUpdateClientConnection));
         ArgumentNullException.ThrowIfNull(clientConnection);
 
         using var connection = new SqlConnection(connectionString);
@@ -37,6 +38,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     public ClientConnection GetClientConnectionById(int clientId)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionById));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 
@@ -54,6 +56,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     public void InvalidateToken(int clientId)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(InvalidateToken));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 
@@ -67,6 +70,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     public IReadOnlyCollection<ClientConnection> GetClientConnectionsBySubscriberId(Guid channelSubscriberId)
     {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionsBySubscriberId));
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 

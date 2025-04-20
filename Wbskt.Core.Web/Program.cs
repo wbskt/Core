@@ -15,6 +15,7 @@ public static class Program
 
     public static void Main(string[] args)
     {
+        Environment.SetEnvironmentVariable("LogPath", ProgramDataPath);
         if (!Directory.Exists(ProgramDataPath))
         {
             Directory.CreateDirectory(ProgramDataPath);
@@ -25,8 +26,6 @@ public static class Program
         // Configure Serilog
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(builder.Configuration)
-            .WriteTo.Console()
-            .WriteTo.File(Path.Combine(ProgramDataPath, "CoreLog_.log"), rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
         builder.Host.UseSerilog(Log.Logger);
@@ -40,6 +39,7 @@ public static class Program
         builder.Services.AddSingleton<IClientService, ClientService>();
         builder.Services.AddSingleton<IChannelsService, ChannelsService>();
         builder.Services.AddSingleton<IServerInfoService, ServerInfoService>();
+
         // to avoid cyclic-dependency
         builder.Services.AddSingleton(sp => new Lazy<IServerInfoService>(sp.GetRequiredService<IServerInfoService>));
 
@@ -56,14 +56,16 @@ public static class Program
             .AddClientAuthScheme(builder.Configuration)
             .AddSocketServerAuthScheme(builder.Configuration);
 
+        builder.Services.AddAuthorization();
+
         builder.Services.AddControllers();
 
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-
         app.UseHttpsRedirection();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.Lifetime.ApplicationStopping.Register(Cts.Cancel);
