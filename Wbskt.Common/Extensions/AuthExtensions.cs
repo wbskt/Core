@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -113,10 +114,25 @@ public static class AuthExtensions
         return principal.GetClaim(Constants.Claims.ClientName);
     }
 
+    public static HostString GetSocketServerAddress(this IEnumerable<Claim> claims)
+    {
+        var claim = claims.FirstOrDefault(c => c.Type == Constants.Claims.SocketServer);
+
+        var addrString = claim!.Value.Split('|').Last();
+        return new HostString(addrString);
+    }
+
+    public static Guid GetTokenId(this IEnumerable<Claim> claims)
+    {
+        var claim = claims.FirstOrDefault(c => c.Type == Constants.Claims.TokenId);
+
+        return Guid.Parse(claim!.Value);
+    }
+
     public static int GetSocketServerId(this IPrincipal principal)
     {
         var socketServer = principal.GetClaim(Constants.Claims.SocketServer);
-        return int.Parse(socketServer.Split(':').First());
+        return int.Parse(socketServer.Split('|').First());
     }
 
     private static string GetClaim(this IPrincipal principal, string claimKey)
