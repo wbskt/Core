@@ -31,7 +31,7 @@ public static class Constants
         public const string ChannelSubscriberId = "ChannelSubscriberId";
     }
 
-    public static class ExpiryTimes // in minuets
+    public static class ExpiryTimes // in minutes
     {
         public const int ClientTokenExpiry = 60 * 24; // one day
         public const int ServerTokenExpiry = 60 * 24; // one day
