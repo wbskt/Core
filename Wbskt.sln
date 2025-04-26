@@ -9,6 +9,12 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Wbskt.Database", "Wbskt.Dat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wbskt.Common", "Wbskt.Common\Wbskt.Common.csproj", "{87621CC6-BBC7-45D2-91A9-F85B1BE44354}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{752FD9D7-16D1-498A-AAA7-6718D0117EC8}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Packages.props = Directory.Packages.props
+		nuget.config = nuget.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
