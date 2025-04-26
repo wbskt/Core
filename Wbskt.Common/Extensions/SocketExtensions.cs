@@ -25,6 +25,6 @@ public static class SocketExtensions
     {
         var buffer = new byte[1024 * 4];
         var wsr = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
-        return (wsr, Encoding.UTF8.GetString(buffer).Trim());
+        return (wsr, Encoding.UTF8.GetString(buffer, 0, wsr.Count).Trim());
     }
 }

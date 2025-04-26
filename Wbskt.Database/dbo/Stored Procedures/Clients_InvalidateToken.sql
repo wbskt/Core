@@ -14,6 +14,7 @@ BEGIN
   SET NOCOUNT ON;
 
     UPDATE dbo.Clients
-    SET TokenId = CAST( CAST(0 AS BINARY) AS UNIQUEIDENTIFIER)
+    SET TokenId = CAST( CAST(0 AS BINARY) AS UNIQUEIDENTIFIER),
+        Token = ''
     WHERE Id = @Id
 END;

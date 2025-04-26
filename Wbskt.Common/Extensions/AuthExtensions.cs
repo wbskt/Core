@@ -91,10 +91,10 @@ public static class AuthExtensions
         return int.Parse(claim);
     }
 
-    public static int GetClientId(this IPrincipal principal)
+    public static Guid GetClientId(this IPrincipal principal)
     {
-        var claim = principal.GetClaim(Constants.Claims.ClientId);
-        return int.Parse(claim);
+        var claim = principal.GetClaim(Constants.Claims.ClientUniqueId);
+        return Guid.Parse(claim);
     }
 
     public static Guid GetTokenId(this IPrincipal principal)

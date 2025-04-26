@@ -16,24 +16,62 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
     private readonly IChannelsService channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
     private readonly IServerInfoService serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
 
-    public string AddClientConnection(ClientConnectionRequest request)
+    public string AddClientConnection(ClientConnectionRequest req)
     {
-        var tokenHandler = new JsonWebTokenHandler();
-        var configurationKey = configuration[Constants.JwtKeyNames.ClientServerTokenKey];
-        var tokenId = Guid.NewGuid();
-
-        var connectionData = new ClientConnection
+        // check if this client exists
+        // if yes, check if its token is expired or used.
+        var clientId = clientProvider.FindClientIdByClientUniqueId(req.ClientUniqueId);
+        ClientConnection? conn = null;
+        if (clientId > 0)
         {
-            TokenId = tokenId,
-            ClientName = request.ClientName,
-            ChannelSecret = request.ChannelSecret,
-            ClientUniqueId = request.ClientUniqueId,
-            ChannelSubscriberId = request.ChannelSubscriberId,
+            logger.LogDebug("client with uniqueId: {clientuid}, name: {name}, databaseId: {id}", req.ClientUniqueId, req.ClientName, clientId);
+            var exConn = clientProvider.GetClientConnectionById(clientId);
+            if (!exConn.ClientName.Equals(req.ClientName))
+            {
+                logger.LogWarning("mismatch between the name of the client in the DB({dbName}) and the request({reqName}). (name in the request will be discarded)", exConn.ClientName, req.ClientName);
+            }
+
+            if (exConn.TokenId == default || string.IsNullOrWhiteSpace(exConn.Token))
+            {
+                logger.LogDebug("client token: {tokenId} already used", exConn.TokenId);
+                logger.LogDebug("creating new token for existing client: {clientuid}, name: {name}, databaseId: {id}", req.ClientUniqueId, req.ClientName, clientId);
+                conn = exConn;
+            }
+            else if (req.ChannelSubscriberId != exConn.ChannelSubscriberId)
+            {
+                logger.LogDebug("existing client({name}, {id}) requesting connection to different channel subscription. previous: {prevsid}, current: {currsid}", req.ClientName, clientId, exConn.ChannelSubscriberId, req.ChannelSubscriberId);
+                conn = exConn;
+                conn.ChannelSubscriberId = req.ChannelSubscriberId;
+            }
+            else
+            {
+                // reuse existing token
+                return exConn.Token;
+            }
+        }
+
+        conn ??= new ClientConnection
+        {
+            ClientName = req.ClientName,
+            ChannelSecret = req.ChannelSecret,
+            ClientUniqueId = req.ClientUniqueId,
+            ChannelSubscriberId = req.ChannelSubscriberId,
         };
 
-        var channel = channelsService.GetChannelSubscriberId(request.ChannelSubscriberId);
+        var channel = channelsService.GetChannelSubscriberId(conn.ChannelSubscriberId);
         var server = serverInfoService.GetServerById(channel.ServerId);
-        connectionData.ClientId = clientProvider.AddOrUpdateClientConnection(connectionData);
+        var token = CreateClientToken(conn, server);
+        clientProvider.AddOrUpdateClientConnection(conn);
+
+        logger.LogDebug("token {tokenId} created for client {clientName}-{clientId}", conn.TokenId, conn.ClientName, conn.ClientUniqueId);
+        return token;
+    }
+
+    private string CreateClientToken(ClientConnection conn, ServerInfo server)
+    {
+        var tokenId = Guid.NewGuid();
+        var tokenHandler = new JsonWebTokenHandler();
+        var configurationKey = configuration[Constants.JwtKeyNames.ClientServerTokenKey];
 
         var key = Encoding.UTF8.GetBytes(configurationKey!);
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -41,16 +79,16 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
             Subject = new ClaimsIdentity(new Claim[]
             {
                 new Claim(Constants.Claims.TokenId, tokenId.ToString()),
-                new Claim(Constants.Claims.ChannelSubscriberId, connectionData.ChannelSubscriberId.ToString()),
-                new Claim(Constants.Claims.ClientName, connectionData.ClientName),
-                new Claim(Constants.Claims.ClientId, connectionData.ClientId.ToString()),
+                new Claim(Constants.Claims.ChannelSubscriberId, conn.ChannelSubscriberId.ToString()),
+                new Claim(Constants.Claims.ClientName, conn.ClientName),
+                new Claim(Constants.Claims.ClientUniqueId, conn.ClientUniqueId.ToString()),
                 new Claim(Constants.Claims.SocketServer, $"{server.ServerId}|{server.Address}")
             }),
             Expires = DateTime.UtcNow.AddMinutes(Constants.ExpiryTimes.ClientTokenExpiry),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
         };
 
-        logger.LogDebug("token {tokenId} created for client {clientName}-{clientId}", tokenId, request.ClientName, request.ClientUniqueId);
-        return tokenHandler.CreateToken(tokenDescriptor);
+        conn.TokenId = tokenId;
+        return conn.Token = tokenHandler.CreateToken(tokenDescriptor);
     }
 }

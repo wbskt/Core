@@ -5,5 +5,5 @@ namespace Wbskt.Core.Web.Services;
 
 public interface IClientService
 {
-    string AddClientConnection(ClientConnectionRequest request);
+    string AddClientConnection(ClientConnectionRequest req);
 }

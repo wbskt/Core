@@ -23,6 +23,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         command.CommandType = CommandType.StoredProcedure;
         command.CommandText = "dbo.Clients_Upsert";
 
+        command.Parameters.Add(new SqlParameter("@Token", ProviderExtensions.ReplaceDbNulls(clientConnection.Token)));
         command.Parameters.Add(new SqlParameter("@TokenId", ProviderExtensions.ReplaceDbNulls(clientConnection.TokenId)));
         command.Parameters.Add(new SqlParameter("@ClientName", ProviderExtensions.ReplaceDbNulls(clientConnection.ClientName)));
         command.Parameters.Add(new SqlParameter("@ClientUniqueId", ProviderExtensions.ReplaceDbNulls(clientConnection.ClientUniqueId)));
@@ -52,6 +53,28 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         var mapping = GetColumnMapping(reader);
         reader.Read();
         return ParseData(reader, mapping);
+    }
+
+    public int FindClientIdByClientUniqueId(Guid clientUniqueId)
+    {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionById));
+        using var connection = new SqlConnection(connectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Clients_FindBy_ClientUniqueId";
+
+        command.Parameters.Add(new SqlParameter("@ClientUniqueId", clientUniqueId));
+
+        using var reader = command.ExecuteReader();
+        reader.Read();
+        if (reader.HasRows)
+        {
+            return reader.GetInt32(reader.GetOrdinal("Id"));
+        }
+
+        return -1;
     }
 
     public void InvalidateToken(int clientId)
@@ -93,6 +116,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
     {
         var data = new ClientConnection
         {
+            Token = reader.GetString(mapping.Token),
             TokenId = reader.GetGuid(mapping.TokenId),
             ClientId = reader.GetInt32(mapping.ClientId),
             ClientName = reader.GetString(mapping.ClientName),
@@ -108,6 +132,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
     {
         var mapping = new OrdinalColumnMapping();
 
+        mapping.Token = reader.GetOrdinal("Token");
         mapping.ClientId = reader.GetOrdinal("Id");
         mapping.TokenId = reader.GetOrdinal("TokenId");
         mapping.ClientName = reader.GetOrdinal("ClientName");
@@ -119,6 +144,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     private class OrdinalColumnMapping
     {
+        public int Token;
         public int TokenId;
         public int ClientId;
         public int ClientName;

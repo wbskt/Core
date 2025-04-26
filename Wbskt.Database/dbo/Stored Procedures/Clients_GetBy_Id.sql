@@ -17,8 +17,9 @@ BEGIN
        , ClientName
        , ClientUniqueId
        , TokenId
+       , Token
        , Disabled
        , ChannelSubscriberId
-    FROM dbo.Clients 
+    FROM dbo.Clients
    WHERE Id = @Id
 END;

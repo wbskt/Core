@@ -23,11 +23,11 @@ public static class Constants
         public const string Name = "Name";
         public const string EmailId = "Email";
         public const string TokenId = "TokenId";
-        public const string ClientId = "ClientId";
         public const string UserData = "UserData";
         public const string CoreServer = "CoreServer";
         public const string ClientName = "ClientName";
         public const string SocketServer = "SocketServer";
+        public const string ClientUniqueId = "ClientUniqueId";
         public const string ChannelSubscriberId = "ChannelSubscriberId";
     }
 

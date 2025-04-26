@@ -1,6 +1,7 @@
 ﻿CREATE TABLE [dbo].[Clients] (
     [Id]                  INT               IDENTITY (1, 1) NOT NULL,
     [ClientName]          VARCHAR (100)     NOT NULL,
+    [Token]               VARCHAR (512)     NOT NULL,
     [ClientUniqueId]      UNIQUEIDENTIFIER  NOT NULL,
     [ChannelSubscriberId] UNIQUEIDENTIFIER  NOT NULL,
     [Disabled]            BIT               NOT NULL,

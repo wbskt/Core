@@ -34,4 +34,9 @@ public class ClientConnection : ClientConnectionRequest
     /// ID of the JWT token given to a client. Used mainly for blacklisting tokens
     /// </summary>
     public Guid TokenId { get; set; }
+
+    /// <summary>
+    /// JWT token, saved in the DB to reuse.
+    /// </summary>
+    public string? Token  { get; set; }
 }
