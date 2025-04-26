@@ -4,22 +4,13 @@ using Wbskt.Core.Web.Services;
 
 namespace Wbskt.Core.Web;
 
-public class ServerHealthMonitor
+public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInfoService serverInfoService, IAuthService authService)
 {
-    private Timer timer;
-    private readonly string token;
-    private readonly ILogger<ServerHealthMonitor> logger;
-    private readonly IServerInfoService serverInfoService;
+    private readonly string token = authService.CreateCoreServerToken();
+    private readonly ILogger<ServerHealthMonitor> logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IServerInfoService serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
 
-    public ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInfoService serverInfoService, IAuthService authService)
-    {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
-        token = authService.CreateCoreServerToken();
-        timer = new Timer(Ping, null, 0, 10 * 1000); // 10 seconds
-    }
-
-    private async void Ping(object? state)
+    public async Task CheckHealthAsync(CancellationToken ct)
     {
         var servers = serverInfoService.GetAll();
         var header = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
@@ -36,7 +27,7 @@ public class ServerHealthMonitor
                 HttpResponseMessage? result = null;
                 try
                 {
-                    result = await httpClient.GetAsync("ping");
+                    result = await httpClient.GetAsync("ping", ct);
                 }
                 catch (Exception ex)
                 {
@@ -51,7 +42,7 @@ public class ServerHealthMonitor
                     logger.LogInformation("socket server: {ss} - {active}", server.Address, server.Active);
                     serverInfoService.UpdateServerStatus(server.ServerId, server.Active);
                 }
-            }))
+            }, ct))
             .ToList();
 
         await Task.WhenAll(tasks);

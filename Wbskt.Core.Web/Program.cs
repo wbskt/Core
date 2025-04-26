@@ -10,7 +10,6 @@ namespace Wbskt.Core.Web;
 
 public static class Program
 {
-    private static readonly CancellationTokenSource Cts = new();
     private static readonly string ProgramDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Wbskt");
 
     public static void Main(string[] args)
@@ -30,6 +29,9 @@ public static class Program
 
         builder.Host.UseSerilog(Log.Logger);
 
+        // Add Windows Service hosting
+        builder.Host.UseWindowsService();
+
         // Add services to the container.
         // todo: Add a new implementation that wraps PasswordHasher<User>
         builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -47,6 +49,8 @@ public static class Program
 
         builder.Services.ConfigureCommonServices();
 
+        // Register Background Services
+        builder.Services.AddHostedService<ServerHealthMonitorBackgroundService>();
         builder.Services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = Constants.AuthSchemes.UserScheme;
@@ -67,9 +71,6 @@ public static class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
-
-        app.Lifetime.ApplicationStopping.Register(Cts.Cancel);
-        app.Lifetime.ApplicationStarted.Register(() => app.Services.GetRequiredService<ServerHealthMonitor>());
 
         app.MapControllers();
 
