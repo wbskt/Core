@@ -50,7 +50,6 @@ public class AuthService(ILogger<AuthService> logger, IConfiguration configurati
                 new Claim(Constants.Claims.CoreServer, Guid.NewGuid().ToString())
             }),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
-            Issuer = "wbskt.core",
             Expires = DateTime.Now.AddMinutes(Constants.ExpiryTimes.ServerTokenExpiry)
         };
 
