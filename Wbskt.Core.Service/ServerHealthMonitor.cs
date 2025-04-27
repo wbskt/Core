@@ -1,8 +1,8 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Wbskt.Core.Web.Services;
+using Wbskt.Core.Service.Services;
 
-namespace Wbskt.Core.Web;
+namespace Wbskt.Core.Service;
 
 public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInfoService serverInfoService, IAuthService authService)
 {

@@ -44,7 +44,7 @@
 
     <ComponentGroup Id="ManualServiceComponentGroup">
       <Component Id="WbsktCoreServiceComponent" Guid="4aa39aa8-0199-434b-b27a-123456789123" Directory="WbsktCoreDir">
-        <File Id="WbsktCoreExe" Source="Wbskt.Core.Web.exe" KeyPath="yes" />
+        <File Id="WbsktCoreExe" Source="Wbskt.Core.Service.exe" KeyPath="yes" />
 
         <ServiceInstall
           Id="WbsktCoreService"

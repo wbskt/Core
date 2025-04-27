@@ -5,7 +5,7 @@ using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Providers;
 
-namespace Wbskt.Core.Web.Services.Implementations;
+namespace Wbskt.Core.Service.Services.Implementations;
 
 // todo logical problems.. imagine ss registering in between
 public class ServerInfoService : IServerInfoService

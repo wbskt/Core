@@ -1,7 +1,7 @@
 ﻿using Wbskt.Common;
 using Wbskt.Common.Contracts;
 
-namespace Wbskt.Core.Web.Services;
+namespace Wbskt.Core.Service.Services;
 
 public interface IClientService
 {

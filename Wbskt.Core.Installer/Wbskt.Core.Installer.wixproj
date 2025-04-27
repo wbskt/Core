@@ -4,7 +4,7 @@
     <SuppressIces>ICE30</SuppressIces>
   </PropertyGroup>
   <ItemGroup>
-    <HarvestDirectory Include="../Wbskt.Core.Web/bin/$(Configuration)/net8.0/win-x64/publish">
+    <HarvestDirectory Include="../Wbskt.Core.Service/bin/$(Configuration)/net8.0/win-x64/publish">
       <ComponentGroupName>HarvestedComponentGroup</ComponentGroupName>
       <DirectoryRefId>WbsktCoreDir</DirectoryRefId>
       <HarvestFileMetadata>false</HarvestFileMetadata>
@@ -12,7 +12,7 @@
       <SuppressIIsHarvesting>true</SuppressIIsHarvesting>
       <SuppressRegistryHarvesting>true</SuppressRegistryHarvesting>
     </HarvestDirectory>
-    <BindPath Include="../Wbskt.Core.Web/bin/$(Configuration)/net8.0/win-x64/publish" />
+    <BindPath Include="../Wbskt.Core.Service/bin/$(Configuration)/net8.0/win-x64/publish" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.Heat" />

@@ -1,4 +1,4 @@
-﻿namespace Wbskt.Core.Web.Services;
+﻿namespace Wbskt.Core.Service.Services;
 
 public class UserLoginRequest
 {

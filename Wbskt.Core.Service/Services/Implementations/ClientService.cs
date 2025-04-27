@@ -6,7 +6,7 @@ using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Providers;
 
-namespace Wbskt.Core.Web.Services.Implementations;
+namespace Wbskt.Core.Service.Services.Implementations;
 
 public class ClientService(ILogger<ClientService> logger, IClientProvider clientProvider, IConfiguration configuration, IChannelsService channelsService, IServerInfoService serverInfoService) : IClientService
 {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Wbskt.Common.Contracts;
-using Wbskt.Core.Web.Services;
+using Wbskt.Core.Service.Services;
 
-namespace Wbskt.Core.Web.Controllers;
+namespace Wbskt.Core.Service.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]

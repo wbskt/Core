@@ -3,10 +3,10 @@ using Serilog;
 using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Extensions;
-using Wbskt.Core.Web.Services;
-using Wbskt.Core.Web.Services.Implementations;
+using Wbskt.Core.Service.Services;
+using Wbskt.Core.Service.Services.Implementations;
 
-namespace Wbskt.Core.Web;
+namespace Wbskt.Core.Service;
 
 public static class Program
 {

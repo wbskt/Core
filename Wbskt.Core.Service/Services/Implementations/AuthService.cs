@@ -7,7 +7,7 @@ using System.Text;
 using Wbskt.Common;
 using Wbskt.Common.Contracts;
 
-namespace Wbskt.Core.Web.Services.Implementations;
+namespace Wbskt.Core.Service.Services.Implementations;
 
 public class AuthService(ILogger<AuthService> logger, IConfiguration configuration, IUsersService usersService, IPasswordHasher<User> passwordHasher) : IAuthService
 {

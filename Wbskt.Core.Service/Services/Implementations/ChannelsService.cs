@@ -2,7 +2,7 @@
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Providers;
 
-namespace Wbskt.Core.Web.Services.Implementations;
+namespace Wbskt.Core.Service.Services.Implementations;
 
 public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider channelsProvider, Lazy<IServerInfoService> serverInfoService) : IChannelsService
 {

@@ -1,4 +1,4 @@
-﻿namespace Wbskt.Core.Web;
+﻿namespace Wbskt.Core.Service;
 
 public class ServerHealthMonitorBackgroundService(ServerHealthMonitor monitor, ILogger<ServerHealthMonitorBackgroundService> logger) : BackgroundService
 {

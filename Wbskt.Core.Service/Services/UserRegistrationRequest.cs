@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Wbskt.Core.Web.Services;
+namespace Wbskt.Core.Service.Services;
 
 public class UserRegistrationRequest
 {
