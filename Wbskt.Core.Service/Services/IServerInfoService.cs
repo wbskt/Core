@@ -14,4 +14,6 @@ public interface IServerInfoService
     int GetAvailableServerId();
 
     Task DispatchPayload(Guid publisherId, ClientPayload payload);
+
+    void MapAllChannels();
 }

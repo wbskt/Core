@@ -1,36 +1,24 @@
 ﻿
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
 
 // todo logical problems.. imagine ss registering in between
-public class ServerInfoService : IServerInfoService
+public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoProvider serverInfoProvider, IChannelsService channelsService, IAuthService authService) : IServerInfoService
 {
 
     /// <summary>
     /// Map of each S.S with the list of channels assigned to it.
     /// </summary>
-    private readonly IDictionary<int, List<int>> serverChannelMap;
-    private IDictionary<int, ServerInfo> allServers;
-    private readonly ILogger<ServerInfoService> logger;
-    private readonly IServerInfoProvider serverInfoProvider;
-    private readonly IChannelsService channelsService;
-    private readonly IAuthService authService;
-
-    public ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoProvider serverInfoProvider, IChannelsService channelsService, IAuthService authService)
-    {
-        this.authService = authService ?? throw new ArgumentNullException(nameof(authService));
-        allServers = new Dictionary<int, ServerInfo>();
-        serverChannelMap = new Dictionary<int, List<int>>();
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.serverInfoProvider = serverInfoProvider ?? throw new ArgumentNullException(nameof(serverInfoProvider));
-        this.channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
-        MapAllChannels();
-    }
+    private readonly IDictionary<int, List<int>> serverChannelMap = new Dictionary<int, List<int>>();
+    private IDictionary<int, ServerInfo> allServers = new Dictionary<int, ServerInfo>();
+    private readonly ILogger<ServerInfoService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IServerInfoProvider serverInfoProvider = serverInfoProvider ?? throw new ArgumentNullException(nameof(serverInfoProvider));
+    private readonly IChannelsService channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
+    private readonly IAuthService authService = authService ?? throw new ArgumentNullException(nameof(authService));
 
     public IReadOnlyCollection<ServerInfo> GetAll()
     {
@@ -115,7 +103,7 @@ public class ServerInfoService : IServerInfoService
         }
     }
 
-    private void MapAllChannels()
+    public void MapAllChannels()
     {
         GetAll();
         var channels = channelsService.GetAll();
