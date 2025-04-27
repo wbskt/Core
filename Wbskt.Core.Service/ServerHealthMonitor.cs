@@ -26,7 +26,7 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning("cannot reach server:{baseAddress}, error: {error}", httpClient.BaseAddress, ex.Message);
+                    logger.LogError("cannot reach server:{baseAddress}, error: {error}", httpClient.BaseAddress, ex.Message);
                     logger.LogTrace("cannot reach server:{baseAddress}, error: {error}", httpClient.BaseAddress, ex.ToString());
                 }
 
@@ -36,6 +36,10 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
                     server.Active = result?.IsSuccessStatusCode ?? false;
                     logger.LogInformation("socket server: {ss} - {active}", server.Address, server.Active);
                     serverInfoService.UpdateServerStatus(server.ServerId, server.Active);
+                }
+                else
+                {
+                    logger.LogError("error while receiving response: {error}", result?.ReasonPhrase ?? "exception while requesting (see above log)");
                 }
             }, ct))
             .ToList();
