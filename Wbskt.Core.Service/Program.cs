@@ -23,23 +23,9 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Configure Serilog
-        Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(builder.Configuration)
-            .CreateLogger();
+        Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
 
         builder.Host.UseSerilog(Log.Logger);
-        if (builder.Environment.IsProduction())
-        {
-            builder.WebHost.ConfigureKestrel(options =>
-            {
-                options.ListenAnyIP(80);
-                options.ListenAnyIP(5080);
-                // options.ListenAnyIP(5443, listenOptions =>
-                // {
-                //     listenOptions.UseHttps();
-                // });
-            });
-        }
 
         // Add Windows Service hosting
         builder.Host.UseWindowsService();
@@ -64,10 +50,10 @@ public static class Program
         // Register Background Services
         builder.Services.AddHostedService<ServerHealthMonitorBackgroundService>();
         builder.Services.AddAuthentication(opt =>
-            {
-                opt.DefaultAuthenticateScheme = Constants.AuthSchemes.UserScheme;
-                opt.DefaultChallengeScheme = Constants.AuthSchemes.UserScheme;
-            })
+        {
+            opt.DefaultAuthenticateScheme = Constants.AuthSchemes.UserScheme;
+            opt.DefaultChallengeScheme = Constants.AuthSchemes.UserScheme;
+        })
             .AddUserAuthScheme(builder.Configuration)
             .AddClientAuthScheme(builder.Configuration)
             .AddSocketServerAuthScheme(builder.Configuration);
@@ -79,8 +65,6 @@ public static class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        app.UseHttpsRedirection();
-
         app.UseAuthentication();
         app.UseAuthorization();
 

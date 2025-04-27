@@ -14,16 +14,11 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
     {
         var servers = serverInfoService.GetAll();
         var header = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
-        var handler = new HttpClientHandler()
-        {
-            // todo: only for development
-            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        };
 
         var tasks = servers.Select(server => Task.Run(async () =>
             {
                 logger.LogDebug("checking health of socket server: {ss}", server.Address);
-                var httpClient = new HttpClient(handler) { BaseAddress = new Uri($"https://{server.Address}"), DefaultRequestHeaders = { Authorization = header } };
+                var httpClient = new HttpClient { BaseAddress = new Uri($"http://{server.Address}"), DefaultRequestHeaders = { Authorization = header } };
                 HttpResponseMessage? result = null;
                 try
                 {

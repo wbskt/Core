@@ -1,5 +1,4 @@
-﻿
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Providers;
@@ -122,14 +121,10 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
         var token = authService.CreateCoreServerToken();
         var authHeader = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
         var server = allServers[serverKey];
-        var handler = new HttpClientHandler()
+
+        var httpClient = new HttpClient
         {
-            // todo: only for development
-            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        };
-        var httpClient = new HttpClient(handler)
-        {
-            BaseAddress = new Uri($"https://{server.Address}"),
+            BaseAddress = new Uri($"http://{server.Address}"),
             DefaultRequestHeaders = { Authorization = authHeader}
         };
 
