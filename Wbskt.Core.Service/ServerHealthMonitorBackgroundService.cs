@@ -8,8 +8,16 @@ public class ServerHealthMonitorBackgroundService(ServerHealthMonitor monitor, I
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            await monitor.CheckHealthAsync(stoppingToken);
-            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken); // check every 10 seconds (example)
+            try
+            {
+                await monitor.CheckHealthAsync(stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("error while checking health of socket servers: {error}", ex.Message);
+                logger.LogTrace("error while checking health of socket servers: {error}", ex.ToString());
+            }
         }
 
         logger.LogInformation("Server Health Monitor Background Service is stopping.");

@@ -9,14 +9,13 @@ namespace Wbskt.Common.Providers.Implementations;
 internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnectionStringProvider connectionStringProvider) : IClientProvider
 {
     private readonly ILogger<ClientProvider> logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly string connectionString = connectionStringProvider?.ConnectionString ?? throw new ArgumentNullException(nameof(connectionStringProvider));
 
     public int AddOrUpdateClientConnection(ClientConnection clientConnection)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(AddOrUpdateClientConnection));
         ArgumentNullException.ThrowIfNull(clientConnection);
 
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -40,7 +39,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
     public ClientConnection GetClientConnectionById(int clientId)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionById));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -58,7 +57,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
     public int FindClientIdByClientUniqueId(Guid clientUniqueId)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionById));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -80,7 +79,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
     public void InvalidateToken(int clientId)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(InvalidateToken));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -94,7 +93,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
     public IReadOnlyCollection<ClientConnection> GetClientConnectionsBySubscriberId(Guid channelSubscriberId)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionsBySubscriberId));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();

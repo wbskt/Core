@@ -9,14 +9,13 @@ namespace Wbskt.Common.Providers.Implementations;
 internal sealed class UsersProvider(ILogger<UsersProvider> logger, IConnectionStringProvider connectionStringProvider) : IUsersProvider
 {
     private readonly ILogger<UsersProvider> logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly string connectionString = connectionStringProvider?.ConnectionString ?? throw new ArgumentNullException(nameof(connectionStringProvider));
 
     public int AddUser(User user)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(AddUser));
         ArgumentNullException.ThrowIfNull(user);
 
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -40,7 +39,7 @@ internal sealed class UsersProvider(ILogger<UsersProvider> logger, IConnectionSt
     public User GetUserById(int id)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetUserById));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -58,7 +57,7 @@ internal sealed class UsersProvider(ILogger<UsersProvider> logger, IConnectionSt
     public User GetUserByEmailId(string emailId)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetUserByEmailId));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();

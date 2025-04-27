@@ -5,12 +5,13 @@ namespace Wbskt.Common.Providers.Implementations;
 
 internal sealed class ConnectionStringProvider : IConnectionStringProvider
 {
+    private readonly IConfiguration configuration;
+
     public ConnectionStringProvider(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
-
-        ConnectionString = configuration["ConnectionStrings:Database"]!;
+        this.configuration = configuration;
     }
 
-    public string ConnectionString { get; }
+    public string ConnectionString => configuration["ConnectionStrings:Database"]!;
 }

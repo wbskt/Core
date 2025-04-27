@@ -10,12 +10,11 @@ namespace Wbskt.Common.Providers.Implementations;
 internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, IConnectionStringProvider connectionStringProvider) : IServerInfoProvider
 {
     private readonly ILogger<ServerInfoProvider> logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly string connectionString = connectionStringProvider?.ConnectionString ?? throw new ArgumentNullException(nameof(connectionStringProvider));
 
     public IReadOnlyCollection<ServerInfo> GetAll()
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -36,7 +35,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
         ArgumentNullException.ThrowIfNull(serverInfo);
 
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -58,7 +57,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
     public void UpdateServerStatus(int id, bool active)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();

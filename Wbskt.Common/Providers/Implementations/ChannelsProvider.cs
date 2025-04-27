@@ -9,14 +9,13 @@ namespace Wbskt.Common.Providers.Implementations;
 internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnectionStringProvider connectionStringProvider) : IChannelsProvider
 {
     private readonly ILogger<ChannelsProvider> logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly string connectionString = connectionStringProvider?.ConnectionString ?? throw new ArgumentNullException(nameof(connectionStringProvider));
 
     public int CreateChannel(ChannelDetails channel)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(CreateChannel));
         ArgumentNullException.ThrowIfNull(channel);
 
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -43,7 +42,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
     public void UpdateServerId(int channelId, int serverId)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(UpdateServerId));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -59,7 +58,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
     public IReadOnlyCollection<ChannelDetails> GetChannelsByUser(int userId)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetChannelsByUser));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -80,7 +79,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
     public IReadOnlyCollection<ChannelDetails> GetAll()
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -99,7 +98,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
     public ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetChannelSubscriberId));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
@@ -117,7 +116,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
     public IReadOnlyCollection<ChannelDetails> GetChannelPublisherId(Guid channelPublisherId)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetChannelPublisherId));
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
