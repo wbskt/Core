@@ -28,6 +28,18 @@ public static class Program
             .CreateLogger();
 
         builder.Host.UseSerilog(Log.Logger);
+        if (builder.Environment.IsProduction())
+        {
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ListenAnyIP(80);
+                options.ListenAnyIP(5080);
+                // options.ListenAnyIP(5443, listenOptions =>
+                // {
+                //     listenOptions.UseHttps();
+                // });
+            });
+        }
 
         // Add Windows Service hosting
         builder.Host.UseWindowsService();
