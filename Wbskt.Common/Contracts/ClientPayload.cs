@@ -2,5 +2,5 @@
 
 public class ClientPayload
 {
-    public required string Data { get; set; }
+    public string Data { get; set; } = "default payload";
 }

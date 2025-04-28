@@ -10,10 +10,7 @@ public class HealthController : ControllerBase
     [HttpGet]
     public IActionResult Ping()
     {
-        var test = new ClientPayload()
-        {
-            Data = "Default payload"
-        };
+        var test = new ClientPayload();
         return new JsonResult(test);
     }
 }

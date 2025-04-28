@@ -54,10 +54,7 @@ public class ChannelsController(ILogger<ChannelsController> logger, IChannelsSer
     [Authorize(AuthenticationSchemes = Constants.AuthSchemes.UserScheme)]
     public async Task<IActionResult> Dispatch(Guid publisherId)
     {
-        var payload = new ClientPayload()
-        {
-            Data = "null"
-        };
+        var payload = new ClientPayload();
         return await Dispatch(publisherId, payload);
     }
 
