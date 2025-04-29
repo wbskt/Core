@@ -140,7 +140,6 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
         catch(Exception ex)
         {
             logger.LogWarning("error while request to {url}/dispatch/{publisher}, error: {details}", httpClient.BaseAddress, publisherId, ex.Message);
-            logger.LogTrace("error while request to {url}/dispatch/{publisher}, error: {details}", httpClient.BaseAddress, publisherId, ex.ToString());
         }
     }
 }
