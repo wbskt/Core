@@ -39,7 +39,7 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
                 }
                 else
                 {
-                    logger.LogError("error while receiving response: {error}", result?.ReasonPhrase ?? "exception while requesting (see above log)");
+                    logger.LogDebug("response from:{host} is: {resp}", httpClient.BaseAddress, result?.ReasonPhrase ?? "exception while requesting (see above log)");
                 }
             }, ct))
             .ToList();
