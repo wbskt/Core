@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 using Wbskt.Common;
@@ -26,6 +27,13 @@ public static class Program
         Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
 
         builder.Host.UseSerilog(Log.Logger);
+        builder.WebHost.UseKestrel().ConfigureKestrel((_, options) =>
+        {
+            options.ConfigureHttpsDefaults(httpsOptions =>
+            {
+                httpsOptions.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
+            });
+        });
 
         // Add Windows Service hosting
         builder.Host.UseWindowsService();
@@ -65,6 +73,7 @@ public static class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
+        app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
 
