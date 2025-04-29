@@ -8,7 +8,6 @@ namespace Wbskt.Core.Service.Controllers;
 public class HealthController : ControllerBase
 {
     [HttpGet]
-    [HttpHead]
     public IActionResult Ping()
     {
         var test = new ClientPayload()
