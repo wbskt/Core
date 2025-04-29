@@ -13,7 +13,7 @@ public class HealthController : ControllerBase
     {
         var test = new ClientPayload()
         {
-            Data = "Test"
+            Data = "Default payload"
         };
         return new JsonResult(test);
     }
