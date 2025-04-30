@@ -71,7 +71,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         command.ExecuteNonQuery();
     }
 
-    public void UpdateServerStatus(int id, string publicDomainName)
+    public void UpdatePublicDomainName(int id, string publicDomainName)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
