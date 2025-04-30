@@ -111,7 +111,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         return result;
     }
 
-    private static ClientConnection ParseData(IDataRecord reader, OrdinalColumnMapping mapping)
+    private static ClientConnection ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)
     {
         var data = new ClientConnection
         {
@@ -127,7 +127,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         return data;
     }
 
-    private static OrdinalColumnMapping GetColumnMapping(IDataRecord reader)
+    private static OrdinalColumnMapping GetColumnMapping(SqlDataReader reader)
     {
         var mapping = new OrdinalColumnMapping();
 

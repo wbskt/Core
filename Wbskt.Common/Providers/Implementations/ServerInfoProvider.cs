@@ -71,7 +71,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         command.ExecuteNonQuery();
     }
 
-    private static ServerInfo ParseData(IDataRecord reader, OrdinalColumnMapping mapping)
+    private static ServerInfo ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)
     {
         var address = new HostString(reader.GetString(mapping.IPAddress), reader.GetInt32(mapping.Port));
         var data = new ServerInfo
@@ -84,7 +84,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         return data;
     }
 
-    private static OrdinalColumnMapping GetColumnMapping(IDataRecord reader)
+    private static OrdinalColumnMapping GetColumnMapping(SqlDataReader reader)
     {
         var mapping = new OrdinalColumnMapping();
 

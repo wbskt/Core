@@ -134,7 +134,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         return result;
     }
 
-    private static ChannelDetails ParseData(IDataRecord reader, OrdinalColumnMapping mapping)
+    private static ChannelDetails ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)
     {
         var data = new ChannelDetails
         {
@@ -151,7 +151,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         return data;
     }
 
-    private static OrdinalColumnMapping GetColumnMapping(IDataRecord reader)
+    private static OrdinalColumnMapping GetColumnMapping(SqlDataReader reader)
     {
         var mapping = new OrdinalColumnMapping();
 

@@ -72,7 +72,7 @@ internal sealed class UsersProvider(ILogger<UsersProvider> logger, IConnectionSt
         return ParseData(reader, mapping);
     }
 
-    private static User ParseData(IDataRecord reader, OrdinalColumnMapping mapping)
+    private static User ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)
     {
         var data = new User
         {
@@ -86,7 +86,7 @@ internal sealed class UsersProvider(ILogger<UsersProvider> logger, IConnectionSt
         return data;
     }
 
-    private static OrdinalColumnMapping GetColumnMapping(IDataRecord reader)
+    private static OrdinalColumnMapping GetColumnMapping(SqlDataReader reader)
     {
         var mapping = new OrdinalColumnMapping();
 
