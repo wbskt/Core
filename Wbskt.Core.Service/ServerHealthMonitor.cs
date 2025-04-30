@@ -17,8 +17,9 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
 
         var tasks = servers.Select(server => Task.Run(async () =>
             {
-                logger.LogDebug("checking health of socket server: {ss}", server.Address);
-                var httpClient = new HttpClient { BaseAddress = new Uri($"http://{server.Address}"), DefaultRequestHeaders = { Authorization = header } };
+                var serverAddress = string.IsNullOrWhiteSpace(server.PublicDomainName) ? server.Address.ToString() : server.PublicDomainName;
+                logger.LogDebug("checking health of socket server: {ss}", serverAddress);
+                var httpClient = new HttpClient { BaseAddress = new Uri($"http://{serverAddress}"), DefaultRequestHeaders = { Authorization = header } };
                 HttpResponseMessage? result = null;
                 try
                 {
@@ -33,7 +34,7 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
                 if ((result?.IsSuccessStatusCode ?? false) != server.Active)
                 {
                     server.Active = result?.IsSuccessStatusCode ?? false;
-                    logger.LogInformation("socket server: {ss} - {active}", server.Address, server.Active);
+                    logger.LogInformation("socket server: {ss} - {active}", serverAddress, server.Active);
                     serverInfoService.UpdateServerStatus(server.ServerId, server.Active);
                 }
                 else
