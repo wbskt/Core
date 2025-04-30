@@ -12,7 +12,8 @@ BEGIN
 
   SELECT Id
        , IPAddress
+       , PublicDomainName
        , Port
        , Active
-    FROM dbo.Servers 
+    FROM dbo.Servers
 END;

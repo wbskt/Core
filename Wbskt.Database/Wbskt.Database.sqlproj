@@ -60,6 +60,7 @@
     <Folder Include="Properties" />
     <Folder Include="dbo\" />
     <Folder Include="dbo\Tables\" />
+    <Folder Include="dbo\Stored Procedures\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Stored Procedures\Channels_GetBy_ChannelSubscriberId.sql" />
@@ -88,5 +89,6 @@
     <Build Include="dbo\Stored Procedures\Servers_GetAll.sql" />
     <Build Include="dbo\Stored Procedures\Servers_UpdateStatus.sql" />
     <Build Include="dbo\Stored Procedures\Servers_Insert.sql" />
+    <Build Include="dbo\Stored Procedures\Servers_UpdatePublicDomainName.sql" />
   </ItemGroup>
 </Project>

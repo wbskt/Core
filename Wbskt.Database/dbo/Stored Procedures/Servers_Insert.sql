@@ -9,6 +9,7 @@ CREATE PROCEDURE dbo.Servers_Insert
 (
   @Id			        INT OUTPUT
 , @IPAddress	        VARCHAR(100)
+, @PublicDomainName     VARCHAR(100)
 , @Port		            INT
 , @Active               BIT
 )
@@ -18,11 +19,13 @@ BEGIN
 
     INSERT INTO dbo.Servers
     ( IPAddress
+    , PublicDomainName
     , Port
     , Active
     )
     VALUES
         ( @IPAddress
+        , @PublicDomainName
         , @Port
         , @Active
         );

@@ -45,6 +45,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         command.Parameters.Add(new SqlParameter("@Port", ProviderExtensions.ReplaceDbNulls(serverInfo.Address.Port)));
         command.Parameters.Add(new SqlParameter("@Active", ProviderExtensions.ReplaceDbNulls(serverInfo.Active)));
         command.Parameters.Add(new SqlParameter("@IPAddress", ProviderExtensions.ReplaceDbNulls(serverInfo.Address.Host)));
+        command.Parameters.Add(new SqlParameter("@PublicDomainName", ProviderExtensions.ReplaceDbNulls(serverInfo.PublicDomainName)));
 
         var id = new SqlParameter("@Id", SqlDbType.Int) { Size = int.MaxValue };
         id.Direction = ParameterDirection.Output;
@@ -67,7 +68,22 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         command.Parameters.Add(new SqlParameter("@Id", id));
         command.Parameters.Add(new SqlParameter("@Active", active));
 
-        var result = new List<ServerInfo>();
+        command.ExecuteNonQuery();
+    }
+
+    public void UpdateServerStatus(int id, string publicDomainName)
+    {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Servers_UpdatePublicDomainName";
+
+        command.Parameters.Add(new SqlParameter("@Id", id));
+        command.Parameters.Add(new SqlParameter("@PublicDomainName", publicDomainName));
+
         command.ExecuteNonQuery();
     }
 
@@ -78,7 +94,8 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         {
             Active = reader.GetBoolean(mapping.Active),
             Address = address,
-            ServerId = reader.GetInt32(mapping.ServerId)
+            ServerId = reader.GetInt32(mapping.ServerId),
+            PublicDomainName = reader.GetString(mapping.PublicDomainName)
         };
 
         return data;
@@ -92,6 +109,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         mapping.Active = reader.GetOrdinal("Active");
         mapping.ServerId = reader.GetOrdinal("Id");
         mapping.IPAddress = reader.GetOrdinal("IPAddress");
+        mapping.PublicDomainName = reader.GetOrdinal("PublicDomainName");
 
         return mapping;
     }
@@ -102,5 +120,6 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         public int Active;
         public int ServerId;
         public int IPAddress;
+        public int PublicDomainName;
     }
 }

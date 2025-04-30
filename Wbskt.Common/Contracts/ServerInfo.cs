@@ -9,4 +9,6 @@ public class ServerInfo
     public HostString Address { get; set; }
 
     public bool Active { get; set; }
+
+    public string PublicDomainName  { get; set; } = string.Empty;
 }
