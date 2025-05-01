@@ -24,19 +24,15 @@ namespace Wbskt.Common.Providers.Cache
 
         public IReadOnlyCollection<ServerInfo> GetAllServerInfo()
         {
-            if (ServerType == Constants.ServerType.SocketServer)
-            {
-                logger.LogError("socket server cannot perform this operation: {operationName}", nameof(GetAllServerInfo));
-                return [];
-            }
-
             lock (_lock)
             {
-                if (serverInfos.Count == 0)
+                if (serverInfos.Count != 0)
                 {
-                    var records = serverInfoProvider.GetAllServerInfo();
-                    serverInfos.AddRange(records);
+                    return [.. serverInfos]; // return a copy to prevent external mutation
                 }
+
+                var records = serverInfoProvider.GetAllServerInfo();
+                serverInfos.AddRange(records);
 
                 return [.. serverInfos]; // return a copy to prevent external mutation
             }

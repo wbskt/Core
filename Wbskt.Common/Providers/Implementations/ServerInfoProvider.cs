@@ -13,7 +13,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 
     public IReadOnlyCollection<ServerInfo> GetAllServerInfo()
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetAllServerInfo));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAllServerInfo));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -32,7 +32,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 
     public int RegisterServer(ServerInfo serverInfo)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetAllServerInfo));
+        logger.LogTrace("DB operation: {functionName}", nameof(RegisterServer));
         ArgumentNullException.ThrowIfNull(serverInfo);
 
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
@@ -57,7 +57,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 
     public void UpdateServerStatus(int id, bool active)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetAllServerInfo));
+        logger.LogTrace("DB operation: {functionName}", nameof(UpdateServerStatus));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -73,7 +73,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 
     public void UpdatePublicDomainName(int id, string publicDomainName)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetAllServerInfo));
+        logger.LogTrace("DB operation: {functionName}", nameof(UpdatePublicDomainName));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -92,7 +92,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         try
         {
             using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-            using var command = new SqlCommand("SELECT PublicDomainName, Active FROM dbo.ServerInfo", connection); // listen to changes in this output
+            using var command = new SqlCommand("SELECT PublicDomainName, Active FROM dbo.Servers", connection); // listen to changes in this output
 
             var dependency = new SqlDependency(command);
             dependency.OnChange += onDatabaseChange;

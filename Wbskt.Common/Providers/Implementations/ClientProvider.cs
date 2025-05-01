@@ -12,7 +12,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     public int AddOrUpdateClientConnection(ClientConnection clientConnection)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(AddOrUpdateClientConnection));
+        logger.LogTrace("DB operation: {functionName}", nameof(AddOrUpdateClientConnection));
         ArgumentNullException.ThrowIfNull(clientConnection);
 
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
@@ -38,7 +38,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     public ClientConnection GetClientConnectionById(int clientId)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionById));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetClientConnectionById));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -56,7 +56,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     public IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(int[] clientIds)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionsByIds));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetClientConnectionsByIds));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -81,7 +81,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     public int FindClientIdByClientUniqueId(Guid clientUniqueId)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionById));
+        logger.LogTrace("DB operation: {functionName}", nameof(FindClientIdByClientUniqueId));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -103,7 +103,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     public void InvalidateToken(int clientId)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(InvalidateToken));
+        logger.LogTrace("DB operation: {functionName}", nameof(InvalidateToken));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -117,7 +117,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 
     public IReadOnlyCollection<ClientConnection> GetClientConnectionsBySubscriberId(Guid channelSubscriberId)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionsBySubscriberId));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetClientConnectionsBySubscriberId));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 

@@ -12,7 +12,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public int CreateChannel(ChannelDetails channel)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(CreateChannel));
+        logger.LogTrace("DB operation: {functionName}", nameof(CreateChannel));
         ArgumentNullException.ThrowIfNull(channel);
 
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
@@ -41,7 +41,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public void UpdateServerIds((int Id, int ServerId)[] updates)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(UpdateServerIds));
+        logger.LogTrace("DB operation: {functionName}", nameof(UpdateServerIds));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -58,7 +58,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public IReadOnlyCollection<ChannelDetails> GetChannelsByUser(int userId)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetChannelsByUser));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetChannelsByUser));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -79,7 +79,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public IReadOnlyCollection<ChannelDetails> GetAll()
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAll));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -98,7 +98,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public ChannelDetails GetChannelBySubscriberId(Guid channelSubscriberId)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetChannelBySubscriberId));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetChannelBySubscriberId));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -116,7 +116,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
     public IReadOnlyCollection<ChannelDetails> GetChannelByPublisherId(Guid channelPublisherId)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetChannelByPublisherId));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetChannelByPublisherId));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 

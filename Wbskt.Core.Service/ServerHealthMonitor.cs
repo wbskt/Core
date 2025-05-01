@@ -18,7 +18,7 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
         var tasks = servers.Select(server => Task.Run(async () =>
         {
             var serverAddress = string.IsNullOrWhiteSpace(server.PublicDomainName) ? server.Address.ToString() : server.PublicDomainName;
-            logger.LogDebug("checking health of socket server: {ss}", serverAddress);
+            logger.LogTrace("checking health of socket server: {ss}", serverAddress);
             var httpClient = new HttpClient { BaseAddress = new Uri($"http://{serverAddress}"), DefaultRequestHeaders = { Authorization = header } };
             HttpResponseMessage? result = null;
             try
@@ -39,7 +39,7 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
             }
             else
             {
-                logger.LogDebug("response from:{host} is: {resp}", httpClient.BaseAddress, result?.ReasonPhrase ?? "exception while requesting (see above log)");
+                logger.LogTrace("response from:{host} is: {resp}", httpClient.BaseAddress, result?.ReasonPhrase ?? "exception while requesting (see above log)");
             }
         }, ct))
         .ToList();
