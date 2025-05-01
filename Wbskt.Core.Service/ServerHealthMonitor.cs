@@ -16,33 +16,33 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
         var header = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
 
         var tasks = servers.Select(server => Task.Run(async () =>
+        {
+            var serverAddress = string.IsNullOrWhiteSpace(server.PublicDomainName) ? server.Address.ToString() : server.PublicDomainName;
+            logger.LogDebug("checking health of socket server: {ss}", serverAddress);
+            var httpClient = new HttpClient { BaseAddress = new Uri($"http://{serverAddress}"), DefaultRequestHeaders = { Authorization = header } };
+            HttpResponseMessage? result = null;
+            try
             {
-                var serverAddress = string.IsNullOrWhiteSpace(server.PublicDomainName) ? server.Address.ToString() : server.PublicDomainName;
-                logger.LogDebug("checking health of socket server: {ss}", serverAddress);
-                var httpClient = new HttpClient { BaseAddress = new Uri($"http://{serverAddress}"), DefaultRequestHeaders = { Authorization = header } };
-                HttpResponseMessage? result = null;
-                try
-                {
-                    result = await httpClient.GetAsync("ping", ct);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "cannot reach server:{baseAddress}, error: {error}", httpClient.BaseAddress, ex.Message);
-                }
+                result = await httpClient.GetAsync("ping", ct);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "cannot reach server:{baseAddress}, error: {error}", httpClient.BaseAddress, ex.Message);
+            }
 
-                // only update if the status changed i.e. Active or NotActive
-                if ((result?.IsSuccessStatusCode ?? false) != server.Active)
-                {
-                    server.Active = result?.IsSuccessStatusCode ?? false;
-                    logger.LogInformation("socket server: {ss} - {active}", serverAddress, server.Active);
-                    serverInfoService.UpdateServerStatus(server.ServerId, server.Active);
-                }
-                else
-                {
-                    logger.LogDebug("response from:{host} is: {resp}", httpClient.BaseAddress, result?.ReasonPhrase ?? "exception while requesting (see above log)");
-                }
-            }, ct))
-            .ToList();
+            // only update if the status changed i.e. Active or NotActive
+            if ((result?.IsSuccessStatusCode ?? false) != server.Active)
+            {
+                server.Active = result?.IsSuccessStatusCode ?? false;
+                logger.LogInformation("socket server: {ss} - {active}", serverAddress, server.Active);
+                serverInfoService.UpdateServerStatus(server.ServerId, server.Active);
+            }
+            else
+            {
+                logger.LogDebug("response from:{host} is: {resp}", httpClient.BaseAddress, result?.ReasonPhrase ?? "exception while requesting (see above log)");
+            }
+        }, ct))
+        .ToList();
 
         await Task.WhenAll(tasks);
     }
