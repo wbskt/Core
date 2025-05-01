@@ -14,5 +14,5 @@ public interface IClientProvider
 
     void InvalidateToken(int clientId);
 
-    IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(IEnumerable<int> clientIds);
+    IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(int[] clientIds);
 }

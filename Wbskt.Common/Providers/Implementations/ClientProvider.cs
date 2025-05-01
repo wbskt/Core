@@ -54,7 +54,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         return ParseData(reader, mapping);
     }
 
-    public IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(IEnumerable<int> clientIds)
+    public IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(int[] clientIds)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionsByIds));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);

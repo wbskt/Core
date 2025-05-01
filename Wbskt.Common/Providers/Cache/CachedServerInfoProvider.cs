@@ -12,14 +12,14 @@ namespace Wbskt.Common.Providers.Cache
         private readonly List<ServerInfo> serverInfos = [];
         private readonly object _lock = new();
         private readonly ILogger<CachedServerInfoProvider> logger;
-        private readonly IServerInfoProvider serverInfoProvider;
+        private readonly ServerInfoProvider serverInfoProvider;
 
-        public CachedServerInfoProvider(ILogger<CachedServerInfoProvider> logger, IServerInfoProvider serverInfoProvider)
+        public CachedServerInfoProvider(ILogger<CachedServerInfoProvider> logger, ServerInfoProvider serverInfoProvider)
         {
             this.logger = logger;
             this.serverInfoProvider = serverInfoProvider;
 
-            ((ServerInfoProvider)serverInfoProvider).RegisterSqlDependency(OnDatabaseChange);
+            serverInfoProvider.RegisterSqlDependency(OnDatabaseChange);
         }
 
         public IReadOnlyCollection<ServerInfo> GetAllServerInfo()
@@ -67,7 +67,15 @@ namespace Wbskt.Common.Providers.Cache
                 return;
             }
 
-            throw new NotImplementedException();
+            serverInfoProvider.UpdatePublicDomainName(id, publicDomainName);
+            lock (_lock)
+            {
+                var info = serverInfos.FirstOrDefault(s => s.ServerId == id);
+                if (info != null)
+                {
+                    info.PublicDomainName = publicDomainName;
+                }
+            }
         }
 
         public void UpdateServerStatus(int id, bool active)
@@ -90,7 +98,7 @@ namespace Wbskt.Common.Providers.Cache
             }
         }
 
-        public void RefreshCache()
+        private void RefreshCache()
         {
             var records = serverInfoProvider.GetAllServerInfo();
             lock (_lock)
@@ -105,7 +113,7 @@ namespace Wbskt.Common.Providers.Cache
             logger.LogInformation("database change detected: {Info}", e.Info);
 
             RefreshCache();
-            ((ServerInfoProvider)serverInfoProvider).RegisterSqlDependency(OnDatabaseChange); // re-register after change
+            serverInfoProvider.RegisterSqlDependency(OnDatabaseChange); // re-register after change
         }
     }
 }

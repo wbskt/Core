@@ -10,16 +10,16 @@ namespace Wbskt.Common.Providers.Cache
         private static readonly string ServerType = Environment.GetEnvironmentVariable(nameof(ServerType)) ?? Constants.ServerType.CoreServer;
 
         private readonly List<ChannelDetails> channels = [];
-        private readonly object _lock = new();
+        private readonly object @lock = new();
         private readonly ILogger<CachedChannelsProvider> logger;
-        private readonly IChannelsProvider channelsProvider;
+        private readonly ChannelsProvider channelsProvider;
 
-        public CachedChannelsProvider(ILogger<CachedChannelsProvider> logger, IChannelsProvider channelsProvider)
+        public CachedChannelsProvider(ILogger<CachedChannelsProvider> logger, ChannelsProvider channelsProvider)
         {
             this.logger = logger;
             this.channelsProvider = channelsProvider;
 
-            ((ChannelsProvider)channelsProvider).RegisterSqlDependency(OnDatabaseChange);
+            channelsProvider.RegisterSqlDependency(OnDatabaseChange);
         }
 
         public int CreateChannel(ChannelDetails channel)
@@ -31,12 +31,14 @@ namespace Wbskt.Common.Providers.Cache
             }
 
             var id = channelsProvider.CreateChannel(channel);
-            if (id > 0)
+            if (id <= 0)
             {
-                lock (_lock)
-                {
-                    channels.Add(channel);
-                }
+                return id;
+            }
+
+            lock (@lock)
+            {
+                channels.Add(channel);
             }
             return id;
         }
@@ -49,13 +51,15 @@ namespace Wbskt.Common.Providers.Cache
                 return [];
             }
 
-            lock (_lock)
+            lock (@lock)
             {
-                if (channels.Count == 0)
+                if (channels.Count != 0)
                 {
-                    var records = channelsProvider.GetAll();
-                    channels.AddRange(records);
+                    return [.. channels]; // return a copy to prevent external mutation
                 }
+
+                var records = channelsProvider.GetAll();
+                channels.AddRange(records);
 
                 return [.. channels]; // return a copy to prevent external mutation
             }
@@ -76,7 +80,7 @@ namespace Wbskt.Common.Providers.Cache
             return channels.FirstOrDefault(c => c.ChannelSubscriberId == channelSubscriberId) ?? throw new InvalidOperationException();
         }
 
-        public void UpdateServerIds(IEnumerable<(int Id, int ServerId)> updates)
+        public void UpdateServerIds((int Id, int ServerId)[] updates)
         {
             if (ServerType != Constants.ServerType.CoreServer)
             {
@@ -87,7 +91,7 @@ namespace Wbskt.Common.Providers.Cache
             var dict = updates.ToDictionary(u => u.Id, u => u.ServerId);
             foreach (var channel in channels)
             {
-                if (dict.TryGetValue(channel.ChannelId, out int value))
+                if (dict.TryGetValue(channel.ChannelId, out var value))
                 {
                     channel.ServerId = value;
                 }
@@ -96,10 +100,10 @@ namespace Wbskt.Common.Providers.Cache
             channelsProvider.UpdateServerIds(updates);
         }
 
-        public void RefreshCache()
+        private void RefreshCache()
         {
             var records = channelsProvider.GetAll();
-            lock (_lock)
+            lock (@lock)
             {
                 channels.Clear();
                 channels.AddRange(records);
@@ -111,7 +115,7 @@ namespace Wbskt.Common.Providers.Cache
             logger.LogInformation("database change detected: {Info}", e.Info);
 
             RefreshCache();
-            ((ChannelsProvider)channelsProvider).RegisterSqlDependency(OnDatabaseChange); // re-register after change
+            channelsProvider.RegisterSqlDependency(OnDatabaseChange); // re-register after change
         }
     }
 }

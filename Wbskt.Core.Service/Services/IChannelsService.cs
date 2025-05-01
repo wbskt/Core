@@ -16,5 +16,5 @@ public interface IChannelsService
 
     bool VerifyChannel(Guid requestChannelSubscriberId, string requestChannelSecret);
 
-    void UpdateServerIds(IEnumerable<(int Id, int ServerId)> updates);
+    void UpdateServerIds((int Id, int ServerId)[] updates);
 }

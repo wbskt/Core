@@ -49,7 +49,7 @@ public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider 
         return GetChannelSubscriberId(channelSubscriberId).ChannelSecret.Equals(channelSecret);
     }
 
-    public void UpdateServerIds(IEnumerable<(int Id, int ServerId)> updates)
+    public void UpdateServerIds((int Id, int ServerId)[] updates)
     {
         channelsProvider.UpdateServerIds(updates);
     }

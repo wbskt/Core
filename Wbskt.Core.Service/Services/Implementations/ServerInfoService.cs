@@ -100,7 +100,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
                 availableServerChannel.Value.Add(channelId);
                 updates.Add((channelId, availableServerChannel.Key));
             }
-            channelsService.UpdateServerIds(updates);
+            channelsService.UpdateServerIds(updates.ToArray());
         }
     }
 

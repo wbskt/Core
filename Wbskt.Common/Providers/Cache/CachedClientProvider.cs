@@ -1,17 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Data.SqlClient;
-using Wbskt.Common.Contracts;
+﻿using Wbskt.Common.Contracts;
+using Wbskt.Common.Providers.Implementations;
 
 namespace Wbskt.Common.Providers.Cache
 {
-    internal sealed class CachedClientProvider(ILogger<CachedClientProvider> logger, IClientProvider clientProvider) : IClientProvider
+    internal sealed class CachedClientProvider(ClientProvider clientProvider) : IClientProvider
     {
-        private static readonly string ServerType = Environment.GetEnvironmentVariable(nameof(ServerType)) ?? Constants.ServerType.CoreServer;
-
-        private readonly List<ClientConnection> channels = [];
-        private readonly object _lock = new();
-
-        // ((ClientProvider)clientProvider).RegisterSqlDependency(OnDatabaseChange);
+        // clientProvider.RegisterSqlDependency(OnDatabaseChange);
 
         public int AddOrUpdateClientConnection(ClientConnection clientConnection)
         {
@@ -38,17 +32,17 @@ namespace Wbskt.Common.Providers.Cache
             clientProvider.InvalidateToken(clientId);
         }
 
-        public IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(IEnumerable<int> clientIds)
+        public IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(int[] clientIds)
         {
             return clientProvider.GetClientConnectionsByIds(clientIds);
         }
 
-        private void OnDatabaseChange(object sender, SqlNotificationEventArgs e)
-        {
-            logger.LogInformation("database change detected: {Info}", e.Info);
-
-            // RefreshCache();
-            // ((ClientProvider)clientProvider).RegisterSqlDependency(OnDatabaseChange); // re-register after change
-        }
+        // private void OnDatabaseChange(object sender, SqlNotificationEventArgs e)
+        // {
+        //     logger.LogInformation("database change detected: {Info}", e.Info);
+        //
+        //     // RefreshCache();
+        //     // clientProvider.RegisterSqlDependency(OnDatabaseChange); // re-register after change
+        // }
     }
 }

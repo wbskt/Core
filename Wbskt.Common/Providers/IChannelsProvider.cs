@@ -6,7 +6,7 @@ public interface IChannelsProvider
 {
     int CreateChannel(ChannelDetails channel);
 
-    void UpdateServerIds(IEnumerable<(int Id, int ServerId)> updates);
+    void UpdateServerIds((int Id, int ServerId)[] updates);
 
     IReadOnlyCollection<ChannelDetails> GetAll();
 

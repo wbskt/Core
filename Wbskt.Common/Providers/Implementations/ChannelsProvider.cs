@@ -39,7 +39,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         return channel.ChannelId = (int)(ProviderExtensions.ReplaceDbNulls(id.Value) ?? 0);
     }
 
-    public void UpdateServerIds(IEnumerable<(int Id, int ServerId)> updates)
+    public void UpdateServerIds((int Id, int ServerId)[] updates)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(UpdateServerIds));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
