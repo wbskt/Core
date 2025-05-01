@@ -22,7 +22,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
     public IReadOnlyCollection<ServerInfo> GetAll()
     {
         // gets all servers from DB
-        var servers = serverInfoProvider.GetAll();
+        var servers = serverInfoProvider.GetAllServerInfo();
         var existingServersIds = allServers.Keys.ToList();
         allServers = servers.ToDictionary(s => s.ServerId, s => s);
 
@@ -85,6 +85,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
             logger.LogInformation("re-balancing socket-server:channel (server-{serverId} is inactive)", id);
             // gets the channels of the inactive server
             var channelsIds = serverChannelMap[id];
+            var updates = new List<(int, int)>();
             foreach (var channelId in channelsIds)
             {
                 // distribute the channels of the offline server to other online server
@@ -96,9 +97,10 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
                 }
 
                 var availableServerChannel = activeServers.MinBy(kv => kv.Value.Count);
-                channelsService.UpdateServerId(channelId, availableServerChannel.Key);
                 availableServerChannel.Value.Add(channelId);
+                updates.Add((channelId, availableServerChannel.Key));
             }
+            channelsService.UpdateServerIds(updates);
         }
     }
 

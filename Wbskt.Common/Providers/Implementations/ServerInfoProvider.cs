@@ -11,9 +11,9 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 {
     private readonly ILogger<ServerInfoProvider> logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public IReadOnlyCollection<ServerInfo> GetAll()
+    public IReadOnlyCollection<ServerInfo> GetAllServerInfo()
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
+        logger.LogDebug("DB operation: {functionName}", nameof(GetAllServerInfo));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -32,7 +32,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 
     public int RegisterServer(ServerInfo serverInfo)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
+        logger.LogDebug("DB operation: {functionName}", nameof(GetAllServerInfo));
         ArgumentNullException.ThrowIfNull(serverInfo);
 
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
@@ -57,7 +57,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 
     public void UpdateServerStatus(int id, bool active)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
+        logger.LogDebug("DB operation: {functionName}", nameof(GetAllServerInfo));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -73,7 +73,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 
     public void UpdatePublicDomainName(int id, string publicDomainName)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetAll));
+        logger.LogDebug("DB operation: {functionName}", nameof(GetAllServerInfo));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -85,6 +85,25 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         command.Parameters.Add(new SqlParameter("@PublicDomainName", publicDomainName));
 
         command.ExecuteNonQuery();
+    }
+
+    internal void RegisterSqlDependency(OnChangeEventHandler onDatabaseChange)
+    {
+        try
+        {
+            using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+            using var command = new SqlCommand("SELECT PublicDomainName, Active FROM dbo.ServerInfo", connection); // listen to changes in this output
+
+            var dependency = new SqlDependency(command);
+            dependency.OnChange += onDatabaseChange;
+
+            connection.Open();
+            using var reader = command.ExecuteReader(); // must execute to register dependency
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "failed to register SQL dependency.");
+        }
     }
 
     private static ServerInfo ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)

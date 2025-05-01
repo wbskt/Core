@@ -38,14 +38,12 @@ public class ChannelsController(ILogger<ChannelsController> logger, IChannelsSer
     [AllowAnonymous]
     public IActionResult SubscribeToChannel(ClientConnectionRequest request)
     {
-        // todo: cache this channel in the channel service.
         if (!channelsService.VerifyChannel(request.ChannelSubscriberId, request.ChannelSecret))
         {
             logger.LogWarning("channel secret does not match the subscriptionId {channelSubscriberId}", request.ChannelSubscriberId);
             return Forbid("unauthorized");
         }
 
-        // TODO: reuse the token if client did not use the previous token. (socket conn failure)
         string clientToken = clientService.AddClientConnection(request);
         return Ok(clientToken);
     }

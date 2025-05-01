@@ -39,18 +39,19 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         return channel.ChannelId = (int)(ProviderExtensions.ReplaceDbNulls(id.Value) ?? 0);
     }
 
-    public void UpdateServerId(int channelId, int serverId)
+    public void UpdateServerIds(IEnumerable<(int Id, int ServerId)> updates)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(UpdateServerId));
+        logger.LogDebug("DB operation: {functionName}", nameof(UpdateServerIds));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Channels_ServerId_UpdateBy_Id";
+        command.CommandText = "dbo.Channels_ServerId_UpdateMultiple";
 
-        command.Parameters.Add(new SqlParameter("@Id", ProviderExtensions.ReplaceDbNulls(channelId)));
-        command.Parameters.Add(new SqlParameter("@ServerId", ProviderExtensions.ReplaceDbNulls(serverId)));
+        var param = command.Parameters.AddWithValue("@Updates", updates.ToDataTable());
+        param.SqlDbType = SqlDbType.Structured;
+        param.TypeName = "dbo.IdServerIdTableType";
 
         command.ExecuteNonQuery();
     }
@@ -95,9 +96,9 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         return result;
     }
 
-    public ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId)
+    public ChannelDetails GetChannelBySubscriberId(Guid channelSubscriberId)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetChannelSubscriberId));
+        logger.LogDebug("DB operation: {functionName}", nameof(GetChannelBySubscriberId));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -113,9 +114,9 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         return ParseData(reader, mapping);
     }
 
-    public IReadOnlyCollection<ChannelDetails> GetChannelPublisherId(Guid channelPublisherId)
+    public IReadOnlyCollection<ChannelDetails> GetChannelByPublisherId(Guid channelPublisherId)
     {
-        logger.LogDebug("DB operation: {functionName}", nameof(GetChannelPublisherId));
+        logger.LogDebug("DB operation: {functionName}", nameof(GetChannelByPublisherId));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -132,6 +133,25 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         while (reader.Read()) result.Add(ParseData(reader, mapping));
 
         return result;
+    }
+
+    internal void RegisterSqlDependency(OnChangeEventHandler onDatabaseChange)
+    {
+        try
+        {
+            using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+            using var command = new SqlCommand("SELECT Id FROM dbo.Channels", connection); // listen to changes in this output
+
+            var dependency = new SqlDependency(command);
+            dependency.OnChange += onDatabaseChange;
+
+            connection.Open();
+            using var reader = command.ExecuteReader(); // must execute to register dependency
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "failed to register SQL dependency.");
+        }
     }
 
     private static ChannelDetails ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)

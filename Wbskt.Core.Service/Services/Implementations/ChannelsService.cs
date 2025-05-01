@@ -1,4 +1,5 @@
-﻿using Wbskt.Common;
+﻿using System.Collections.Generic;
+using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Providers;
 
@@ -40,7 +41,7 @@ public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider 
 
     public ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId)
     {
-        return channelsProvider.GetChannelSubscriberId(channelSubscriberId);
+        return channelsProvider.GetChannelBySubscriberId(channelSubscriberId);
     }
 
     public bool VerifyChannel(Guid channelSubscriberId, string channelSecret)
@@ -48,8 +49,8 @@ public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider 
         return GetChannelSubscriberId(channelSubscriberId).ChannelSecret.Equals(channelSecret);
     }
 
-    public void UpdateServerId(int channelId, int serverId)
+    public void UpdateServerIds(IEnumerable<(int Id, int ServerId)> updates)
     {
-        channelsProvider.UpdateServerId(channelId, serverId);
+        channelsProvider.UpdateServerIds(updates);
     }
 }

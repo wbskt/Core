@@ -13,4 +13,6 @@ public interface IClientProvider
     int AddOrUpdateClientConnection(ClientConnection clientConnection);
 
     void InvalidateToken(int clientId);
+
+    IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(IEnumerable<int> clientIds);
 }

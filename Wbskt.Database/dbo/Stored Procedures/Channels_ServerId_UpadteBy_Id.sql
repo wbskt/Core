@@ -1,20 +1,20 @@
-/* -------------------------------- */
-/* Channels_ServerId_UpdateBy_Id    */
-/* Author: Richard Joy              */
-/* Updated by: Richard Joy          */
-/* Create date: 20-Apr-2024         */
-/* Description: Self explanatory    */
-/* -------------------------------- */
-CREATE PROCEDURE dbo.Channels_ServerId_UpdateBy_Id
+/* --------------------------------------------- */
+/* Channels_ServerId_UpdateMultiple              */
+/* Author: Richard Joy                           */
+/* Updated by: Richard Joy                       */
+/* Create date: 1-May-2025                       */
+/* Description: Updates ServerId for multiple Id */
+/* --------------------------------------------- */
+CREATE PROCEDURE dbo.Channels_ServerId_UpdateMultiple
 (
-  @Id       INT,
-  @ServerId INT
+    @Updates dbo.IdIntValueTableType READONLY
 )
 AS
 BEGIN
-  SET NOCOUNT ON;
+    SET NOCOUNT ON;
 
-    UPDATE dbo.Channels
-    SET ServerId = @ServerId
-    WHERE Id = @Id
+    UPDATE  C
+    SET     C.ServerId = U.IntValue
+    FROM    dbo.Channels C
+    INNER JOIN @Updates U ON C.Id = U.Id;
 END;

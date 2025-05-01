@@ -54,6 +54,31 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         return ParseData(reader, mapping);
     }
 
+    public IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(IEnumerable<int> clientIds)
+    {
+        logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionsByIds));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Clients_GetBy_Ids";
+
+        var param = command.Parameters.AddWithValue("@Ids", clientIds.ToDataTable());
+        param.SqlDbType = SqlDbType.Structured;
+        param.TypeName = "dbo.IdListTableType";
+
+
+        var result = new List<ClientConnection>();
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+
+        while (reader.Read()) result.Add(ParseData(reader, mapping));
+
+        return result;
+    }
+
+
     public int FindClientIdByClientUniqueId(Guid clientUniqueId)
     {
         logger.LogDebug("DB operation: {functionName}", nameof(GetClientConnectionById));
@@ -109,6 +134,25 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         while (reader.Read()) result.Add(ParseData(reader, mapping));
 
         return result;
+    }
+
+    internal void RegisterSqlDependency(OnChangeEventHandler onDatabaseChange)
+    {
+        try
+        {
+            using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+            using var command = new SqlCommand("SELECT Id FROM dbo.Clients", connection); // listen to changes in this output
+
+            var dependency = new SqlDependency(command);
+            dependency.OnChange += onDatabaseChange;
+
+            connection.Open();
+            using var reader = command.ExecuteReader(); // must execute to register dependency
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "failed to register SQL dependency.");
+        }
     }
 
     private static ClientConnection ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)
