@@ -82,7 +82,7 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
                 new Claim(Constants.Claims.ChannelSubscriberId, conn.ChannelSubscriberId.ToString()),
                 new Claim(Constants.Claims.ClientName, conn.ClientName),
                 new Claim(Constants.Claims.ClientUniqueId, conn.ClientUniqueId.ToString()),
-                new Claim(Constants.Claims.SocketServer, $"{server.ServerId}|{server.Address}")
+                new Claim(Constants.Claims.SocketServer, $"{server.ServerId}|{server.GetAddressWithFallback()}")
             }),
             Expires = DateTime.UtcNow.AddMinutes(Constants.ExpiryTimes.ClientTokenExpiry),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),

@@ -17,7 +17,7 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
 
         var tasks = servers.Select(server => Task.Run(async () =>
         {
-            var serverAddress = string.IsNullOrWhiteSpace(server.PublicDomainName) ? server.Address.ToString() : server.PublicDomainName;
+            var serverAddress = server.GetAddressWithFallback();
             logger.LogTrace("checking health of socket server: {ss}", serverAddress);
             var httpClient = new HttpClient { BaseAddress = new Uri($"http://{serverAddress}"), DefaultRequestHeaders = { Authorization = header } };
             HttpResponseMessage? result = null;

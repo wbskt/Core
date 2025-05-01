@@ -11,4 +11,9 @@ public class ServerInfo
     public bool Active { get; set; }
 
     public string PublicDomainName  { get; set; } = string.Empty;
+
+    public string GetAddressWithFallback()
+    {
+        return string.IsNullOrWhiteSpace(PublicDomainName) ? Address.ToString() : PublicDomainName;
+    }
 }

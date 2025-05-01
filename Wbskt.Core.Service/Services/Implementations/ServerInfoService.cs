@@ -126,7 +126,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
 
         var httpClient = new HttpClient
         {
-            BaseAddress = new Uri($"http://{server.Address}"),
+            BaseAddress = new Uri($"http://{server.GetAddressWithFallback()}"),
             DefaultRequestHeaders = { Authorization = authHeader}
         };
 
@@ -136,7 +136,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
             var result = await httpClient.PostAsync($"dispatch/{publisherId}", JsonContent.Create(payload));
             if (!result.IsSuccessStatusCode)
             {
-                logger.LogError("dispatch to {server} Id:({serverId}) failed with: {reason}", server.Address, server.ServerId, result.ReasonPhrase);
+                logger.LogError("dispatch to {server} Id:({serverId}) failed with: {reason}", server.GetAddressWithFallback(), server.ServerId, result.ReasonPhrase);
             }
         }
         catch(Exception ex)
