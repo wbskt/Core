@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Stored Procedures\Clients_GetBy_Ids.sql" />
+    <Build Include="dbo\Stored Procedures\Users_FindBy_EmailId.sql" />
     <Build Include="dbo\Types\IdIntValueTableType.sql" />
     <Build Include="dbo\Tables\Channels.sql" />
     <Build Include="dbo\Tables\Servers.sql" />

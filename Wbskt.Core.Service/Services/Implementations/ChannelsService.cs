@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Wbskt.Common;
 using Wbskt.Common.Contracts;
+using Wbskt.Common.Exceptions;
 using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
@@ -13,6 +14,11 @@ public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider 
 
     public ChannelDetails CreateChannel(ChannelRequest channel)
     {
+        if (CheckIfUserHasSameChannelName(channel.UserId, channel.ChannelName))
+        {
+            throw WbsktExceptions.ThrowChannelExists(channel.ChannelName);
+        }
+
         var details = new ChannelDetails
         {
             UserId = channel.UserId,
@@ -32,6 +38,12 @@ public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider 
     public IReadOnlyCollection<ChannelDetails> GetAll()
     {
         return channelsProvider.GetAll();
+    }
+
+    public bool CheckIfUserHasSameChannelName(int userId, string channelName)
+    {
+        var channels = GetAll();
+        return channels.Any(c => c.UserId == userId && c.ChannelName == channelName);
     }
 
     public IEnumerable<ChannelDetails> GetChannelsForUser(int userId)

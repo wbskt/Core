@@ -9,4 +9,6 @@ public interface IUsersProvider
     User GetUserByEmailId(string emailId);
 
     User GetUserById(int id);
+
+    int FindUserIdByEmailId(string emailId);
 }

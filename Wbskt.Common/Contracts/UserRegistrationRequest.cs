@@ -2,5 +2,5 @@
 
 public class UserRegistrationRequest : UserLoginRequest
 {
-    public required string UserName { get; set; }
+    public string UserName { get; set; } = string.Empty;
 }

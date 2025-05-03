@@ -54,6 +54,28 @@ internal sealed class UsersProvider(ILogger<UsersProvider> logger, IConnectionSt
         return ParseData(reader, mapping);
     }
 
+    public int FindUserIdByEmailId(string emailId)
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(FindUserIdByEmailId));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Users_FindBy_EmailId";
+
+        command.Parameters.Add(new SqlParameter("@EmailId", emailId));
+
+        using var reader = command.ExecuteReader();
+        reader.Read();
+        if (reader.HasRows)
+        {
+            return reader.GetInt32(reader.GetOrdinal("Id"));
+        }
+
+        return -1;
+    }
+
     public User GetUserByEmailId(string emailId)
     {
         logger.LogTrace("DB operation: {functionName}", nameof(GetUserByEmailId));

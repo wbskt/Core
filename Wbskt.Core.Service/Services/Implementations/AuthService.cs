@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Wbskt.Common;
 using Wbskt.Common.Contracts;
+using Wbskt.Common.Exceptions;
 
 namespace Wbskt.Core.Service.Services.Implementations;
 
@@ -59,6 +60,11 @@ public class AuthService(ILogger<AuthService> logger, IConfiguration configurati
 
     public User RegisterUser(UserRegistrationRequest request)
     {
+        if (usersService.FindUserIdByEmailId(request.EmailId) > 0)
+        {
+            throw WbsktExceptions.ThrowEmailIdExists(request.EmailId);
+        }
+
         string salt = GenerateSalt();
         string saltedPassword = request.Password + salt;
         string hashedPassword = passwordHasher.HashPassword(null!, saltedPassword);

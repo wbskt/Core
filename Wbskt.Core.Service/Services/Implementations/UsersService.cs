@@ -14,6 +14,11 @@ public class UsersService(ILogger<UsersService> logger, IUsersProvider usersProv
         return user;
     }
 
+    public int FindUserIdByEmailId(string emailId)
+    {
+        return usersProvider.FindUserIdByEmailId(emailId);
+    }
+
     public User GetUserByEmailId(string emailId)
     {
         return usersProvider.GetUserByEmailId(emailId);

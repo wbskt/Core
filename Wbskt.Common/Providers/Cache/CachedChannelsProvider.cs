@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Data.SqlClient;
 using Wbskt.Common.Contracts;
+using Wbskt.Common.Exceptions;
 using Wbskt.Common.Providers.Implementations;
 
 namespace Wbskt.Common.Providers.Cache
@@ -33,7 +34,7 @@ namespace Wbskt.Common.Providers.Cache
             var id = channelsProvider.CreateChannel(channel);
             if (id <= 0)
             {
-                return id;
+                throw new InvalidOperationException("this shouldn't happen. DB returned with id <= 0. (seek help)");
             }
 
             lock (@lock)
@@ -77,7 +78,7 @@ namespace Wbskt.Common.Providers.Cache
 
         public ChannelDetails GetChannelBySubscriberId(Guid channelSubscriberId)
         {
-            return channels.FirstOrDefault(c => c.ChannelSubscriberId == channelSubscriberId) ?? throw new InvalidOperationException();
+            return channels.FirstOrDefault(c => c.ChannelSubscriberId == channelSubscriberId) ?? throw WbsktExceptions.ThrowChannelSubscriberIdNotExists(channelSubscriberId);
         }
 
         public void UpdateServerIds((int Id, int ServerId)[] updates)

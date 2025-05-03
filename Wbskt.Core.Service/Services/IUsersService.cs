@@ -10,4 +10,6 @@ public interface IUsersService
     User GetUserByEmailId(string emailId);
 
     User AddUser(User user);
+
+    int FindUserIdByEmailId(string emailId);
 }
