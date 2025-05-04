@@ -6,7 +6,7 @@ namespace Wbskt.Common.Extensions;
 /// <summary>
 /// Provides extension methods for WebSocket operations.
 /// </summary>
-internal static class SocketExtensions
+public static class SocketExtensions
 {
     private const int BufferSize = 4096; // 4 KB buffer size for reading messages.
 
