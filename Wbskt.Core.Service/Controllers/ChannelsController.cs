@@ -53,14 +53,16 @@ public class ChannelsController(ILogger<ChannelsController> logger, IChannelsSer
     public async Task<IActionResult> Dispatch(Guid publisherId)
     {
         var payload = new ClientPayload();
-        return await Dispatch(publisherId, payload);
+        payload.PublisherId = publisherId;
+        return await Dispatch(payload);
     }
 
-    [HttpPost("{publisherId:guid}/dispatch")]
+    [HttpPost("/dispatch")]
     [Authorize(AuthenticationSchemes = Constants.AuthSchemes.UserScheme)]
-    public async Task<IActionResult> Dispatch(Guid publisherId, ClientPayload payload)
+    public async Task<IActionResult> Dispatch(ClientPayload payload)
     {
-        await serverInfoService.DispatchPayload(publisherId, payload);
+        payload.PayloadId = Guid.NewGuid();
+        await serverInfoService.DispatchPayload(payload);
         return Ok();
     }
 }

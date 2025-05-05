@@ -57,8 +57,9 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
         return serverId;
     }
 
-    public async Task DispatchPayload(Guid publisherId, ClientPayload payload)
+    public async Task DispatchPayload(ClientPayload payload)
     {
+        var publisherId = payload.PublisherId;
         var channels = channelsService.GetAll().ToDictionary(c => c.ChannelPublisherId, c => c.ChannelId);
         var tasks = new List<Task>();
         foreach (var serverChannel in serverChannelMap)

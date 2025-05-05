@@ -2,5 +2,13 @@
 
 public class ClientPayload
 {
-    public string Data { get; set; } = "default payload";
+    public string Data { get; set; } = string.Empty;
+
+    public Guid PublisherId { get; set; }
+
+    public bool EnsureDelivery { get; set; }
+
+    public Guid ChannelId { get; set; }
+
+    public Guid PayloadId { get; set; }
 }
