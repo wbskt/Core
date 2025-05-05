@@ -60,13 +60,22 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
     public async Task<bool> DispatchPayload(ClientPayload payload)
     {
         var publisherId = payload.PublisherId;
-        var channels = channelsService.GetAll().ToDictionary(c => c.ChannelPublisherId, c => c.ChannelId);
+
+        var channels = channelsService.GetAll()
+            .GroupBy(c => c.ChannelPublisherId)
+            .ToDictionary(g => g.Key, g => g.Select(c => c.ChannelId).ToArray());
+
         var tasks = new List<Task>();
-        if (channels.TryGetValue(publisherId, out var channelId))
+
+        if (channels.TryGetValue(publisherId, out var channelIds))
         {
             foreach (var serverChannel in serverChannelMap)
             {
-                if (serverChannel.Value.Contains(channelId))
+                // Faster overlap check without creating a new collection
+                // `channelIds` is the array of channels where payload needs to be dispatched
+                // `serverChannel.Value` is the list of channels that the given S.S has
+                // we just need to find if there is an overlap. if yes, dispatch
+                if (serverChannel.Value.Any(channel => channelIds.Contains(channel)))
                 {
                     logger.LogDebug("Dispatcher task queued for socket server: {serverId}, publisherId: {publisherId}", serverChannel.Key, payload);
                     tasks.Add(DispatchPayloadToServer(serverChannel.Key, publisherId, payload));

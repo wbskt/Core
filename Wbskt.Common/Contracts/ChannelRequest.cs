@@ -8,13 +8,6 @@ public class ChannelDetails : ChannelRequest
 
     /// <summary>
     /// [Internal]
-    /// Used by a publisher. This ID is required to figure out which all channels the trigger must go to.
-    /// TODO: for now its 1:1 for a channel. But the intention is to have more than one channel activated by a single publisherId.
-    /// </summary>
-    public Guid ChannelPublisherId { get; set; }
-
-    /// <summary>
-    /// [Internal]
     /// Used for a client to connect to a channel
     /// </summary>
     public Guid ChannelSubscriberId { get; set; }
@@ -38,6 +31,11 @@ public class ChannelRequest
     /// This Secret must be provided in the client's config.
     /// </summary>
     public required string ChannelSecret { get; set; }
+
+    /// <summary>
+    /// Used by a publisher. This ID is required to figure out which all channels the trigger must go to.
+    /// </summary>
+    public Guid ChannelPublisherId { get; set; }
 
     /// <summary>
     /// Will be fetched from the token.

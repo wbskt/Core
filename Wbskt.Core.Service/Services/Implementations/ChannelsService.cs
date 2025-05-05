@@ -25,7 +25,7 @@ public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider 
             ChannelName = channel.ChannelName,
             RetentionTime = channel.RetentionTime,
             ChannelSecret = channel.ChannelSecret,
-            ChannelPublisherId = Guid.NewGuid(),
+            ChannelPublisherId = channel.ChannelPublisherId == Guid.Empty ? Guid.NewGuid() : channel.ChannelPublisherId,
             ChannelSubscriberId = Guid.NewGuid(),
             // todo: this is only required for multi S.S setup, kept it since i guess the logic under the hood works
             ServerId = serverInfoService.Value.GetAvailableServerId()
