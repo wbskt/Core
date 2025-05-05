@@ -8,7 +8,7 @@ public class ClientPayload
 
     public bool EnsureDelivery { get; set; }
 
-    public Guid ChannelId { get; set; }
+    public Guid ChannelSubscriberId { get; set; }
 
     public Guid PayloadId { get; set; }
 }
