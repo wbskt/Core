@@ -13,7 +13,7 @@ public interface IServerInfoService
 
     int GetAvailableServerId();
 
-    Task DispatchPayload(ClientPayload payload);
+    Task<bool> DispatchPayload(ClientPayload payload);
 
     void MapAllChannels();
 }

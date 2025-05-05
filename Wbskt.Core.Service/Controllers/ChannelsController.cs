@@ -62,7 +62,7 @@ public class ChannelsController(ILogger<ChannelsController> logger, IChannelsSer
     public async Task<IActionResult> Dispatch(ClientPayload payload)
     {
         payload.PayloadId = Guid.NewGuid();
-        await serverInfoService.DispatchPayload(payload);
-        return Ok();
+        var payloadSend = await serverInfoService.DispatchPayload(payload);
+        return payloadSend ? Ok() : BadRequest($"no channels with publisherId: {payload.PublisherId}");
     }
 }

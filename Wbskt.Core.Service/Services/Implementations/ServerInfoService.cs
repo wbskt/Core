@@ -57,21 +57,26 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
         return serverId;
     }
 
-    public async Task DispatchPayload(ClientPayload payload)
+    public async Task<bool> DispatchPayload(ClientPayload payload)
     {
         var publisherId = payload.PublisherId;
         var channels = channelsService.GetAll().ToDictionary(c => c.ChannelPublisherId, c => c.ChannelId);
         var tasks = new List<Task>();
-        foreach (var serverChannel in serverChannelMap)
+        if (channels.TryGetValue(publisherId, out var channelId))
         {
-            if (serverChannel.Value.Contains(channels[publisherId]))
+            foreach (var serverChannel in serverChannelMap)
             {
-                logger.LogDebug("Dispatcher task queued for socket server: {serverId}, publisherId: {publisherId}", serverChannel.Key, payload);
-                tasks.Add(DispatchPayloadToServer(serverChannel.Key, publisherId, payload));
+                if (serverChannel.Value.Contains(channelId))
+                {
+                    logger.LogDebug("Dispatcher task queued for socket server: {serverId}, publisherId: {publisherId}", serverChannel.Key, payload);
+                    tasks.Add(DispatchPayloadToServer(serverChannel.Key, publisherId, payload));
+                }
             }
+            await Task.WhenAll(tasks);
+            return true;
         }
 
-        await Task.WhenAll(tasks);
+        return false;
     }
 
     public void UpdateServerStatus(int id, bool active)
@@ -119,7 +124,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
         }
     }
 
-    private async Task DispatchPayloadToServer(int serverKey, Guid publisherId ,ClientPayload payload)
+    private async Task DispatchPayloadToServer(int serverKey, Guid publisherId, ClientPayload payload)
     {
         var token = authService.CreateCoreServerToken();
         var authHeader = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
