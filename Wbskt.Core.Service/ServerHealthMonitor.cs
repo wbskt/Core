@@ -27,7 +27,15 @@ public class ServerHealthMonitor(ILogger<ServerHealthMonitor> logger, IServerInf
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "cannot reach server:{baseAddress}, error: {error}", httpClient.BaseAddress, ex.Message);
+                // log trace details only the first time
+                if (server.Active == false)
+                {
+                    logger.LogError(ex, "cannot reach server:{baseAddress}, error: {error}", httpClient.BaseAddress, ex.Message);
+                }
+                else
+                {
+                    logger.LogError("cannot reach server:{baseAddress}, error: {error}", httpClient.BaseAddress, ex.Message);
+                }
             }
 
             // only update if the status changed i.e. Active or NotActive

@@ -14,6 +14,6 @@ public class ServerInfo
 
     public string GetAddressWithFallback()
     {
-        return string.IsNullOrWhiteSpace(PublicDomainName) ? Address.ToString() : PublicDomainName;
+        return string.IsNullOrWhiteSpace(PublicDomainName) ? Address.ToString() : $"{PublicDomainName}:{Address.Port}";
     }
 }
