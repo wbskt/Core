@@ -6,6 +6,7 @@ using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Extensions;
 using Wbskt.Common.Providers;
+using Wbskt.Core.Service.Pipeline;
 using Wbskt.Core.Service.Services;
 using Wbskt.Core.Service.Services.Implementations;
 
@@ -77,6 +78,7 @@ public static class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
+        app.UseMiddleware<ExceptionMiddleware>();
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();

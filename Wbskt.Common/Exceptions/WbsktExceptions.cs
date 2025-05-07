@@ -2,11 +2,11 @@
 
 namespace Wbskt.Common.Exceptions;
 
-public class WbsktExceptions
+public static class WbsktExceptions
 {
-    public static ValidationException ThrowEmailIdExists(string emailId)
+    public static UnauthorizedAccessException ThrowEmailIdExists(string emailId)
     {
-        return new ValidationException($"emailId: '{emailId}' already exists");
+        return new UnauthorizedAccessException($"emailId: '{emailId}' already exists");
     }
     public static ValidationException ThrowChannelExists(string channelName)
     {

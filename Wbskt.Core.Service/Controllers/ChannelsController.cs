@@ -41,7 +41,7 @@ public class ChannelsController(ILogger<ChannelsController> logger, IChannelsSer
         if (!channelsService.VerifyChannel(request.ChannelSubscriberId, request.ChannelSecret))
         {
             logger.LogWarning("channel secret does not match the subscriptionId {channelSubscriberId}", request.ChannelSubscriberId);
-            return Forbid("unauthorized");
+            return Unauthorized();
         }
 
         string clientToken = clientService.AddClientConnection(request);

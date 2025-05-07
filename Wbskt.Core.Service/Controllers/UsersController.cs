@@ -17,13 +17,13 @@ public class UsersController(ILogger<UsersController> logger, IUsersService user
     {
         if (usersService.FindUserIdByEmailId(request.EmailId) <= 0)
         {
-            return Forbid("user does not exist");
+            return Unauthorized("user does not exist");
         }
 
         bool valid = authService.ValidatePassword(request);
         if (!valid)
         {
-            return Forbid("credentials are incorrect");
+            return Unauthorized("credentials are incorrect");
         }
 
         User user = usersService.GetUserByEmailId(request.EmailId);
