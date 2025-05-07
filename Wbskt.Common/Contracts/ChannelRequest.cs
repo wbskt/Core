@@ -4,6 +4,9 @@ namespace Wbskt.Common.Contracts;
 
 public class ChannelDetails : ChannelRequest
 {
+    /// <summary>
+    /// [Internal] ID
+    /// </summary>
     public int ChannelId { get; set; }
 
     /// <summary>

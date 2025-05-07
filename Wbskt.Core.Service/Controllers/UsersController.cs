@@ -15,6 +15,11 @@ public class UsersController(ILogger<UsersController> logger, IUsersService user
     [HttpPost("login")]
     public IActionResult UserLogin(UserLoginRequest request)
     {
+        if (usersService.FindUserIdByEmailId(request.EmailId) <= 0)
+        {
+            return Forbid("user does not exist");
+        }
+
         bool valid = authService.ValidatePassword(request);
         if (!valid)
         {

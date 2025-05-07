@@ -7,7 +7,7 @@
 /* -------------------------------- */
 CREATE PROCEDURE dbo.Users_FindBy_EmailId
 (
-    @EmailId UNIQUEIDENTIFIER
+    @EmailId VARCHAR(100)
 )
 AS
 BEGIN
