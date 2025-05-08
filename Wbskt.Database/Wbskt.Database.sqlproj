@@ -62,24 +62,21 @@
     <Folder Include="dbo\Tables\" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="dbo\Stored Procedures\Clients_GetBy_Ids.sql" />
-    <Build Include="dbo\Stored Procedures\Users_FindBy_EmailId.sql" />
     <Build Include="dbo\Types\IdIntValueTableType.sql" />
     <Build Include="dbo\Tables\Channels.sql" />
     <Build Include="dbo\Tables\Servers.sql" />
     <Build Include="dbo\Tables\Clients.sql" />
     <Build Include="dbo\Tables\Users.sql" />
-    <Build Include="dbo\Stored Procedures\User_GetBy_EmailId.sql" />
-    <Build Include="dbo\Stored Procedures\User_GetBy_Id.sql" />
-    <Build Include="dbo\Stored Procedures\User_Insert.sql" />
+    <Build Include="dbo\Stored Procedures\Users_FindBy_EmailId.sql" />
     <Build Include="dbo\Stored Procedures\Users_GetBy_EmailId.sql" />
     <Build Include="dbo\Stored Procedures\Users_GetBy_Id.sql" />
     <Build Include="dbo\Stored Procedures\Users_Insert.sql" />
-    <Build Include="dbo\Stored Procedures\Clients_GetBy_ChannelSubscriberId.sql" />
     <Build Include="dbo\Stored Procedures\Clients_Upsert.sql" />
+    <Build Include="dbo\Stored Procedures\Clients_GetBy_ChannelSubscriberId.sql" />
     <Build Include="dbo\Stored Procedures\Clients_GetBy_Id.sql" />
-    <Build Include="dbo\Stored Procedures\Clients_InvalidateToken.sql" />
+    <Build Include="dbo\Stored Procedures\Clients_GetBy_Ids.sql" />
     <Build Include="dbo\Stored Procedures\Clients_FindBy_ClientUniqueId.sql" />
+    <Build Include="dbo\Stored Procedures\Clients_InvalidateToken.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetBy_ChannelPublisherId.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetBy_ChannelSubscriberId.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetBy_Id.sql" />
