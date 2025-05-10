@@ -46,6 +46,7 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
             else
             {
                 // reuse existing token
+                logger.LogDebug("reusing existing token: {tokenId}", exConn.TokenId);
                 return exConn.Token;
             }
         }
