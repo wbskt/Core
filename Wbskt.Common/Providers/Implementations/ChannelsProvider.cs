@@ -51,7 +51,7 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 
         var param = command.Parameters.AddWithValue("@Updates", updates.ToDataTable());
         param.SqlDbType = SqlDbType.Structured;
-        param.TypeName = "dbo.IdServerIdTableType";
+        param.TypeName = "dbo.IdIntValueTableType";
 
         command.ExecuteNonQuery();
     }

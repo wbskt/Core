@@ -5,14 +5,13 @@ using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
 
-// todo logical problems.. imagine ss registering in between
 public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoProvider serverInfoProvider, IChannelsService channelsService, IAuthService authService) : IServerInfoService
 {
 
     /// <summary>
     /// Map of each S.S with the list of channels assigned to it.
     /// </summary>
-    private readonly IDictionary<int, List<int>> serverChannelMap = new Dictionary<int, List<int>>();
+    private readonly IDictionary<int, HashSet<int>> serverChannelMap = new Dictionary<int, HashSet<int>>();
     private IDictionary<int, ServerInfo> allServers = new Dictionary<int, ServerInfo>();
     private readonly ILogger<ServerInfoService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IServerInfoProvider serverInfoProvider = serverInfoProvider ?? throw new ArgumentNullException(nameof(serverInfoProvider));
@@ -31,14 +30,17 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
 
         foreach ( var serverId in newServerIds)
         {
-            serverChannelMap.TryAdd(serverId, new List<int>());
+            serverChannelMap.TryAdd(serverId, []);
         }
 
         var channels = channelsService.GetAll();
 
         foreach (var server in servers)
         {
-            serverChannelMap[server.ServerId].AddRange(channels.Where(ch => ch.ServerId == server.ServerId).Select(ch => ch.ChannelId));
+            foreach (var channelId in channels.Where(ch => ch.ServerId == server.ServerId).Select(ch => ch.ChannelId))
+            {
+                serverChannelMap[server.ServerId].Add(channelId);
+            }
         }
 
         return servers;
@@ -111,9 +113,9 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
                     break;
                 }
 
-                var availableServerChannel = activeServers.MinBy(kv => kv.Value.Count);
-                availableServerChannel.Value.Add(channelId);
-                updates.Add((channelId, availableServerChannel.Key));
+                var availableServerChannels = activeServers.MinBy(kv => kv.Value.Count);
+                availableServerChannels.Value.Add(channelId);
+                updates.Add((channelId, availableServerChannels.Key));
             }
             channelsService.UpdateServerIds(updates.ToArray());
         }
@@ -127,7 +129,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
         {
             var serverChannels = channels.Where(c => c.ServerId == server.ServerId);
 
-            var channelIds = serverChannels.Select(channel => channel.ChannelId).ToList();
+            var channelIds = serverChannels.Select(channel => channel.ChannelId).ToHashSet();
 
             serverChannelMap.TryAdd(server.ServerId, channelIds);
         }
