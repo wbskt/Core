@@ -80,7 +80,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
                 if (serverChannel.Value.Any(channel => channelIds.Contains(channel)))
                 {
                     logger.LogDebug("Dispatcher task queued for socket server: {serverId}, publisherId: {publisherId}", serverChannel.Key, payload);
-                    tasks.Add(DispatchPayloadToServer(serverChannel.Key, publisherId, payload));
+                    tasks.Add(DispatchPayloadToServer(serverChannel.Key, payload));
                 }
             }
             await Task.WhenAll(tasks);
@@ -152,7 +152,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
         }
     }
 
-    private async Task DispatchPayloadToServer(int serverKey, Guid publisherId, ClientPayload payload)
+    private async Task DispatchPayloadToServer(int serverKey, ClientPayload payload)
     {
         var token = authService.CreateCoreServerToken();
         var authHeader = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
@@ -166,8 +166,8 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
 
         try
         {
-            logger.LogDebug("post: {url}/dispatch/{publisher}", httpClient.BaseAddress, publisherId);
-            var result = await httpClient.PostAsync($"dispatch/{publisherId}", JsonContent.Create(payload));
+            logger.LogDebug("post: {url}/dispatch with publisher id: {publisherId}", httpClient.BaseAddress, payload.PublisherId);
+            var result = await httpClient.PostAsync($"dispatch", JsonContent.Create(payload));
             if (!result.IsSuccessStatusCode)
             {
                 logger.LogError("dispatch to {server} Id:({serverId}) failed with: {reason}", server.GetAddressWithFallback(), server.ServerId, result.ReasonPhrase);
@@ -175,7 +175,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
         }
         catch(Exception ex)
         {
-            logger.LogWarning("error while request to {url}/dispatch/{publisher}, error: {details}", httpClient.BaseAddress, publisherId, ex.Message);
+            logger.LogWarning("error while request to {url}/dispatch/{publisher}, error: {details}", httpClient.BaseAddress, payload.PublisherId, ex.Message);
         }
     }
 }
