@@ -12,6 +12,7 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         }
         catch (Exception ex)
         {
+            logger.LogError("exception caught in middleware: {message}", ex.Message);
             context.Response.ContentType = "application/json";
 
             var (statusCode, message) = ex switch
