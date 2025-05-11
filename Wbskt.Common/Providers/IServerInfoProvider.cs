@@ -4,7 +4,11 @@ namespace Wbskt.Common.Providers;
 
 public interface IServerInfoProvider
 {
+    IReadOnlyCollection<ServerInfo> GetAllSocketServerInfo();
+
     IReadOnlyCollection<ServerInfo> GetAllServerInfo();
+
+    IReadOnlyCollection<ServerInfo> GetAllCoreServerInfo();
 
     void UpdateServerStatus(int id, bool active);
 

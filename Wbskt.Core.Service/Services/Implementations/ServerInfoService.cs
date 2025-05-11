@@ -7,7 +7,6 @@ namespace Wbskt.Core.Service.Services.Implementations;
 
 public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoProvider serverInfoProvider, IChannelsService channelsService, IAuthService authService) : IServerInfoService
 {
-
     /// <summary>
     /// Map of each S.S with the list of channels assigned to it.
     /// </summary>
@@ -21,7 +20,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
     public IReadOnlyCollection<ServerInfo> GetAll()
     {
         // gets all servers from DB
-        var servers = serverInfoProvider.GetAllServerInfo();
+        var servers = serverInfoProvider.GetAllSocketServerInfo();
         var existingServersIds = allServers.Keys.ToList();
         allServers = servers.ToDictionary(s => s.ServerId, s => s);
 

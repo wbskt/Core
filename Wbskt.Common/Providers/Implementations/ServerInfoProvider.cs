@@ -11,6 +11,11 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 {
     private readonly ILogger<ServerInfoProvider> logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+    public IReadOnlyCollection<ServerInfo> GetAllSocketServerInfo()
+    {
+        throw new NotImplementedException();
+    }
+
     public IReadOnlyCollection<ServerInfo> GetAllServerInfo()
     {
         logger.LogTrace("DB operation: {functionName}", nameof(GetAllServerInfo));
@@ -30,6 +35,11 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         return result;
     }
 
+    public IReadOnlyCollection<ServerInfo> GetAllCoreServerInfo()
+    {
+        throw new NotImplementedException();
+    }
+
     public int RegisterServer(ServerInfo serverInfo)
     {
         logger.LogTrace("DB operation: {functionName}", nameof(RegisterServer));
@@ -42,6 +52,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         command.CommandType = CommandType.StoredProcedure;
         command.CommandText = "dbo.Servers_Insert";
 
+        command.Parameters.Add(new SqlParameter("@Type", ProviderExtensions.ReplaceDbNulls(serverInfo.Type)));
         command.Parameters.Add(new SqlParameter("@Port", ProviderExtensions.ReplaceDbNulls(serverInfo.Address.Port)));
         command.Parameters.Add(new SqlParameter("@Active", ProviderExtensions.ReplaceDbNulls(serverInfo.Active)));
         command.Parameters.Add(new SqlParameter("@IPAddress", ProviderExtensions.ReplaceDbNulls(serverInfo.Address.Host)));
@@ -112,6 +123,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         var data = new ServerInfo
         {
             Active = reader.GetBoolean(mapping.Active),
+            Type = (Constants.ServerType)reader.GetInt32(mapping.Type),
             Address = address,
             ServerId = reader.GetInt32(mapping.ServerId),
             PublicDomainName = reader.GetString(mapping.PublicDomainName)
@@ -125,6 +137,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         var mapping = new OrdinalColumnMapping();
 
         mapping.Port = reader.GetOrdinal("Port");
+        mapping.Type = reader.GetOrdinal("Type");
         mapping.Active = reader.GetOrdinal("Active");
         mapping.ServerId = reader.GetOrdinal("Id");
         mapping.IPAddress = reader.GetOrdinal("IPAddress");
@@ -136,6 +149,7 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
     private class OrdinalColumnMapping
     {
         public int Port;
+        public int Type;
         public int Active;
         public int ServerId;
         public int IPAddress;

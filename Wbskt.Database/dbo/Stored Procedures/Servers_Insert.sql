@@ -11,6 +11,7 @@ CREATE PROCEDURE dbo.Servers_Insert
 , @IPAddress	        VARCHAR(100)
 , @PublicDomainName     VARCHAR(100)
 , @Port		            INT
+, @Type		            INT
 , @Active               BIT
 )
 AS
@@ -21,12 +22,14 @@ BEGIN
     ( IPAddress
     , PublicDomainName
     , Port
+    , Type
     , Active
     )
     VALUES
         ( @IPAddress
         , @PublicDomainName
         , @Port
+        , @Type
         , @Active
         );
     SELECT @Id = SCOPE_IDENTITY();

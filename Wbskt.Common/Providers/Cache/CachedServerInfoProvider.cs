@@ -7,10 +7,10 @@ namespace Wbskt.Common.Providers.Cache
 {
     internal sealed class CachedServerInfoProvider : IServerInfoProvider
     {
-        private static readonly string ServerType = Environment.GetEnvironmentVariable(nameof(ServerType)) ?? Constants.ServerType.CoreServer;
+        private static readonly string ServerType = Environment.GetEnvironmentVariable(nameof(ServerType)) ?? Constants.ServerType.CoreServer.ToString();
 
         private readonly List<ServerInfo> serverInfos = [];
-        private readonly object _lock = new();
+        private readonly object @lock = new();
         private readonly ILogger<CachedServerInfoProvider> logger;
         private readonly ServerInfoProvider serverInfoProvider;
 
@@ -22,25 +22,26 @@ namespace Wbskt.Common.Providers.Cache
             serverInfoProvider.RegisterSqlDependency(OnDatabaseChange);
         }
 
+        public IReadOnlyCollection<ServerInfo> GetAllSocketServerInfo()
+        {
+            var servers = GetAll();
+            return servers.Where(s => s.Type == Constants.ServerType.SocketServer).ToArray();
+        }
+
         public IReadOnlyCollection<ServerInfo> GetAllServerInfo()
         {
-            lock (_lock)
-            {
-                if (serverInfos.Count != 0)
-                {
-                    return [.. serverInfos]; // return a copy to prevent external mutation
-                }
+            throw new NotImplementedException();
+        }
 
-                var records = serverInfoProvider.GetAllServerInfo();
-                serverInfos.AddRange(records);
-
-                return [.. serverInfos]; // return a copy to prevent external mutation
-            }
+        public IReadOnlyCollection<ServerInfo> GetAllCoreServerInfo()
+        {
+            var servers = GetAll();
+            return servers.Where(s => s.Type == Constants.ServerType.CoreServer).ToArray();
         }
 
         public int RegisterServer(ServerInfo serverInfo)
         {
-            if (ServerType == Constants.ServerType.CoreServer)
+            if (ServerType == Constants.ServerType.CoreServer.ToString())
             {
                 logger.LogError("core server cannot perform this operation: {operationName}", nameof(RegisterServer));
                 return -1;
@@ -57,14 +58,14 @@ namespace Wbskt.Common.Providers.Cache
                 throw new ArgumentException("invalid id provided", nameof(id));
             }
 
-            if (ServerType == Constants.ServerType.CoreServer)
+            if (ServerType == Constants.ServerType.CoreServer.ToString())
             {
                 logger.LogError("core server cannot perform this operation: {operationName}", nameof(UpdatePublicDomainName));
                 return;
             }
 
             serverInfoProvider.UpdatePublicDomainName(id, publicDomainName);
-            lock (_lock)
+            lock (@lock)
             {
                 var info = serverInfos.FirstOrDefault(s => s.ServerId == id);
                 if (info != null)
@@ -84,7 +85,7 @@ namespace Wbskt.Common.Providers.Cache
 
             serverInfoProvider.UpdateServerStatus(id, active);
 
-            lock (_lock)
+            lock (@lock)
             {
                 var info = serverInfos.FirstOrDefault(s => s.ServerId == id);
                 if (info != null)
@@ -94,10 +95,26 @@ namespace Wbskt.Common.Providers.Cache
             }
         }
 
+        private IReadOnlyCollection<ServerInfo> GetAll()
+        {
+            lock (@lock)
+            {
+                if (serverInfos.Count != 0)
+                {
+                    return [.. serverInfos]; // return a copy to prevent external mutation
+                }
+
+                var records = serverInfoProvider.GetAllServerInfo();
+                serverInfos.AddRange(records);
+
+                return [.. serverInfos]; // return a copy to prevent external mutation
+            }
+        }
+
         private void RefreshCache()
         {
             var records = serverInfoProvider.GetAllServerInfo();
-            lock (_lock)
+            lock (@lock)
             {
                 serverInfos.Clear();
                 serverInfos.AddRange(records);

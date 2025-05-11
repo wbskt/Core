@@ -19,7 +19,7 @@ public static class Program
     public static void Main(string[] args)
     {
         Environment.SetEnvironmentVariable(Constants.LoggingConstants.LogPath, ProgramDataPath);
-        Environment.SetEnvironmentVariable(nameof(Constants.ServerType), Constants.ServerType.CoreServer);
+        Environment.SetEnvironmentVariable(nameof(Constants.ServerType), Constants.ServerType.CoreServer.ToString());
 
         if (!Directory.Exists(ProgramDataPath))
         {
@@ -56,12 +56,10 @@ public static class Program
         // to avoid cyclic-dependency
         builder.Services.AddSingleton(sp => new Lazy<IServerInfoService>(sp.GetRequiredService<IServerInfoService>));
 
-        builder.Services.AddSingleton<ServerHealthMonitor>();
-
         builder.Services.ConfigureCommonServices();
 
         // Register Background Services
-        builder.Services.AddHostedService<ServerHealthMonitorBackgroundService>();
+        builder.Services.AddHostedService<ServerBackgroundService>();
         builder.Services.AddAuthentication(opt =>
         {
             opt.DefaultAuthenticateScheme = Constants.AuthSchemes.UserScheme;
@@ -82,6 +80,7 @@ public static class Program
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseWebSockets();
 
         app.MapControllers();
 

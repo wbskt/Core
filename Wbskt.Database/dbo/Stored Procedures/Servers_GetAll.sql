@@ -14,6 +14,7 @@ BEGIN
        , IPAddress
        , PublicDomainName
        , Port
+       , Type
        , Active
     FROM dbo.Servers
 END;

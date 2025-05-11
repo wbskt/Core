@@ -8,7 +8,7 @@ namespace Wbskt.Common.Providers.Cache
 {
     internal sealed class CachedChannelsProvider : IChannelsProvider
     {
-        private static readonly string ServerType = Environment.GetEnvironmentVariable(nameof(ServerType)) ?? Constants.ServerType.CoreServer;
+        private static readonly string ServerType = Environment.GetEnvironmentVariable(nameof(ServerType)) ?? Constants.ServerType.CoreServer.ToString();
 
         private readonly List<ChannelDetails> channels = [];
         private readonly object @lock = new();
@@ -25,7 +25,7 @@ namespace Wbskt.Common.Providers.Cache
 
         public int CreateChannel(ChannelDetails channel)
         {
-            if (ServerType != Constants.ServerType.CoreServer)
+            if (ServerType != Constants.ServerType.CoreServer.ToString())
             {
                 logger.LogError("only core server perform this operation: {operationName}", nameof(CreateChannel));
                 return -1;
@@ -46,7 +46,7 @@ namespace Wbskt.Common.Providers.Cache
 
         public IReadOnlyCollection<ChannelDetails> GetAll()
         {
-            if (ServerType != Constants.ServerType.CoreServer)
+            if (ServerType != Constants.ServerType.CoreServer.ToString())
             {
                 logger.LogError("only core server perform this operation: {operationName}", nameof(GetAll));
                 return [];
@@ -83,7 +83,7 @@ namespace Wbskt.Common.Providers.Cache
 
         public void UpdateServerIds((int Id, int ServerId)[] updates)
         {
-            if (ServerType != Constants.ServerType.CoreServer)
+            if (ServerType != Constants.ServerType.CoreServer.ToString())
             {
                 logger.LogError("only core server perform this operation: {operationName}", nameof(UpdateServerIds));
                 return;
