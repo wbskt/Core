@@ -62,7 +62,7 @@ public class AuthService(ILogger<AuthService> logger, IConfiguration configurati
     {
         if (usersService.FindUserIdByEmailId(request.EmailId) > 0)
         {
-            throw WbsktExceptions.ThrowEmailIdExists(request.EmailId);
+            throw WbsktExceptions.EmailIdExists(request.EmailId);
         }
 
         string salt = GenerateSalt();

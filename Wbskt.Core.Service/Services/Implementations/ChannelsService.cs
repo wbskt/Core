@@ -16,7 +16,7 @@ public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider 
     {
         if (CheckIfUserHasSameChannelName(channel.UserId, channel.ChannelName))
         {
-            throw WbsktExceptions.ThrowChannelExists(channel.ChannelName);
+            throw WbsktExceptions.ChannelExists(channel.ChannelName);
         }
 
         var details = new ChannelDetails

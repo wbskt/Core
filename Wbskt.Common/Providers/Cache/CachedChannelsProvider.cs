@@ -78,7 +78,7 @@ namespace Wbskt.Common.Providers.Cache
 
         public ChannelDetails GetChannelBySubscriberId(Guid channelSubscriberId)
         {
-            return channels.FirstOrDefault(c => c.ChannelSubscriberId == channelSubscriberId) ?? throw WbsktExceptions.ThrowChannelSubscriberIdNotExists(channelSubscriberId);
+            return channels.FirstOrDefault(c => c.ChannelSubscriberId == channelSubscriberId) ?? throw WbsktExceptions.ChannelSubscriberIdNotExists(channelSubscriberId);
         }
 
         public void UpdateServerIds((int Id, int ServerId)[] updates)

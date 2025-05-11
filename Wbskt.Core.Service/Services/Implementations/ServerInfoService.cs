@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Wbskt.Common.Contracts;
+using Wbskt.Common.Exceptions;
 using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
@@ -91,7 +92,24 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
 
     public void UpdateServerStatus(int id, bool active)
     {
-        allServers[id].Active = active;
+        if (allServers.TryGetValue(id, out var server))
+        {
+            server.Active = active;
+        }
+        else
+        {
+            // when a new ss is registered and connected for the first time, `allServers` has no idea it exists. hence refreshing the list of s.servers
+            GetAll();
+            if (allServers.TryGetValue(id, out server))
+            {
+                server.Active = active;
+            }
+            else
+            {
+                throw WbsktExceptions.UnknownSocketServer(id);
+            }
+        }
+
         logger.LogDebug("updating status of server: {serverId} - {active}", id, active);
         serverInfoProvider.UpdateServerStatus(id, active);
 

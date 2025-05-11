@@ -14,9 +14,10 @@ namespace Wbskt.Core.Service;
 
 public static class Program
 {
+    public static readonly CancellationTokenSource Cts = new();
     private static readonly string ProgramDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Wbskt");
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         Environment.SetEnvironmentVariable(Constants.LoggingConstants.LogPath, ProgramDataPath);
         Environment.SetEnvironmentVariable(nameof(Constants.ServerType), Constants.ServerType.CoreServer.ToString());
@@ -86,11 +87,19 @@ public static class Program
 
         var connectionString = app.Services.GetRequiredService<IConnectionStringProvider>().ConnectionString;
         SqlDependency.Start(connectionString);
+
+        var serverInfoService = app.Services.GetRequiredService<IServerInfoService>();
+        app.Lifetime.ApplicationStarted.Register(() =>
+        {
+            serverInfoService.MapAllChannels();
+        });
+
         app.Lifetime.ApplicationStopping.Register(() =>
         {
+            Cts.Cancel();
             SqlDependency.Stop(connectionString);
         });
 
-        app.Run();
+        await app.RunAsync(Cts.Token);
     }
 }
