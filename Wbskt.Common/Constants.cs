@@ -24,6 +24,7 @@ public static class Constants
         public const string EmailId = "Email";
         public const string TokenId = "TokenId";
         public const string UserData = "UserData";
+        public const string ClientId = "ClientId";
         public const string CoreServer = "CoreServer";
         public const string ClientName = "ClientName";
         public const string SocketServer = "SocketServer";

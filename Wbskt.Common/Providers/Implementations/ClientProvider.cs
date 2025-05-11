@@ -22,7 +22,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         command.CommandType = CommandType.StoredProcedure;
         command.CommandText = "dbo.Clients_Upsert";
 
-        command.Parameters.Add(new SqlParameter("@Token", ProviderExtensions.ReplaceDbNulls(clientConnection.Token)));
+        command.Parameters.Add(new SqlParameter("@Token", ProviderExtensions.ReplaceDbNulls(clientConnection.Token ?? string.Empty)));
         command.Parameters.Add(new SqlParameter("@TokenId", ProviderExtensions.ReplaceDbNulls(clientConnection.TokenId)));
         command.Parameters.Add(new SqlParameter("@ClientName", ProviderExtensions.ReplaceDbNulls(clientConnection.ClientName)));
         command.Parameters.Add(new SqlParameter("@ClientUniqueId", ProviderExtensions.ReplaceDbNulls(clientConnection.ClientUniqueId)));

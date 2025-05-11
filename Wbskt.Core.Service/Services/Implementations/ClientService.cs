@@ -61,16 +61,17 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
 
         var channel = channelsService.GetChannelSubscriberId(conn.ChannelSubscriberId);
         var server = serverInfoService.GetServerById(channel.ServerId);
-        var token = CreateClientToken(conn, server);
+        var tokenId = Guid.NewGuid();
+        conn.TokenId = tokenId;
         clientProvider.AddOrUpdateClientConnection(conn);
+        var token = CreateClientToken(conn, server, tokenId);
 
         logger.LogDebug("token {tokenId} created for client {clientName}-{clientId}", conn.TokenId, conn.ClientName, conn.ClientUniqueId);
         return token;
     }
 
-    private string CreateClientToken(ClientConnection conn, ServerInfo server)
+    private string CreateClientToken(ClientConnection conn, ServerInfo server, Guid tokenId)
     {
-        var tokenId = Guid.NewGuid();
         var tokenHandler = new JsonWebTokenHandler();
         var configurationKey = configuration[Constants.JwtKeyNames.ClientServerTokenKey];
 
@@ -83,6 +84,7 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
                 new Claim(Constants.Claims.ChannelSubscriberId, conn.ChannelSubscriberId.ToString()),
                 new Claim(Constants.Claims.ClientName, conn.ClientName),
                 new Claim(Constants.Claims.ClientUniqueId, conn.ClientUniqueId.ToString()),
+                new Claim(Constants.Claims.ClientId, conn.ClientId.ToString()),
                 new Claim(Constants.Claims.SocketServer, $"{server.ServerId}|{server.GetAddressWithFallback()}")
             }),
             Expires = DateTime.UtcNow.AddMinutes(Constants.ExpiryTimes.ClientTokenExpiry),

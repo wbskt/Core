@@ -90,7 +90,7 @@ public static class AuthExtensions
         return int.Parse(claim);
     }
 
-    public static Guid GetClientId(this IPrincipal principal)
+    public static Guid GetClientUniqueId(this IPrincipal principal)
     {
         var claim = principal.GetClaim(Constants.Claims.ClientUniqueId);
         return Guid.Parse(claim);
@@ -132,6 +132,12 @@ public static class AuthExtensions
     {
         var socketServer = principal.GetClaim(Constants.Claims.SocketServer);
         return int.Parse(socketServer.Split('|').First());
+    }
+
+    public static int GetClientId(this IPrincipal principal)
+    {
+        var clientId = principal.GetClaim(Constants.Claims.ClientId);
+        return int.Parse(clientId);
     }
 
     private static string GetClaim(this IPrincipal principal, string claimKey)
