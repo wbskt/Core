@@ -1,11 +1,11 @@
 ﻿/* -------------------------------- */
-/* Clients_GetBy_Ids             */
+/* ClientConnections_GetAll_Ids     */
 /* Author: Richard Joy              */
 /* Updated by: Richard Joy          */
-/* Create date: 1-May-2025         */
+/* Create date: 1-May-2025          */
 /* Description: Get clients by IDs  */
 /* -------------------------------- */
-CREATE PROCEDURE dbo.Clients_GetBy_Ids
+CREATE PROCEDURE dbo.ClientConnections_GetAll_Ids
 (
     @Ids dbo.IdListTableType READONLY
 )
@@ -16,10 +16,7 @@ BEGIN
     SELECT C.Id,
            C.ClientName,
            C.ClientUniqueId,
-           C.TokenId,
-           C.Token,
-           C.Disabled,
-           C.ChannelSubscriberId
-    FROM dbo.Clients C
+           C.UserId
+    FROM dbo.ClientConnections C
              INNER JOIN @Ids I ON C.Id = I.Id;
 END;

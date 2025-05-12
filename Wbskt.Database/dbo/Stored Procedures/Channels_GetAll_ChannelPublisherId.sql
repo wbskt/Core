@@ -1,25 +1,26 @@
 ﻿/* ------------------------------------ */
-/* Clients_GetBy_ChannelSubscriberId    */
+/* Channels_GetAll_ChannelPublisherId   */
 /* Author: Richard Joy                  */
 /* Updated by: Richard Joy              */
 /* Create date: 25-Aug-2024             */
 /* Description: Self explanatory        */
 /* ------------------------------------ */
-CREATE PROCEDURE dbo.Clients_GetBy_ChannelSubscriberId
+CREATE PROCEDURE dbo.Channels_GetAll_ChannelPublisherId
 (
-  @ChannelSubscriberId UNIQUEIDENTIFIER
+  @ChannelPublisherId UNIQUEIDENTIFIER
 )
 AS
 BEGIN
   SET NOCOUNT ON;
 
   SELECT Id
-       , ClientName
-       , ClientUniqueId
-       , TokenId
-       , Token
-       , Disabled
+       , ChannelName
+       , ChannelPublisherId
        , ChannelSubscriberId
-    FROM dbo.Clients
-   WHERE ChannelSubscriberId = @ChannelSubscriberId
+       , UserId
+       , ServerId
+       , RetentionTime
+       , ChannelSecret
+    FROM dbo.Channels
+   WHERE ChannelPublisherId = @ChannelPublisherId
 END;

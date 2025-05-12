@@ -1,19 +1,16 @@
 ﻿/* ---------------------------------------------------------------- */
-/* Clients_Upsert                                                   */
+/* ClientConnections_Upsert                                         */
 /* Author: Richard Joy                                              */
 /* Updated by: Richard Joy                                          */
 /* Create date: 25-Apr-2025                                         */
 /* Description: Insert or update a client based on ClientUniqueId   */
 /* ---------------------------------------------------------------- */
-CREATE PROCEDURE dbo.Clients_Upsert
+CREATE PROCEDURE dbo.ClientConnections_Upsert
 (
     @Id                     INT                 OUTPUT,
-    @TokenId                UNIQUEIDENTIFIER,
-    @Token                  VARCHAR(512),
     @ClientName             VARCHAR(100),
     @ClientUniqueId         UNIQUEIDENTIFIER,
-    @ChannelSubscriberId    UNIQUEIDENTIFIER,
-    @Disabled               BIT                 = 0
+    @UserId                 INT
 )
 AS
 BEGIN
@@ -22,18 +19,14 @@ BEGIN
     DECLARE @ExistingId INT;
 
     SELECT @ExistingId = Id
-    FROM dbo.Clients
+    FROM dbo.ClientConnections
     WHERE ClientUniqueId = @ClientUniqueId;
 
     IF @ExistingId IS NOT NULL
         BEGIN
-            -- Update existing client
-            UPDATE dbo.Clients
-            SET TokenId             = @TokenId,
-                Token               = @Token,
-                ClientName          = @ClientName,
-                ChannelSubscriberId = @ChannelSubscriberId,
-                Disabled            = @Disabled
+            -- Update existing client; only name can be updated
+            UPDATE dbo.ClientConnections
+            SET ClientName          = @ClientName
             WHERE
                 Id                  = @ExistingId;
 
@@ -42,20 +35,14 @@ BEGIN
     ELSE
         BEGIN
             -- Insert new client
-            INSERT INTO dbo.Clients
-            ( TokenId
-            , Token
-            , ClientName
+            INSERT INTO dbo.ClientConnections
+            ( ClientName
             , ClientUniqueId
-            , ChannelSubscriberId
-            , Disabled)
+            , UserId)
             VALUES
-                (@TokenId
-                , @Token
-                , @ClientName
+                (@ClientName
                 , @ClientUniqueId
-                , @ChannelSubscriberId
-                , @Disabled);
+                , @UserId);
 
             SET @Id = SCOPE_IDENTITY();
         END
