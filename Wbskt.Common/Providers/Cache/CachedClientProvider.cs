@@ -25,6 +25,11 @@ namespace Wbskt.Common.Providers.Cache
             throw new NotImplementedException();
         }
 
+        public IReadOnlyCollection<ClientConnection> GetAllByUserId(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
         public ClientConnection? GetByClientId(int clientId)
         {
             throw new NotImplementedException();

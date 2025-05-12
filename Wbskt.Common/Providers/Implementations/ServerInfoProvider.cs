@@ -11,14 +11,9 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
 {
     private readonly ILogger<ServerInfoProvider> logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public IReadOnlyCollection<ServerInfo> GetAllSocketServerInfo()
+    public IReadOnlyCollection<ServerInfo> GetAll()
     {
-        throw new NotImplementedException();
-    }
-
-    public IReadOnlyCollection<ServerInfo> GetAllServerInfo()
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(GetAllServerInfo));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAll));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -30,19 +25,17 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         using var reader = command.ExecuteReader();
         var mapping = GetColumnMapping(reader);
 
-        while (reader.Read()) result.Add(ParseData(reader, mapping));
+        while (reader.Read())
+        {
+            result.Add(ParseData(reader, mapping));
+        }
 
         return result;
     }
 
-    public IReadOnlyCollection<ServerInfo> GetAllCoreServerInfo()
+    public int Insert(ServerInfo serverInfo)
     {
-        throw new NotImplementedException();
-    }
-
-    public int RegisterServer(ServerInfo serverInfo)
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(RegisterServer));
+        logger.LogTrace("DB operation: {functionName}", nameof(Insert));
         ArgumentNullException.ThrowIfNull(serverInfo);
 
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
@@ -66,22 +59,6 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         return serverInfo.ServerId = (int)(ProviderExtensions.ReplaceDbNulls(id.Value) ?? 0);
     }
 
-    public void UpdateServerStatus(int id, bool active)
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(UpdateServerStatus));
-        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Servers_UpdateStatus";
-
-        command.Parameters.Add(new SqlParameter("@Id", id));
-        command.Parameters.Add(new SqlParameter("@Active", active));
-
-        command.ExecuteNonQuery();
-    }
-
     public void UpdatePublicDomainName(int id, string publicDomainName)
     {
         logger.LogTrace("DB operation: {functionName}", nameof(UpdatePublicDomainName));
@@ -98,23 +75,20 @@ internal sealed class ServerInfoProvider(ILogger<ServerInfoProvider> logger, ICo
         command.ExecuteNonQuery();
     }
 
-    internal void RegisterSqlDependency(OnChangeEventHandler onDatabaseChange)
+    public void UpdateServerStatus(int id, bool active)
     {
-        try
-        {
-            using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-            using var command = new SqlCommand("SELECT PublicDomainName, Active FROM dbo.Servers", connection); // listen to changes in this output
+        logger.LogTrace("DB operation: {functionName}", nameof(UpdateServerStatus));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
 
-            var dependency = new SqlDependency(command);
-            dependency.OnChange += onDatabaseChange;
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Servers_UpdateStatus";
 
-            connection.Open();
-            using var reader = command.ExecuteReader(); // must execute to register dependency
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "failed to register SQL dependency.");
-        }
+        command.Parameters.Add(new SqlParameter("@Id", id));
+        command.Parameters.Add(new SqlParameter("@Active", active));
+
+        command.ExecuteNonQuery();
     }
 
     private static ServerInfo ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)

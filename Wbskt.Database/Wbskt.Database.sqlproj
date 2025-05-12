@@ -79,8 +79,9 @@
     <Build Include="dbo\Stored Procedures\ClientConnections_Upsert.sql" />
     <Build Include="dbo\Stored Procedures\ClientConnections_GetBy_Id.sql" />
     <Build Include="dbo\Stored Procedures\ClientConnections_GetAll_Ids.sql" />
-    <Build Include="dbo\Stored Procedures\ClientConnections_FindBy_ClientUniqueId.sql" />
+    <Build Include="dbo\Stored Procedures\ClientConnections_GetAll_UserId.sql" />
     <Build Include="dbo\Stored Procedures\ClientConnections_GetAll_ChannelId.sql" />
+    <Build Include="dbo\Stored Procedures\ClientConnections_FindBy_ClientUniqueId.sql" />
     <Build Include="dbo\Stored Procedures\ClientConnections_FindBy_ClientName_UserId.sql" />
     <Build Include="dbo\Stored Procedures\Channels_Insert.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetAll.sql" />

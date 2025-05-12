@@ -106,6 +106,30 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         return result;
     }
 
+    public IReadOnlyCollection<ClientConnection> GetAllByUserId(int userId)
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAllByChannelId));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.ClientConnections_GetAll_UserId";
+
+        command.Parameters.Add(new SqlParameter("@UserId", userId));
+
+        var result = new List<ClientConnection>();
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+
+        while (reader.Read())
+        {
+            result.Add(ParseData(reader, mapping));
+        }
+
+        return result;
+    }
+
     public ClientConnection? GetByClientId(int clientId)
     {
         logger.LogTrace("DB operation: {functionName}", nameof(GetByClientId));

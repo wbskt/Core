@@ -18,6 +18,11 @@ public static class WbsktExceptions
         return new InvalidOperationException($"channel with id: '{channelId}' does not exists");
     }
 
+    public static InvalidOperationException InvalidId(int id, string resource)
+    {
+        return new InvalidOperationException($"invalid id provided: '{id}' for resource: {resource}");
+    }
+
     public static ValidationException ChannelSubscriberIdNotExists(Guid channelSubscriberId)
     {
         return new ValidationException($"channel with subscriberId: '{channelSubscriberId}' does not exists");

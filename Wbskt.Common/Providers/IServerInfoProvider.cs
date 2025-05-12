@@ -4,15 +4,18 @@ namespace Wbskt.Common.Providers;
 
 public interface IServerInfoProvider
 {
-    IReadOnlyCollection<ServerInfo> GetAllSocketServerInfo();
+    IReadOnlyCollection<ServerInfo> GetAll();
 
-    IReadOnlyCollection<ServerInfo> GetAllServerInfo();
-
-    IReadOnlyCollection<ServerInfo> GetAllCoreServerInfo();
-
-    void UpdateServerStatus(int id, bool active);
+    int Insert(ServerInfo serverInfo);
 
     void UpdatePublicDomainName(int id, string publicDomainName);
 
-    int RegisterServer(ServerInfo serverInfo);
+    void UpdateServerStatus(int id, bool active);
+}
+
+public interface ICachedServerInfoProvider : IServerInfoProvider
+{
+    IReadOnlyCollection<ServerInfo> GetAllSocketServerInfo();
+
+    IReadOnlyCollection<ServerInfo> GetAllCoreServerInfo();
 }

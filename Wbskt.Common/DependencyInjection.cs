@@ -15,7 +15,7 @@ public static class DependencyInjection
         serviceCollection.AddSingleton<IUsersProvider, UsersProvider>();
         serviceCollection.AddSingleton<IClientProvider, ClientProvider>();
         serviceCollection.AddSingleton<IChannelsProvider, CachedChannelsProvider>();
-        serviceCollection.AddSingleton<IServerInfoProvider, CachedServerInfoProvider>();
+        serviceCollection.AddSingleton<ICachedServerInfoProvider, CachedServerInfoProvider>();
         serviceCollection.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
     }
 }
