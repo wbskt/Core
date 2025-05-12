@@ -7,13 +7,13 @@
 /* -------------------------------- */
 CREATE PROCEDURE dbo.Channels_Insert
 (
-  @Id			        INT OUTPUT
+  @Id                   INT OUTPUT
 , @ChannelName	        VARCHAR(100)
 , @ChannelSecret        VARCHAR(100)
-, @UserId		        INT
+, @UserId               INT
 , @ServerId             INT
-, @ChannelPublisherId	UNIQUEIDENTIFIER
-, @ChannelSubscriberId	UNIQUEIDENTIFIER
+, @ChannelPublisherId   UNIQUEIDENTIFIER
+, @ChannelSubscriberId  UNIQUEIDENTIFIER
 , @RetentionTime        INT
 )
 AS

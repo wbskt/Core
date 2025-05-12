@@ -26,6 +26,7 @@ public static class Constants
         public const string UserData = "UserData";
         public const string ClientId = "ClientId";
         public const string CoreServer = "CoreServer";
+        public const string ChannelIds = "ChannelIds";
         public const string ClientName = "ClientName";
         public const string SocketServer = "SocketServer";
         public const string ClientUniqueId = "ClientUniqueId";
@@ -34,7 +35,7 @@ public static class Constants
 
     public static class ExpiryTimes // in minutes
     {
-        public const int ClientTokenExpiry = 60 * 24; // one day
+        public const int ClientTokenExpiry = 5; // 5 minutes
         public const int ServerTokenExpiry = 60 * 24; // one day
     }
 

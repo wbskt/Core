@@ -12,6 +12,12 @@ public static class WbsktExceptions
     {
         return new ValidationException($"channel: '{channelName}' already exists");
     }
+
+    public static InvalidOperationException ChannelIdNotExists(int channelId)
+    {
+        return new InvalidOperationException($"channel with id: '{channelId}' does not exists");
+    }
+
     public static ValidationException ChannelSubscriberIdNotExists(Guid channelSubscriberId)
     {
         return new ValidationException($"channel with subscriberId: '{channelSubscriberId}' does not exists");

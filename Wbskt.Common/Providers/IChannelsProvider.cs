@@ -4,15 +4,17 @@ namespace Wbskt.Common.Providers;
 
 public interface IChannelsProvider
 {
-    int CreateChannel(ChannelDetails channel);
+    IReadOnlyCollection<ChannelDetails> GetAllByChannelPublisherId(Guid channelPublisherId);
 
-    void UpdateServerIds((int Id, int ServerId)[] updates);
+    IReadOnlyCollection<ChannelDetails> GetAllByChannelServerId(int serverId);
+
+    IReadOnlyCollection<ChannelDetails> GetAllByChannelUserId(int userId);
 
     IReadOnlyCollection<ChannelDetails> GetAll();
 
-    IReadOnlyCollection<ChannelDetails> GetChannelsByUser(int userId);
+    ChannelDetails? GetByChannelSubscriberId(Guid channelSubscriberId);
 
-    ChannelDetails GetChannelBySubscriberId(Guid channelSubscriberId);
+    ChannelDetails? GetByChannelId(int channelId);
 
-    IReadOnlyCollection<ChannelDetails> GetChannelByPublisherId(Guid channelPublisherId);
+    int CreateChannel(ChannelDetails channel);
 }

@@ -4,17 +4,15 @@ namespace Wbskt.Common.Providers;
 
 public interface IClientProvider
 {
-    ClientConnection GetClientConnectionById(int clientId);
+    int FindByClientNameUserId(string clientName, int userId);
 
-    int FindClientIdByClientUniqueId(Guid clientUniqueId);
+    int FindByClientUniqueId(Guid clientUniqueId);
 
-    IReadOnlyCollection<ClientConnection> GetClientConnectionsBySubscriberId(Guid channelSubscriberId);
+    IReadOnlyCollection<ClientConnection> GetAllByChannelId(int channelId);
 
-    int AddOrUpdateClientConnection(ClientConnection clientConnection);
+    IReadOnlyCollection<ClientConnection> GetAllByClientIds(int[] clientIds);
 
-    void InvalidateToken(int clientId);
+    ClientConnection? GetByClientId(int clientId);
 
-    IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(int[] clientIds);
-
-    bool Exists(string clientName, Guid channelSubscriberId);
+    int Upsert(ClientConnection clientConnection);
 }

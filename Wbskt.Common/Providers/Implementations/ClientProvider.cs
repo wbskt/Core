@@ -10,103 +10,38 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
 {
     private readonly ILogger<ClientProvider> logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public int AddOrUpdateClientConnection(ClientConnection clientConnection)
+    public int FindByClientNameUserId(string clientName, int userId)
     {
-        logger.LogTrace("DB operation: {functionName}", nameof(AddOrUpdateClientConnection));
-        ArgumentNullException.ThrowIfNull(clientConnection);
-
+        logger.LogTrace("DB operation: {functionName}", nameof(FindByClientNameUserId));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Clients_Upsert";
+        command.CommandText = "dbo.ClientConnections_FindBy_ClientName_UserId";
 
-        command.Parameters.Add(new SqlParameter("@Token", ProviderExtensions.ReplaceDbNulls(clientConnection.Token ?? string.Empty)));
-        command.Parameters.Add(new SqlParameter("@TokenId", ProviderExtensions.ReplaceDbNulls(clientConnection.TokenId)));
-        command.Parameters.Add(new SqlParameter("@ClientName", ProviderExtensions.ReplaceDbNulls(clientConnection.ClientName)));
-        command.Parameters.Add(new SqlParameter("@ClientUniqueId", ProviderExtensions.ReplaceDbNulls(clientConnection.ClientUniqueId)));
-        command.Parameters.Add(new SqlParameter("@ChannelSubscriberId", ProviderExtensions.ReplaceDbNulls(clientConnection.ChannelSubscriberId)));
-
-        var id = new SqlParameter("@Id", SqlDbType.Int) { Size = int.MaxValue };
-        id.Direction = ParameterDirection.Output;
-        command.Parameters.Add(id);
-        command.ExecuteNonQuery();
-
-        return clientConnection.ClientId = (int)(ProviderExtensions.ReplaceDbNulls(id.Value) ?? 0);
-    }
-
-    public ClientConnection GetClientConnectionById(int clientId)
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(GetClientConnectionById));
-        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Clients_GetBy_Id";
-
-        command.Parameters.Add(new SqlParameter("@Id", clientId));
-
-        using var reader = command.ExecuteReader();
-        var mapping = GetColumnMapping(reader);
-        reader.Read();
-        return ParseData(reader, mapping);
-    }
-
-    public IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(int[] clientIds)
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(GetClientConnectionsByIds));
-        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Clients_GetBy_Ids";
-
-        var param = command.Parameters.AddWithValue("@Ids", clientIds.ToDataTable());
-        param.SqlDbType = SqlDbType.Structured;
-        param.TypeName = "dbo.IdListTableType";
-
-
-        var result = new List<ClientConnection>();
-        using var reader = command.ExecuteReader();
-        var mapping = GetColumnMapping(reader);
-
-        while (reader.Read()) result.Add(ParseData(reader, mapping));
-
-        return result;
-    }
-
-    public bool Exists(string clientName, Guid channelSubscriberId)
-    {
-
-        logger.LogTrace("DB operation: {functionName}", nameof(FindClientIdByClientUniqueId));
-        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Clients_Exists_ClientName_ChannelSubscriptionId";
-
-        command.Parameters.Add(new SqlParameter("@ClientName", ProviderExtensions.ReplaceDbNulls(clientName)));
-        command.Parameters.Add(new SqlParameter("@ChannelSubscriberId", ProviderExtensions.ReplaceDbNulls(channelSubscriberId)));
+        command.Parameters.Add(new SqlParameter("@ClientName", clientName));
+        command.Parameters.Add(new SqlParameter("@UserId", userId));
 
         using var reader = command.ExecuteReader();
         reader.Read();
-        return reader.HasRows;
+        if (reader.HasRows)
+        {
+            return reader.GetInt32(reader.GetOrdinal("Id"));
+        }
+
+        return -1;
     }
 
-
-    public int FindClientIdByClientUniqueId(Guid clientUniqueId)
+    public int FindByClientUniqueId(Guid clientUniqueId)
     {
-        logger.LogTrace("DB operation: {functionName}", nameof(FindClientIdByClientUniqueId));
+        logger.LogTrace("DB operation: {functionName}", nameof(FindByClientUniqueId));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Clients_FindBy_ClientUniqueId";
+        command.CommandText = "dbo.ClientConnections_FindBy_ClientUniqueId";
 
         command.Parameters.Add(new SqlParameter("@ClientUniqueId", clientUniqueId));
 
@@ -120,52 +55,112 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         return -1;
     }
 
-    public void InvalidateToken(int clientId)
+    public IReadOnlyCollection<ClientConnection> GetAllByChannelId(int channelId)
     {
-        logger.LogTrace("DB operation: {functionName}", nameof(InvalidateToken));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAllByChannelId));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Clients_InvalidateToken";
+        command.CommandText = "dbo.ClientConnections_GetAll_ChannelId";
 
-        command.Parameters.Add(new SqlParameter("@Id", clientId));
-        command.ExecuteNonQuery();
-    }
-
-    public IReadOnlyCollection<ClientConnection> GetClientConnectionsBySubscriberId(Guid channelSubscriberId)
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(GetClientConnectionsBySubscriberId));
-        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Clients_GetBy_ChannelSubscriberId";
-
-        command.Parameters.Add(new SqlParameter("@ChannelSubscriberId", channelSubscriberId));
+        command.Parameters.Add(new SqlParameter("@ChannelId", channelId));
 
         var result = new List<ClientConnection>();
         using var reader = command.ExecuteReader();
         var mapping = GetColumnMapping(reader);
 
-        while (reader.Read()) result.Add(ParseData(reader, mapping));
+        while (reader.Read())
+        {
+            result.Add(ParseData(reader, mapping));
+        }
 
         return result;
+    }
+
+    public IReadOnlyCollection<ClientConnection> GetAllByClientIds(int[] clientIds)
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAllByClientIds));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.ClientConnections_GetAll_Ids";
+
+        var param = command.Parameters.AddWithValue("@Ids", clientIds.ToDataTable());
+        param.SqlDbType = SqlDbType.Structured;
+        param.TypeName = "dbo.IdListTableType";
+
+
+        var result = new List<ClientConnection>();
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+
+        while (reader.Read())
+        {
+            result.Add(ParseData(reader, mapping));
+        }
+
+        return result;
+    }
+
+    public ClientConnection? GetByClientId(int clientId)
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(GetByClientId));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.ClientConnections_GetBy_Id";
+
+        command.Parameters.Add(new SqlParameter("@Id", clientId));
+
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+        reader.Read();
+        if (reader.HasRows)
+        {
+            return ParseData(reader, mapping);
+        }
+
+        return null;
+    }
+
+    public int Upsert(ClientConnection clientConnection)
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(Upsert));
+        ArgumentNullException.ThrowIfNull(clientConnection);
+
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Clients_Upsert";
+
+        command.Parameters.Add(new SqlParameter("@UserId", ProviderExtensions.ReplaceDbNulls(clientConnection.UserId)));
+        command.Parameters.Add(new SqlParameter("@ClientName", ProviderExtensions.ReplaceDbNulls(clientConnection.ClientName)));
+        command.Parameters.Add(new SqlParameter("@ClientUniqueId", ProviderExtensions.ReplaceDbNulls(clientConnection.ClientUniqueId)));
+
+        var id = new SqlParameter("@Id", SqlDbType.Int) { Size = int.MaxValue };
+        id.Direction = ParameterDirection.Output;
+        command.Parameters.Add(id);
+        command.ExecuteNonQuery();
+
+        return clientConnection.ClientId = (int)(ProviderExtensions.ReplaceDbNulls(id.Value) ?? 0);
     }
 
     private static ClientConnection ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)
     {
         var data = new ClientConnection
         {
-            Token = reader.GetString(mapping.Token),
-            TokenId = reader.GetGuid(mapping.TokenId),
+            UserId = reader.GetInt32(mapping.UserId),
             ClientId = reader.GetInt32(mapping.ClientId),
             ClientName = reader.GetString(mapping.ClientName),
-            ChannelSecret = string.Empty, // this is only used for verification. while on registration. it doesn't go to DB
             ClientUniqueId = reader.GetGuid(mapping.ClientUniqueId),
-            ChannelSubscriberId = reader.GetGuid(mapping.ChannelSubscriberId),
         };
 
         return data;
@@ -175,23 +170,19 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
     {
         var mapping = new OrdinalColumnMapping();
 
-        mapping.Token = reader.GetOrdinal("Token");
+        mapping.UserId = reader.GetOrdinal("UserId");
         mapping.ClientId = reader.GetOrdinal("Id");
-        mapping.TokenId = reader.GetOrdinal("TokenId");
         mapping.ClientName = reader.GetOrdinal("ClientName");
         mapping.ClientUniqueId = reader.GetOrdinal("ClientUniqueId");
-        mapping.ChannelSubscriberId = reader.GetOrdinal("ChannelSubscriberId");
 
         return mapping;
     }
 
     private class OrdinalColumnMapping
     {
-        public int Token;
-        public int TokenId;
+        public int UserId;
         public int ClientId;
         public int ClientName;
         public int ClientUniqueId;
-        public int ChannelSubscriberId;
     }
 }

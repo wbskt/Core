@@ -3,9 +3,9 @@
 public class ClientConnectionRequest
 {
     /// <summary>
-    /// Used for a client to connect to a channel
+    /// Details of all the channels the client is subscribed to
     /// </summary>
-    public Guid ChannelSubscriberId { get; set; }
+    public ClientChannel[] Channels { get; set; } = [];
 
     /// <summary>
     /// Human-readable name for the client
@@ -16,11 +16,6 @@ public class ClientConnectionRequest
     /// This id is unique for a particular client. This is an identifier for this specific client throughout the platform
     /// </summary>
     public required Guid ClientUniqueId { get; set;}
-
-    /// <summary>
-    /// This is a secret string provided by the user while creation of a channel
-    /// </summary>
-    public required string ChannelSecret { get; set; }
 }
 
 public class ClientConnection : ClientConnectionRequest
@@ -31,12 +26,20 @@ public class ClientConnection : ClientConnectionRequest
     public int ClientId { get; set; }
 
     /// <summary>
-    /// ID of the JWT token given to a client. Used mainly for blacklisting tokens
+    /// ID of the user who created this client
     /// </summary>
-    public Guid TokenId { get; set; }
+    public int UserId { get; set; }
+}
+
+public class ClientChannel
+{
+    /// <summary>
+    /// Used for a client to connect to a channel
+    /// </summary>
+    public Guid ChannelSubscriberId { get; set; }
 
     /// <summary>
-    /// JWT token, saved in the DB to reuse.
+    /// This is a secret string provided by the user while creation of a channel
     /// </summary>
-    public string? Token  { get; set; }
+    public required string ChannelSecret { get; set; }
 }

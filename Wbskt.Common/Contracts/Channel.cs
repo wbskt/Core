@@ -2,7 +2,7 @@
 
 namespace Wbskt.Common.Contracts;
 
-public class ChannelDetails : ChannelRequest
+public class ChannelDetails : ChannelCreationRequest
 {
     /// <summary>
     /// [Internal] ID
@@ -22,7 +22,7 @@ public class ChannelDetails : ChannelRequest
     public int ServerId { get; set; }
 }
 
-public class ChannelRequest
+public class ChannelCreationRequest
 {
     /// <summary>
     /// Human-readable name for the channel

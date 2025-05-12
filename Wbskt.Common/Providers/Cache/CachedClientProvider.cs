@@ -5,39 +5,34 @@ namespace Wbskt.Common.Providers.Cache
 {
     internal sealed class CachedClientProvider(ClientProvider clientProvider) : IClientProvider
     {
-        public int AddOrUpdateClientConnection(ClientConnection clientConnection)
+        public int FindByClientNameUserId(string clientName, int userId)
         {
-            return clientProvider.AddOrUpdateClientConnection(clientConnection);
+            throw new NotImplementedException();
         }
 
-        public int FindClientIdByClientUniqueId(Guid clientUniqueId)
+        public int FindByClientUniqueId(Guid clientUniqueId)
         {
-            return clientProvider.FindClientIdByClientUniqueId(clientUniqueId);
+            throw new NotImplementedException();
         }
 
-        public ClientConnection GetClientConnectionById(int clientId)
+        public IReadOnlyCollection<ClientConnection> GetAllByChannelId(int channelId)
         {
-            return clientProvider.GetClientConnectionById(clientId);
+            throw new NotImplementedException();
         }
 
-        public IReadOnlyCollection<ClientConnection> GetClientConnectionsBySubscriberId(Guid channelSubscriberId)
+        public IReadOnlyCollection<ClientConnection> GetAllByClientIds(int[] clientIds)
         {
-            return clientProvider.GetClientConnectionsBySubscriberId(channelSubscriberId);
+            throw new NotImplementedException();
         }
 
-        public void InvalidateToken(int clientId)
+        public ClientConnection? GetByClientId(int clientId)
         {
-            clientProvider.InvalidateToken(clientId);
+            throw new NotImplementedException();
         }
 
-        public IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(int[] clientIds)
+        public int Upsert(ClientConnection clientConnection)
         {
-            return clientProvider.GetClientConnectionsByIds(clientIds);
-        }
-
-        public bool Exists(string reqClientName, Guid reqChannelSubscriberId)
-        {
-            return clientProvider.Exists(reqClientName, reqChannelSubscriberId);
+            throw new NotImplementedException();
         }
     }
 }

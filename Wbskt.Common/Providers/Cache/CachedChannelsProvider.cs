@@ -1,47 +1,32 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Data.SqlClient;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Exceptions;
 using Wbskt.Common.Providers.Implementations;
 
 namespace Wbskt.Common.Providers.Cache
 {
-    internal sealed class CachedChannelsProvider : IChannelsProvider
+    internal sealed class CachedChannelsProvider(ILogger<CachedChannelsProvider> logger, ChannelsProvider channelsProvider) : IChannelsProvider
     {
         private static readonly string ServerType = Environment.GetEnvironmentVariable(nameof(ServerType)) ?? Constants.ServerType.CoreServer.ToString();
 
         private readonly List<ChannelDetails> channels = [];
         private readonly object @lock = new();
-        private readonly ILogger<CachedChannelsProvider> logger;
-        private readonly ChannelsProvider channelsProvider;
 
-        public CachedChannelsProvider(ILogger<CachedChannelsProvider> logger, ChannelsProvider channelsProvider)
+        // channelsProvider.RegisterSqlDependency(OnDatabaseChange);
+
+        public IReadOnlyCollection<ChannelDetails> GetAllByChannelPublisherId(Guid channelPublisherId)
         {
-            this.logger = logger;
-            this.channelsProvider = channelsProvider;
-
-            channelsProvider.RegisterSqlDependency(OnDatabaseChange);
+            return [.. channels.Where(c => c.ChannelPublisherId == channelPublisherId)];
         }
 
-        public int CreateChannel(ChannelDetails channel)
+        public IReadOnlyCollection<ChannelDetails> GetAllByChannelServerId(int serverId)
         {
-            if (ServerType != Constants.ServerType.CoreServer.ToString())
-            {
-                logger.LogError("only core server perform this operation: {operationName}", nameof(CreateChannel));
-                return -1;
-            }
+            return [.. channels.Where(c => c.ServerId == serverId)];
+        }
 
-            var id = channelsProvider.CreateChannel(channel);
-            if (id <= 0)
-            {
-                throw new InvalidOperationException("this shouldn't happen. DB returned with id <= 0. (seek help)");
-            }
-
-            lock (@lock)
-            {
-                channels.Add(channel);
-            }
-            return id;
+        public IReadOnlyCollection<ChannelDetails> GetAllByChannelUserId(int userId)
+        {
+            return [.. channels.Where(c => c.UserId == userId)];
         }
 
         public IReadOnlyCollection<ChannelDetails> GetAll()
@@ -66,19 +51,35 @@ namespace Wbskt.Common.Providers.Cache
             }
         }
 
-        public IReadOnlyCollection<ChannelDetails> GetChannelByPublisherId(Guid channelPublisherId)
-        {
-            return [.. channels.Where(c => c.ChannelPublisherId == channelPublisherId)];
-        }
-
-        public IReadOnlyCollection<ChannelDetails> GetChannelsByUser(int userId)
-        {
-            return [.. channels.Where(c => c.UserId == userId)];
-        }
-
-        public ChannelDetails GetChannelBySubscriberId(Guid channelSubscriberId)
+        public ChannelDetails GetByChannelSubscriberId(Guid channelSubscriberId)
         {
             return channels.FirstOrDefault(c => c.ChannelSubscriberId == channelSubscriberId) ?? throw WbsktExceptions.ChannelSubscriberIdNotExists(channelSubscriberId);
+        }
+
+        public ChannelDetails GetByChannelId(int channelId)
+        {
+            return channels.FirstOrDefault(c => c.ChannelId == channelId) ?? throw WbsktExceptions.ChannelIdNotExists(channelId);
+        }
+
+        public int CreateChannel(ChannelDetails channel)
+        {
+            if (ServerType != Constants.ServerType.CoreServer.ToString())
+            {
+                logger.LogError("only core server perform this operation: {operationName}", nameof(CreateChannel));
+                return -1;
+            }
+
+            var id = channelsProvider.CreateChannel(channel);
+            if (id <= 0)
+            {
+                throw new InvalidOperationException("this shouldn't happen. DB returned with id <= 0. (seek help)");
+            }
+
+            lock (@lock)
+            {
+                channels.Add(channel);
+            }
+            return id;
         }
 
         public void UpdateServerIds((int Id, int ServerId)[] updates)
@@ -98,25 +99,25 @@ namespace Wbskt.Common.Providers.Cache
                 }
             }
 
-            channelsProvider.UpdateServerIds(updates);
+            // channelsProvider.UpdateServerIds(updates);
         }
 
-        private void RefreshCache()
-        {
-            var records = channelsProvider.GetAll();
-            lock (@lock)
-            {
-                channels.Clear();
-                channels.AddRange(records);
-            }
-        }
-
-        private void OnDatabaseChange(object sender, SqlNotificationEventArgs e)
-        {
-            logger.LogInformation("database change detected: {Info}", e.Info);
-
-            RefreshCache();
-            channelsProvider.RegisterSqlDependency(OnDatabaseChange); // re-register after change
-        }
+        // private void RefreshCache()
+        // {
+        //     var records = channelsProvider.GetAll();
+        //     lock (@lock)
+        //     {
+        //         channels.Clear();
+        //         channels.AddRange(records);
+        //     }
+        // }
+        //
+        // private void OnDatabaseChange(object sender, SqlNotificationEventArgs e)
+        // {
+        //     logger.LogInformation("database change detected: {Info}", e.Info);
+        //
+        //     RefreshCache();
+        //     channelsProvider.RegisterSqlDependency(OnDatabaseChange); // re-register after change
+        // }
     }
 }

@@ -10,6 +10,146 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
 {
     private readonly ILogger<ChannelsProvider> logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+    public IReadOnlyCollection<ChannelDetails> GetAllByChannelPublisherId(Guid channelPublisherId)
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAllByChannelPublisherId));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Channels_GetAll_ChannelPublisherId";
+
+        command.Parameters.Add(new SqlParameter("@ChannelPublisherId", channelPublisherId));
+
+        var result = new List<ChannelDetails>();
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+
+        while (reader.Read())
+        {
+            result.Add(ParseData(reader, mapping));
+        }
+
+        return result;
+    }
+
+    public IReadOnlyCollection<ChannelDetails> GetAllByChannelServerId(int serverId)
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAllByChannelServerId));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Channels_GetAll_ServerId";
+
+        command.Parameters.Add(new SqlParameter("@ServerId", serverId));
+
+        var result = new List<ChannelDetails>();
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+
+        while (reader.Read())
+        {
+            result.Add(ParseData(reader, mapping));
+        }
+
+        return result;
+    }
+
+    public IReadOnlyCollection<ChannelDetails> GetAllByChannelUserId(int userId)
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAllByChannelUserId));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Channels_GetAll_UserId";
+
+        command.Parameters.Add(new SqlParameter("@UserId", userId));
+
+        var result = new List<ChannelDetails>();
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+
+        while (reader.Read())
+        {
+            result.Add(ParseData(reader, mapping));
+        }
+
+        return result;
+    }
+
+    public IReadOnlyCollection<ChannelDetails> GetAll()
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAll));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Channels_GetAll";
+
+        var result = new List<ChannelDetails>();
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+
+        while (reader.Read())
+        {
+            result.Add(ParseData(reader, mapping));
+        }
+
+        return result;
+    }
+
+    public ChannelDetails? GetByChannelSubscriberId(Guid channelSubscriberId)
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(GetByChannelSubscriberId));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Channels_GetBy_ChannelSubscriberId";
+
+        command.Parameters.Add(new SqlParameter("@ChannelSubscriberId", channelSubscriberId));
+
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+        reader.Read();
+        if (reader.HasRows)
+        {
+            return ParseData(reader, mapping);
+        }
+
+        return null;
+    }
+
+    public ChannelDetails? GetByChannelId(int channelId)
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(GetByChannelId));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Channels_GetBy_Id";
+
+        command.Parameters.Add(new SqlParameter("@Id", channelId));
+
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+        reader.Read();
+        if (reader.HasRows)
+        {
+            return ParseData(reader, mapping);
+        }
+
+        return null;
+    }
+
     public int CreateChannel(ChannelDetails channel)
     {
         logger.LogTrace("DB operation: {functionName}", nameof(CreateChannel));
@@ -37,121 +177,6 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         command.ExecuteNonQuery();
 
         return channel.ChannelId = (int)(ProviderExtensions.ReplaceDbNulls(id.Value) ?? 0);
-    }
-
-    public void UpdateServerIds((int Id, int ServerId)[] updates)
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(UpdateServerIds));
-        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Channels_ServerId_UpdateMultiple";
-
-        var param = command.Parameters.AddWithValue("@Updates", updates.ToDataTable());
-        param.SqlDbType = SqlDbType.Structured;
-        param.TypeName = "dbo.IdIntValueTableType";
-
-        command.ExecuteNonQuery();
-    }
-
-    public IReadOnlyCollection<ChannelDetails> GetChannelsByUser(int userId)
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(GetChannelsByUser));
-        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Channels_GetBy_UserId";
-
-        command.Parameters.Add(new SqlParameter("@UserId", userId));
-
-        var result = new List<ChannelDetails>();
-        using var reader = command.ExecuteReader();
-        var mapping = GetColumnMapping(reader);
-
-        while (reader.Read()) result.Add(ParseData(reader, mapping));
-
-        return result;
-    }
-
-    public IReadOnlyCollection<ChannelDetails> GetAll()
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(GetAll));
-        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Channels_GetAll";
-
-        var result = new List<ChannelDetails>();
-        using var reader = command.ExecuteReader();
-        var mapping = GetColumnMapping(reader);
-
-        while (reader.Read()) result.Add(ParseData(reader, mapping));
-
-        return result;
-    }
-
-    public ChannelDetails GetChannelBySubscriberId(Guid channelSubscriberId)
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(GetChannelBySubscriberId));
-        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Channels_GetBy_ChannelSubscriberId";
-
-        command.Parameters.Add(new SqlParameter("@ChannelSubscriberId", channelSubscriberId));
-
-        using var reader = command.ExecuteReader();
-        var mapping = GetColumnMapping(reader);
-        reader.Read();
-        return ParseData(reader, mapping);
-    }
-
-    public IReadOnlyCollection<ChannelDetails> GetChannelByPublisherId(Guid channelPublisherId)
-    {
-        logger.LogTrace("DB operation: {functionName}", nameof(GetChannelByPublisherId));
-        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Channels_GetBy_ChannelPublisherId";
-
-        command.Parameters.Add(new SqlParameter("@ChannelPublisherId", channelPublisherId));
-
-        var result = new List<ChannelDetails>();
-        using var reader = command.ExecuteReader();
-        var mapping = GetColumnMapping(reader);
-
-        while (reader.Read()) result.Add(ParseData(reader, mapping));
-
-        return result;
-    }
-
-    internal void RegisterSqlDependency(OnChangeEventHandler onDatabaseChange)
-    {
-        try
-        {
-            using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-            using var command = new SqlCommand("SELECT Id FROM dbo.Channels", connection); // listen to changes in this output
-
-            var dependency = new SqlDependency(command);
-            dependency.OnChange += onDatabaseChange;
-
-            connection.Open();
-            using var reader = command.ExecuteReader(); // must execute to register dependency
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "failed to register SQL dependency.");
-        }
     }
 
     private static ChannelDetails ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)

@@ -140,6 +140,12 @@ public static class AuthExtensions
         return int.Parse(clientId);
     }
 
+    public static int[] GetChannelIds(this IPrincipal principal)
+    {
+        var channelIds = principal.GetClaim(Constants.Claims.ChannelIds);
+        return channelIds.Split(',').Select(int.Parse).ToArray();
+    }
+
     private static string GetClaim(this IPrincipal principal, string claimKey)
     {
         if (principal.Identity is not ClaimsIdentity claimsPrincipal)
