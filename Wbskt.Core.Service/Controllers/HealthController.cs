@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Extensions;
+using Wbskt.Common.Services;
 using Wbskt.Core.Service.Services;
 
 namespace Wbskt.Core.Service.Controllers;
 
 [Route("")]
 [ApiController]
-public class HealthController(ILogger<HealthController> logger, IServerInfoService serverInfoService) : ControllerBase
+public class HealthController(ILogger<HealthController> logger, IServerInfoService serverInfoService, ICancellationService cancellationService) : ControllerBase
 {
     [HttpGet]
     public IActionResult Ping()
@@ -30,7 +31,7 @@ public class HealthController(ILogger<HealthController> logger, IServerInfoServi
             {
                 using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
                 serverInfoService.UpdateServerStatus(sid, true);
-                await Echo(webSocket, Program.Cts.Token);
+                await Echo(webSocket);
             }
             catch (Exception ex)
             {
@@ -47,9 +48,9 @@ public class HealthController(ILogger<HealthController> logger, IServerInfoServi
         }
     }
 
-    private async Task Echo(WebSocket ws, CancellationToken ct)
+    private async Task Echo(WebSocket ws)
     {
-        ct.Register(() => CloseClientConnection(logger, ws).Wait(CancellationToken.None));
+        cancellationService.InvokeOnShutdown(() => CloseClientConnection(ws).Wait(CancellationToken.None));
         var result = await ws.ReadAsync(CancellationToken.None);
 
         while (!result.ReceiveResult.CloseStatus.HasValue)
@@ -64,7 +65,7 @@ public class HealthController(ILogger<HealthController> logger, IServerInfoServi
         }
     }
 
-    private static async Task CloseClientConnection(ILogger logger, WebSocket ws)
+    private async Task CloseClientConnection(WebSocket ws)
     {
         if (ws.State is WebSocketState.Open or WebSocketState.CloseReceived or WebSocketState.CloseSent)
         {

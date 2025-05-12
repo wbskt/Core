@@ -6,6 +6,7 @@ using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Extensions;
 using Wbskt.Common.Providers;
+using Wbskt.Common.Services;
 using Wbskt.Core.Service.Pipeline;
 using Wbskt.Core.Service.Services;
 using Wbskt.Core.Service.Services.Implementations;
@@ -14,7 +15,6 @@ namespace Wbskt.Core.Service;
 
 public static class Program
 {
-    public static readonly CancellationTokenSource Cts = new();
     private static readonly string ProgramDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Wbskt");
 
     public static async Task Main(string[] args)
@@ -53,6 +53,7 @@ public static class Program
         builder.Services.AddSingleton<IClientService, ClientService>();
         builder.Services.AddSingleton<IChannelsService, ChannelsService>();
         builder.Services.AddSingleton<IServerInfoService, ServerInfoService>();
+        builder.Services.AddSingleton<ICancellationService, CancellationService>();
 
         // to avoid cyclic-dependency
         builder.Services.AddSingleton(sp => new Lazy<IServerInfoService>(sp.GetRequiredService<IServerInfoService>));
@@ -89,6 +90,7 @@ public static class Program
         SqlDependency.Start(connectionString);
 
         var serverInfoService = app.Services.GetRequiredService<IServerInfoService>();
+        var cancellationService = app.Services.GetRequiredService<ICancellationService>();
         app.Lifetime.ApplicationStarted.Register(() =>
         {
             serverInfoService.MapAllChannels();
@@ -96,10 +98,10 @@ public static class Program
 
         app.Lifetime.ApplicationStopping.Register(() =>
         {
-            Cts.Cancel();
+            cancellationService.Cancel().Wait();
             SqlDependency.Stop(connectionString);
         });
 
-        await app.RunAsync(Cts.Token);
+        await app.RunAsync(cancellationService.GetToken());
     }
 }
