@@ -4,11 +4,11 @@ namespace Wbskt.Common.Providers;
 
 public interface IUsersProvider
 {
-    int AddUser(User user);
+    int FindByEmailId(string emailId);
 
-    User GetUserByEmailId(string emailId);
+    User? GetByEmailId(string emailId);
 
-    User GetUserById(int id);
+    User? GetById(int id);
 
-    int FindUserIdByEmailId(string emailId);
+    int Insert(User user);
 }
