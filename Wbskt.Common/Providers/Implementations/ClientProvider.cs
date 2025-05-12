@@ -78,6 +78,25 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         return result;
     }
 
+    public bool Exists(string clientName, Guid channelSubscriberId)
+    {
+
+        logger.LogTrace("DB operation: {functionName}", nameof(FindClientIdByClientUniqueId));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.Clients_Exists_ClientName_ChannelSubscriptionId";
+
+        command.Parameters.Add(new SqlParameter("@ClientName", ProviderExtensions.ReplaceDbNulls(clientName)));
+        command.Parameters.Add(new SqlParameter("@ChannelSubscriberId", ProviderExtensions.ReplaceDbNulls(channelSubscriberId)));
+
+        using var reader = command.ExecuteReader();
+        reader.Read();
+        return reader.HasRows;
+    }
+
 
     public int FindClientIdByClientUniqueId(Guid clientUniqueId)
     {
@@ -134,25 +153,6 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         while (reader.Read()) result.Add(ParseData(reader, mapping));
 
         return result;
-    }
-
-    internal void RegisterSqlDependency(OnChangeEventHandler onDatabaseChange)
-    {
-        try
-        {
-            using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
-            using var command = new SqlCommand("SELECT Id FROM dbo.Clients", connection); // listen to changes in this output
-
-            var dependency = new SqlDependency(command);
-            dependency.OnChange += onDatabaseChange;
-
-            connection.Open();
-            using var reader = command.ExecuteReader(); // must execute to register dependency
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "failed to register SQL dependency.");
-        }
     }
 
     private static ClientConnection ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)

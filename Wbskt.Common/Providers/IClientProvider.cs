@@ -16,5 +16,5 @@ public interface IClientProvider
 
     IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(int[] clientIds);
 
-    bool Exists(string reqClientName, Guid reqChannelSubscriberId);
+    bool Exists(string clientName, Guid channelSubscriberId);
 }

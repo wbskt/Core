@@ -61,9 +61,9 @@
     <Folder Include="dbo\" />
     <Folder Include="dbo\Tables\" />
     <Folder Include="dbo\Types\" />
-    <Folder Include="dbo\Stored Procedures\" />
   </ItemGroup>
   <ItemGroup>
+    <Build Include="dbo\Stored Procedures\Clients_Exists_ClientName_ChannelSubscriptionId.sql" />
     <Build Include="dbo\Types\IdIntValueTableType.sql" />
     <Build Include="dbo\Types\IdListTableType.sql" />
     <Build Include="dbo\Tables\Channels.sql" />

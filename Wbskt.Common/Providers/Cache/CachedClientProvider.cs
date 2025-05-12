@@ -5,8 +5,6 @@ namespace Wbskt.Common.Providers.Cache
 {
     internal sealed class CachedClientProvider(ClientProvider clientProvider) : IClientProvider
     {
-        // clientProvider.RegisterSqlDependency(OnDatabaseChange);
-
         public int AddOrUpdateClientConnection(ClientConnection clientConnection)
         {
             return clientProvider.AddOrUpdateClientConnection(clientConnection);
@@ -37,12 +35,9 @@ namespace Wbskt.Common.Providers.Cache
             return clientProvider.GetClientConnectionsByIds(clientIds);
         }
 
-        // private void OnDatabaseChange(object sender, SqlNotificationEventArgs e)
-        // {
-        //     logger.LogInformation("database change detected: {Info}", e.Info);
-        //
-        //     // RefreshCache();
-        //     // clientProvider.RegisterSqlDependency(OnDatabaseChange); // re-register after change
-        // }
+        public bool Exists(string reqClientName, Guid reqChannelSubscriberId)
+        {
+            return clientProvider.Exists(reqClientName, reqChannelSubscriberId);
+        }
     }
 }
