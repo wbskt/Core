@@ -15,4 +15,6 @@ public interface IClientProvider
     void InvalidateToken(int clientId);
 
     IReadOnlyCollection<ClientConnection> GetClientConnectionsByIds(int[] clientIds);
+
+    bool Exists(string reqClientName, Guid reqChannelSubscriberId);
 }

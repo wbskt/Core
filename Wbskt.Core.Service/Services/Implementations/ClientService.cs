@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using Wbskt.Common;
 using Wbskt.Common.Contracts;
+using Wbskt.Common.Exceptions;
 using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
@@ -18,6 +19,11 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
 
     public string AddClientConnection(ClientConnectionRequest req)
     {
+        if (clientProvider.Exists(req.ClientName, req.ChannelSubscriberId))
+        {
+            throw WbsktExceptions.ClientWithSameNameExists(req.ClientName);
+        }
+
         // check if this client exists
         // if yes, check if its token is expired or used.
         var clientId = clientProvider.FindClientIdByClientUniqueId(req.ClientUniqueId);

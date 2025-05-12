@@ -21,4 +21,9 @@ public static class WbsktExceptions
     {
         return new InvalidOperationException($"the socket server with id: '{id}' is not present in the registered servers");
     }
+
+    public static ValidationException ClientWithSameNameExists(string reqClientName)
+    {
+        return new ValidationException($"client with name: '{reqClientName}' already exists in the same channel");
+    }
 }
