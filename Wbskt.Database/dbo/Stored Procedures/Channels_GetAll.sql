@@ -15,8 +15,6 @@ BEGIN
        , ChannelPublisherId
        , ChannelSubscriberId
        , UserId
-       , ServerId
-       , RetentionTime
        , ChannelSecret
     FROM dbo.Channels
 END;

@@ -18,9 +18,7 @@ BEGIN
        , ChannelPublisherId
        , ChannelSubscriberId
        , UserId
-       , RetentionTime
        , ChannelSecret
-       , ServerId
-    FROM dbo.Channels
-   WHERE ServerId = @ServerId
+    FROM dbo.Channels C INNER JOIN dbo.ServersChannels SC on C.Id = SC.ChannelId
+   WHERE SC.ServerId = @ServerId
 END;

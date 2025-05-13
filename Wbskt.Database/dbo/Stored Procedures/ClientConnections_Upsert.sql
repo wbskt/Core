@@ -10,7 +10,8 @@ CREATE PROCEDURE dbo.ClientConnections_Upsert
     @Id                     INT                 OUTPUT,
     @ClientName             VARCHAR(100),
     @ClientUniqueId         UNIQUEIDENTIFIER,
-    @UserId                 INT
+    @UserId                 INT,
+    @ServerId               INT
 )
 AS
 BEGIN
@@ -26,7 +27,8 @@ BEGIN
         BEGIN
             -- Update existing client; only name can be updated
             UPDATE dbo.ClientConnections
-            SET ClientName          = @ClientName
+            SET ClientName          = @ClientName,
+                ServerId            = @ServerId
             WHERE
                 Id                  = @ExistingId;
 
@@ -37,10 +39,12 @@ BEGIN
             -- Insert new client
             INSERT INTO dbo.ClientConnections
             ( ClientName
+            , ServerId
             , ClientUniqueId
             , UserId)
             VALUES
                 (@ClientName
+                , @ServerId
                 , @ClientUniqueId
                 , @UserId);
 
