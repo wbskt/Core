@@ -1,34 +1,28 @@
-﻿using System.Collections.Generic;
-using Wbskt.Common;
-using Wbskt.Common.Contracts;
+﻿using Wbskt.Common.Contracts;
 using Wbskt.Common.Exceptions;
 using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
 
-public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider channelsProvider, Lazy<IServerInfoService> serverInfoService) : IChannelsService
+public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider channelsProvider) : IChannelsService
 {
     private readonly ILogger<ChannelsService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IChannelsProvider channelsProvider = channelsProvider ?? throw new ArgumentNullException(nameof(channelsProvider));
-    private readonly Lazy<IServerInfoService> serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
 
-    public ChannelDetails CreateChannel(ChannelRequest channel)
+    public ChannelDetails CreateChannel(ChannelCreationRequest channelCreation)
     {
-        if (CheckIfUserHasSameChannelName(channel.UserId, channel.ChannelName))
+        if (CheckIfUserHasSameChannelName(channelCreation.UserId, channelCreation.ChannelName))
         {
-            throw WbsktExceptions.ChannelExists(channel.ChannelName);
+            throw WbsktExceptions.ChannelExists(channelCreation.ChannelName);
         }
 
         var details = new ChannelDetails
         {
-            UserId = channel.UserId,
-            ChannelName = channel.ChannelName,
-            RetentionTime = channel.RetentionTime,
-            ChannelSecret = channel.ChannelSecret,
-            ChannelPublisherId = channel.ChannelPublisherId == Guid.Empty ? Guid.NewGuid() : channel.ChannelPublisherId,
+            UserId = channelCreation.UserId,
+            ChannelName = channelCreation.ChannelName,
+            ChannelSecret = channelCreation.ChannelSecret,
+            ChannelPublisherId = channelCreation.ChannelPublisherId == Guid.Empty ? Guid.NewGuid() : channelCreation.ChannelPublisherId,
             ChannelSubscriberId = Guid.NewGuid(),
-            // todo: this is only required for multi S.S setup, kept it since i guess the logic under the hood works
-            ServerId = serverInfoService.Value.GetAvailableServerId()
         };
 
         details.ChannelId = channelsProvider.CreateChannel(details);
@@ -40,29 +34,34 @@ public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider 
         return channelsProvider.GetAll();
     }
 
-    public bool CheckIfUserHasSameChannelName(int userId, string channelName)
-    {
-        var channels = GetAll();
-        return channels.Any(c => c.UserId == userId && c.ChannelName == channelName);
-    }
-
     public IEnumerable<ChannelDetails> GetChannelsForUser(int userId)
     {
-        return channelsProvider.GetChannelsByUser(userId);
+        return channelsProvider.GetAllByChannelUserId(userId);
     }
 
     public ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId)
     {
-        return channelsProvider.GetChannelBySubscriberId(channelSubscriberId);
+        return channelsProvider.GetByChannelSubscriberId(channelSubscriberId)!;
     }
 
-    public bool VerifyChannel(Guid channelSubscriberId, string channelSecret)
+    public bool VerifyChannel(ClientChannel[] channels)
     {
-        return GetChannelSubscriberId(channelSubscriberId).ChannelSecret.Equals(channelSecret);
+        foreach (var channel in channels)
+        {
+            if (GetChannelSubscriberId(channel.ChannelSubscriberId).ChannelSecret.Equals(channel.ChannelSecret))
+            {
+                continue;
+            }
+
+            logger.LogWarning("channel subscription id: '{subId}' does not match the secret", channel.ChannelSubscriberId);
+            return false;
+        }
+        return true;
     }
 
-    public void UpdateServerIds((int Id, int ServerId)[] updates)
+    private bool CheckIfUserHasSameChannelName(int userId, string channelName)
     {
-        channelsProvider.UpdateServerIds(updates);
+        var channels = GetAll();
+        return channels.Any(c => c.UserId == userId && c.ChannelName == channelName);
     }
 }

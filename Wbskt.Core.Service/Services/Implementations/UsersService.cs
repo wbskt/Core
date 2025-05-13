@@ -10,22 +10,22 @@ public class UsersService(ILogger<UsersService> logger, IUsersProvider usersProv
 
     public User AddUser(User user)
     {
-        user.UserId = usersProvider.AddUser(user);
+        user.UserId = usersProvider.Insert(user);
         return user;
     }
 
     public int FindUserIdByEmailId(string emailId)
     {
-        return usersProvider.FindUserIdByEmailId(emailId);
+        return usersProvider.FindByEmailId(emailId);
     }
 
     public User GetUserByEmailId(string emailId)
     {
-        return usersProvider.GetUserByEmailId(emailId);
+        return usersProvider.GetByEmailId(emailId)!;
     }
 
     public User GetUserById(int userId)
     {
-        return usersProvider.GetUserById(userId);
+        return usersProvider.GetById(userId)!;
     }
 }

@@ -14,12 +14,6 @@ public class ChannelDetails : ChannelCreationRequest
     /// Used for a client to connect to a channel
     /// </summary>
     public Guid ChannelSubscriberId { get; set; }
-
-    /// <summary>
-    /// [Internal]
-    /// TODO: This will refer to the S.S to which the clients will subscribe to.
-    /// </summary>
-    public int ServerId { get; set; }
 }
 
 public class ChannelCreationRequest
@@ -45,9 +39,4 @@ public class ChannelCreationRequest
     /// </summary>
     [JsonIgnore]
     public int UserId { get; set; }
-
-    /// <summary>
-    /// TODO
-    /// </summary>
-    public int RetentionTime { get; set; }
 }

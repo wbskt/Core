@@ -29,6 +29,11 @@ public class ClientConnection : ClientConnectionRequest
     /// ID of the user who created this client
     /// </summary>
     public int UserId { get; set; }
+
+    /// <summary>
+    /// ID of the socket server to which this connection is associated
+    /// </summary>
+    public int ServerId { get; set; }
 }
 
 public class ClientChannel

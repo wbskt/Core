@@ -27,10 +27,10 @@ public class ChannelsController(ILogger<ChannelsController> logger, IChannelsSer
 
     [HttpPost]
     [Authorize(AuthenticationSchemes = Constants.AuthSchemes.UserScheme)]
-    public IActionResult CreateChannel(ChannelRequest channel)
+    public IActionResult CreateChannel(ChannelCreationRequest channelCreation)
     {
-        channel.UserId = User.GetUserId();
-        ChannelDetails details = channelsService.CreateChannel(channel);
+        channelCreation.UserId = User.GetUserId();
+        ChannelDetails details = channelsService.CreateChannel(channelCreation);
         return Ok(details);
     }
 
@@ -38,9 +38,9 @@ public class ChannelsController(ILogger<ChannelsController> logger, IChannelsSer
     [AllowAnonymous]
     public IActionResult SubscribeToChannel(ClientConnectionRequest request)
     {
-        if (!channelsService.VerifyChannel(request.ChannelSubscriberId, request.ChannelSecret))
+        if (!channelsService.VerifyChannel(request.Channels))
         {
-            logger.LogWarning("channel secret does not match the subscriptionId {channelSubscriberId}", request.ChannelSubscriberId);
+            logger.LogWarning("channel secrets does not match the subscriptionIds");
             return Unauthorized();
         }
 

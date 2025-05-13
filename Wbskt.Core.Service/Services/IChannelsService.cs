@@ -6,7 +6,7 @@ namespace Wbskt.Core.Service.Services;
 
 public interface IChannelsService
 {
-    ChannelDetails CreateChannel(ChannelRequest channel);
+    ChannelDetails CreateChannel(ChannelCreationRequest channelCreation);
 
     IReadOnlyCollection<ChannelDetails> GetAll();
 
@@ -14,7 +14,5 @@ public interface IChannelsService
 
     ChannelDetails GetChannelSubscriberId(Guid channelSubscriberId);
 
-    bool VerifyChannel(Guid requestChannelSubscriberId, string requestChannelSecret);
-
-    void UpdateServerIds((int Id, int ServerId)[] updates);
+    bool VerifyChannel(ClientChannel[] channels);
 }

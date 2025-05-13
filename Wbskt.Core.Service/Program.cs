@@ -89,11 +89,9 @@ public static class Program
         var connectionString = app.Services.GetRequiredService<IConnectionStringProvider>().ConnectionString;
         SqlDependency.Start(connectionString);
 
-        var serverInfoService = app.Services.GetRequiredService<IServerInfoService>();
         var cancellationService = app.Services.GetRequiredService<ICancellationService>();
         app.Lifetime.ApplicationStarted.Register(() =>
         {
-            serverInfoService.MapAllChannels();
         });
 
         app.Lifetime.ApplicationStopping.Register(() =>

@@ -6,7 +6,7 @@ public interface IChannelsProvider
 {
     IReadOnlyCollection<ChannelDetails> GetAllByChannelPublisherId(Guid channelPublisherId);
 
-    IReadOnlyCollection<ChannelDetails> GetAllByChannelServerId(int serverId);
+    IReadOnlyCollection<ChannelDetails> GetAllByServerId(int serverId);
 
     IReadOnlyCollection<ChannelDetails> GetAllByChannelUserId(int userId);
 
@@ -17,4 +17,9 @@ public interface IChannelsProvider
     ChannelDetails? GetByChannelId(int channelId);
 
     int CreateChannel(ChannelDetails channel);
+}
+
+public interface ICachedChannelsProvider : IChannelsProvider
+{
+    IReadOnlyCollection<ChannelDetails> GetAllByChannelSubscriberIds(Guid[] channelSubscriberIds);
 }

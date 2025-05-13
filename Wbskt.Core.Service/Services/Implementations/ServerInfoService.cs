@@ -6,7 +6,7 @@ using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
 
-public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoProvider serverInfoProvider, IChannelsService channelsService, IAuthService authService) : IServerInfoService
+public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerInfoProvider serverInfoProvider, IChannelsService channelsService, IAuthService authService) : IServerInfoService
 {
     /// <summary>
     /// Map of each S.S with the list of channels assigned to it.
@@ -14,7 +14,7 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, IServerInfoPro
     private readonly IDictionary<int, HashSet<int>> serverChannelMap = new Dictionary<int, HashSet<int>>();
     private IDictionary<int, ServerInfo> allServers = new Dictionary<int, ServerInfo>();
     private readonly ILogger<ServerInfoService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IServerInfoProvider serverInfoProvider = serverInfoProvider ?? throw new ArgumentNullException(nameof(serverInfoProvider));
+    private readonly ICachedServerInfoProvider serverInfoProvider = serverInfoProvider ?? throw new ArgumentNullException(nameof(serverInfoProvider));
     private readonly IChannelsService channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
     private readonly IAuthService authService = authService ?? throw new ArgumentNullException(nameof(authService));
 

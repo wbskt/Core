@@ -37,4 +37,9 @@ public static class WbsktExceptions
     {
         return new ValidationException($"client with name: '{reqClientName}' already exists in the same channel");
     }
+
+    public static UnauthorizedAccessException UnauthorizedAccessToChannels()
+    {
+        return new UnauthorizedAccessException("client does not have permission to subscribe to all of the requested channels");
+    }
 }

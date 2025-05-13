@@ -5,23 +5,22 @@ using Wbskt.Common.Providers.Implementations;
 
 namespace Wbskt.Common.Providers.Cache
 {
-    internal sealed class CachedChannelsProvider(ILogger<CachedChannelsProvider> logger, ChannelsProvider channelsProvider) : IChannelsProvider
+    internal sealed class CachedChannelsProvider(ILogger<CachedChannelsProvider> logger, ChannelsProvider channelsProvider) : ICachedChannelsProvider
     {
         private static readonly string ServerType = Environment.GetEnvironmentVariable(nameof(ServerType)) ?? Constants.ServerType.CoreServer.ToString();
 
         private readonly List<ChannelDetails> channels = [];
         private readonly object @lock = new();
 
-        // channelsProvider.RegisterSqlDependency(OnDatabaseChange);
-
         public IReadOnlyCollection<ChannelDetails> GetAllByChannelPublisherId(Guid channelPublisherId)
         {
             return [.. channels.Where(c => c.ChannelPublisherId == channelPublisherId)];
         }
 
-        public IReadOnlyCollection<ChannelDetails> GetAllByChannelServerId(int serverId)
+        public IReadOnlyCollection<ChannelDetails> GetAllByServerId(int serverId)
         {
-            return [.. channels.Where(c => c.ServerId == serverId)];
+            // todo: cache
+            return channelsProvider.GetAllByServerId(serverId);
         }
 
         public IReadOnlyCollection<ChannelDetails> GetAllByChannelUserId(int userId)
@@ -82,42 +81,29 @@ namespace Wbskt.Common.Providers.Cache
             return id;
         }
 
-        public void UpdateServerIds((int Id, int ServerId)[] updates)
+        public IReadOnlyCollection<ChannelDetails> GetAllByChannelSubscriberIds(Guid[] channelSubscriberIds)
         {
-            if (ServerType != Constants.ServerType.CoreServer.ToString())
-            {
-                logger.LogError("only core server perform this operation: {operationName}", nameof(UpdateServerIds));
-                return;
-            }
-
-            var dict = updates.ToDictionary(u => u.Id, u => u.ServerId);
-            foreach (var channel in channels)
-            {
-                if (dict.TryGetValue(channel.ChannelId, out var value))
-                {
-                    channel.ServerId = value;
-                }
-            }
-
-            // channelsProvider.UpdateServerIds(updates);
+            return [..channels.Where(c => channelSubscriberIds.Contains(c.ChannelSubscriberId))];
         }
 
-        // private void RefreshCache()
+        // public void UpdateServerIds((int Id, int ServerId)[] updates)
         // {
-        //     var records = channelsProvider.GetAll();
-        //     lock (@lock)
+        //     if (ServerType != Constants.ServerType.CoreServer.ToString())
         //     {
-        //         channels.Clear();
-        //         channels.AddRange(records);
+        //         logger.LogError("only core server perform this operation: {operationName}", nameof(UpdateServerIds));
+        //         return;
         //     }
-        // }
         //
-        // private void OnDatabaseChange(object sender, SqlNotificationEventArgs e)
-        // {
-        //     logger.LogInformation("database change detected: {Info}", e.Info);
+        //     var dict = updates.ToDictionary(u => u.Id, u => u.ServerId);
+        //     foreach (var channel in channels)
+        //     {
+        //         if (dict.TryGetValue(channel.ChannelId, out var value))
+        //         {
+        //             channel.ServerId = value;
+        //         }
+        //     }
         //
-        //     RefreshCache();
-        //     channelsProvider.RegisterSqlDependency(OnDatabaseChange); // re-register after change
+        //     // channelsProvider.UpdateServerIds(updates);
         // }
     }
 }

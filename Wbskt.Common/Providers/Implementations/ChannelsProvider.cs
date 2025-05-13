@@ -34,9 +34,9 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         return result;
     }
 
-    public IReadOnlyCollection<ChannelDetails> GetAllByChannelServerId(int serverId)
+    public IReadOnlyCollection<ChannelDetails> GetAllByServerId(int serverId)
     {
-        logger.LogTrace("DB operation: {functionName}", nameof(GetAllByChannelServerId));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAllByServerId));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
@@ -163,10 +163,8 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         command.CommandText = "dbo.Channels_Insert";
 
         command.Parameters.Add(new SqlParameter("@UserId", ProviderExtensions.ReplaceDbNulls(channel.UserId)));
-        command.Parameters.Add(new SqlParameter("@ServerId", ProviderExtensions.ReplaceDbNulls(channel.ServerId)));
         command.Parameters.Add(new SqlParameter("@ChannelName", ProviderExtensions.ReplaceDbNulls(channel.ChannelName)));
         command.Parameters.Add(new SqlParameter("@ChannelSecret", ProviderExtensions.ReplaceDbNulls(channel.ChannelSecret)));
-        command.Parameters.Add(new SqlParameter("@RetentionTime", ProviderExtensions.ReplaceDbNulls(channel.RetentionTime)));
         command.Parameters.Add(new SqlParameter("@ChannelPublisherId", ProviderExtensions.ReplaceDbNulls(channel.ChannelPublisherId)));
         command.Parameters.Add(new SqlParameter("@ChannelSubscriberId", ProviderExtensions.ReplaceDbNulls(channel.ChannelSubscriberId)));
 
@@ -184,10 +182,8 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         var data = new ChannelDetails
         {
             UserId = reader.GetInt32(mapping.UserId),
-            ServerId = reader.GetInt32(mapping.ServerId),
             ChannelId = reader.GetInt32(mapping.ChannelId),
             ChannelName = reader.GetString(mapping.ChannelName),
-            RetentionTime = reader.GetInt32(mapping.RetentionTime),
             ChannelSecret = reader.GetString(mapping.ChannelSecret),
             ChannelPublisherId = reader.GetGuid(mapping.ChannelPublisherId),
             ChannelSubscriberId = reader.GetGuid(mapping.ChannelSubscriberId)
@@ -201,10 +197,8 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         var mapping = new OrdinalColumnMapping();
 
         mapping.UserId = reader.GetOrdinal("UserId");
-        mapping.ServerId = reader.GetOrdinal("ServerId");
         mapping.ChannelId = reader.GetOrdinal("Id");
         mapping.ChannelName = reader.GetOrdinal("ChannelName");
-        mapping.RetentionTime = reader.GetOrdinal("RetentionTime");
         mapping.ChannelSecret = reader.GetOrdinal("ChannelSecret");
         mapping.ChannelPublisherId = reader.GetOrdinal("ChannelPublisherId");
         mapping.ChannelSubscriberId = reader.GetOrdinal("ChannelSubscriberId");
@@ -215,10 +209,8 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
     private class OrdinalColumnMapping
     {
         public int UserId;
-        public int ServerId;
         public int ChannelId;
         public int ChannelName;
-        public int RetentionTime;
         public int ChannelSecret;
         public int ChannelPublisherId;
         public int ChannelSubscriberId;

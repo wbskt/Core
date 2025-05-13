@@ -166,6 +166,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         command.CommandText = "dbo.Clients_Upsert";
 
         command.Parameters.Add(new SqlParameter("@UserId", ProviderExtensions.ReplaceDbNulls(clientConnection.UserId)));
+        command.Parameters.Add(new SqlParameter("@ServerId", ProviderExtensions.ReplaceDbNulls(clientConnection.ServerId)));
         command.Parameters.Add(new SqlParameter("@ClientName", ProviderExtensions.ReplaceDbNulls(clientConnection.ClientName)));
         command.Parameters.Add(new SqlParameter("@ClientUniqueId", ProviderExtensions.ReplaceDbNulls(clientConnection.ClientUniqueId)));
 
@@ -182,6 +183,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         var data = new ClientConnection
         {
             UserId = reader.GetInt32(mapping.UserId),
+            ServerId = reader.GetInt32(mapping.ServerId),
             ClientId = reader.GetInt32(mapping.ClientId),
             ClientName = reader.GetString(mapping.ClientName),
             ClientUniqueId = reader.GetGuid(mapping.ClientUniqueId),
@@ -194,8 +196,9 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
     {
         var mapping = new OrdinalColumnMapping();
 
-        mapping.UserId = reader.GetOrdinal("UserId");
         mapping.ClientId = reader.GetOrdinal("Id");
+        mapping.UserId = reader.GetOrdinal("UserId");
+        mapping.ServerId = reader.GetOrdinal("ServerId");
         mapping.ClientName = reader.GetOrdinal("ClientName");
         mapping.ClientUniqueId = reader.GetOrdinal("ClientUniqueId");
 
@@ -206,6 +209,7 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
     {
         public int UserId;
         public int ClientId;
+        public int ServerId;
         public int ClientName;
         public int ClientUniqueId;
     }
