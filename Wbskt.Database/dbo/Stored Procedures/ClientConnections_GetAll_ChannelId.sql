@@ -16,6 +16,7 @@ BEGIN
   SELECT Id
        , ClientName
        , ClientUniqueId
+       , ServerId
        , UserId
     FROM dbo.ClientConnections C INNER JOIN ClientConnectionsChannels CCC ON C.Id = CCC.ChannelId
    WHERE CCC.ChannelId = @ChannelId

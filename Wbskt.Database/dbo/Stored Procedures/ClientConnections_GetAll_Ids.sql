@@ -16,6 +16,7 @@ BEGIN
     SELECT C.Id,
            C.ClientName,
            C.ClientUniqueId,
+           C.ServerId,
            C.UserId
     FROM dbo.ClientConnections C
              INNER JOIN @Ids I ON C.Id = I.Id;

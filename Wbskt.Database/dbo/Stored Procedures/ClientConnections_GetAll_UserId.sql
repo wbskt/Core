@@ -16,6 +16,7 @@ BEGIN
   SELECT Id
        , ClientName
        , ClientUniqueId
+       , ServerId
        , UserId
     FROM dbo.ClientConnections
    WHERE UserId = @UserId

@@ -78,6 +78,7 @@
     <Build Include="dbo\Stored Procedures\Users_FindBy_EmailId.sql" />
     <Build Include="dbo\Stored Procedures\ClientConnections_Upsert.sql" />
     <Build Include="dbo\Stored Procedures\ClientConnections_GetBy_Id.sql" />
+    <Build Include="dbo\Stored Procedures\ClientConnections_GetAll.sql" />
     <Build Include="dbo\Stored Procedures\ClientConnections_GetAll_Ids.sql" />
     <Build Include="dbo\Stored Procedures\ClientConnections_GetAll_UserId.sql" />
     <Build Include="dbo\Stored Procedures\ClientConnections_GetAll_ChannelId.sql" />
@@ -87,7 +88,7 @@
     <Build Include="dbo\Stored Procedures\Channels_GetAll.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetBy_Id.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetAll_UserId.sql" />
-    <Build Include="dbo\Stored Procedures\Channels_GetAll_ServerId.sql" />
+    <Build Include="dbo\Stored Procedures\Channels_GetAll_ServerIds.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetAll_ChannelPublisherId.sql" />
     <Build Include="dbo\Stored Procedures\Channels_GetBy_ChannelSubscriberId.sql" />
     <Build Include="dbo\Stored Procedures\Servers_Insert.sql" />
