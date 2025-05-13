@@ -1,12 +1,11 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Wbskt.Common.Contracts;
-using Wbskt.Common.Exceptions;
 using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
 
-public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerInfoProvider serverInfoProvider, IChannelsService channelsService, IAuthService authService) : IServerInfoService
+public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerInfoProvider serverInfoProvider, ICachedChannelsProvider channelsService, IAuthService authService) : IServerInfoService
 {
     /// <summary>
     /// Map of each S.S with the list of channels assigned to it.
@@ -15,49 +14,9 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerI
     private IDictionary<int, ServerInfo> allServers = new Dictionary<int, ServerInfo>();
     private readonly ILogger<ServerInfoService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ICachedServerInfoProvider serverInfoProvider = serverInfoProvider ?? throw new ArgumentNullException(nameof(serverInfoProvider));
-    private readonly IChannelsService channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
+    private readonly ICachedChannelsProvider channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
     private readonly IAuthService authService = authService ?? throw new ArgumentNullException(nameof(authService));
 
-    public IReadOnlyCollection<ServerInfo> GetAll()
-    {
-        // gets all servers from DB
-        var servers = serverInfoProvider.GetAllSocketServerInfo();
-        var existingServersIds = allServers.Keys.ToList();
-        allServers = servers.ToDictionary(s => s.ServerId, s => s);
-
-        // new serverIds that came from the DB. (this is not cached yet)
-        var newServerIds = allServers.Keys.Except(existingServersIds).ToList();
-
-        foreach ( var serverId in newServerIds)
-        {
-            serverChannelMap.TryAdd(serverId, []);
-        }
-
-        var channels = channelsService.GetAll();
-
-        foreach (var server in servers)
-        {
-            foreach (var channelId in channels.Where(ch => ch.ServerId == server.ServerId).Select(ch => ch.ChannelId))
-            {
-                serverChannelMap[server.ServerId].Add(channelId);
-            }
-        }
-
-        return servers;
-    }
-
-    public ServerInfo GetServerById(int id)
-    {
-        return allServers[id];
-    }
-
-    public int GetAvailableServerId()
-    {
-        // gets the S.S with the least amount of channels. (for a rudimentary load balancing)
-        var serverId = serverChannelMap.Where(s => allServers[s.Key].Active).MinBy(kv => kv.Value.Count).Key;
-        logger.LogDebug("available serverId: {serverId}", serverId);
-        return serverId;
-    }
 
     public async Task<bool> DispatchPayload(ClientPayload payload)
     {
@@ -92,64 +51,8 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerI
 
     public void UpdateServerStatus(int id, bool active)
     {
-        if (allServers.TryGetValue(id, out var server))
-        {
-            server.Active = active;
-        }
-        else
-        {
-            // when a new ss is registered and connected for the first time, `allServers` has no idea it exists. hence refreshing the list of s.servers
-            GetAll();
-            if (allServers.TryGetValue(id, out server))
-            {
-                server.Active = active;
-            }
-            else
-            {
-                throw WbsktExceptions.UnknownSocketServer(id);
-            }
-        }
-
         logger.LogDebug("updating status of server: {serverId} - {active}", id, active);
         serverInfoProvider.UpdateServerStatus(id, active);
-
-        // the re-balance logic
-        if (!active)
-        {
-            logger.LogInformation("re-balancing socket-server:channel (server-{serverId} is inactive)", id);
-            // gets the channels of the inactive server
-            var channelsIds = serverChannelMap[id];
-            var updates = new List<(int, int)>();
-            foreach (var channelId in channelsIds)
-            {
-                // distribute the channels of the offline server to other online server
-                var activeServers = serverChannelMap.Where(s => allServers[s.Key].Active).ToList();
-                if (activeServers.Count == 0)
-                {
-                    logger.LogWarning("failed re-balancing (no active socket-server)");
-                    break;
-                }
-
-                var availableServerChannels = activeServers.MinBy(kv => kv.Value.Count);
-                availableServerChannels.Value.Add(channelId);
-                updates.Add((channelId, availableServerChannels.Key));
-            }
-            channelsService.UpdateServerIds(updates.ToArray());
-        }
-    }
-
-    public void MapAllChannels()
-    {
-        GetAll();
-        var channels = channelsService.GetAll();
-        foreach (var server in allServers.Values)
-        {
-            var serverChannels = channels.Where(c => c.ServerId == server.ServerId);
-
-            var channelIds = serverChannels.Select(channel => channel.ChannelId).ToHashSet();
-
-            serverChannelMap.TryAdd(server.ServerId, channelIds);
-        }
     }
 
     private async Task DispatchPayloadToServer(int serverKey, ClientPayload payload)

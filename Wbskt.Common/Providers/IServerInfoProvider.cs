@@ -18,4 +18,6 @@ public interface ICachedServerInfoProvider : IServerInfoProvider
     IReadOnlyCollection<ServerInfo> GetAllSocketServerInfo();
 
     IReadOnlyCollection<ServerInfo> GetAllCoreServerInfo();
+
+    ServerInfo GetById(int serverId);
 }

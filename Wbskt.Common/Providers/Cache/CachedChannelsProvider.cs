@@ -17,10 +17,10 @@ namespace Wbskt.Common.Providers.Cache
             return [.. channels.Where(c => c.ChannelPublisherId == channelPublisherId)];
         }
 
-        public IReadOnlyCollection<ChannelDetails> GetAllByServerId(int serverId)
+        public IReadOnlyCollection<ChannelDetails> GetAllByServerIds(int[] serverIds)
         {
             // todo: cache
-            return channelsProvider.GetAllByServerId(serverId);
+            return channelsProvider.GetAllByServerIds(serverIds);
         }
 
         public IReadOnlyCollection<ChannelDetails> GetAllByChannelUserId(int userId)

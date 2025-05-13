@@ -15,6 +15,11 @@ namespace Wbskt.Common.Providers.Cache
             throw new NotImplementedException();
         }
 
+        public IReadOnlyCollection<ClientConnection> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
         public IReadOnlyCollection<ClientConnection> GetAllByChannelId(int channelId)
         {
             throw new NotImplementedException();

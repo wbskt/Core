@@ -34,17 +34,19 @@ internal sealed class ChannelsProvider(ILogger<ChannelsProvider> logger, IConnec
         return result;
     }
 
-    public IReadOnlyCollection<ChannelDetails> GetAllByServerId(int serverId)
+    public IReadOnlyCollection<ChannelDetails> GetAllByServerIds(int[] serverIds)
     {
-        logger.LogTrace("DB operation: {functionName}", nameof(GetAllByServerId));
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAllByServerIds));
         using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
         connection.Open();
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "dbo.Channels_GetAll_ServerId";
+        command.CommandText = "dbo.Channels_GetAll_ServerIds";
 
-        command.Parameters.Add(new SqlParameter("@ServerId", serverId));
+        var param = command.Parameters.AddWithValue("@Ids", serverIds.ToDataTable());
+        param.SqlDbType = SqlDbType.Structured;
+        param.TypeName = "dbo.IdListTableType";
 
         var result = new List<ChannelDetails>();
         using var reader = command.ExecuteReader();

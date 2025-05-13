@@ -8,6 +8,8 @@ public interface IClientProvider
 
     int FindByClientUniqueId(Guid clientUniqueId);
 
+    IReadOnlyCollection<ClientConnection> GetAll();
+
     IReadOnlyCollection<ClientConnection> GetAllByChannelId(int channelId);
 
     IReadOnlyCollection<ClientConnection> GetAllByClientIds(int[] clientIds);

@@ -103,6 +103,23 @@ namespace Wbskt.Common.Providers.Cache
             return [..servers.Where(s => s.Type == Constants.ServerType.CoreServer)];
         }
 
+        public ServerInfo GetById(int serverId)
+        {
+            if (serverId <= 0)
+            {
+                throw WbsktExceptions.InvalidId(serverId, "Server");
+            }
+
+            var servers = GetAll();
+            var server = servers.FirstOrDefault(s => s.ServerId == serverId);
+            if (server == null)
+            {
+                throw WbsktExceptions.UnknownSocketServer(serverId);
+            }
+
+            return server;
+        }
+
         private void RefreshCache()
         {
             var records = serverInfoProvider.GetAll();

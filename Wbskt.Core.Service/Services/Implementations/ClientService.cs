@@ -9,13 +9,8 @@ using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
 
-public class ClientService(ILogger<ClientService> logger, IClientProvider clientProvider, IConfiguration configuration, ICachedChannelsProvider channelsProvider, IServerInfoService serverInfoService) : IClientService
+public class ClientService(ILogger<ClientService> logger, IClientProvider clientProvider, IConfiguration configuration, ICachedChannelsProvider channelsProvider, ICachedServerInfoProvider serverInfoProvider, IRelationService relationService) : IClientService
 {
-    private readonly ILogger<ClientService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IClientProvider clientProvider = clientProvider ?? throw new ArgumentNullException(nameof(clientProvider));
-    private readonly IConfiguration configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-    private readonly IServerInfoService serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
-
     public string AddClientConnection(ClientConnectionRequest req)
     {
         var reqSubIds = req.Channels.Select(c => c.ChannelSubscriberId).ToArray();
@@ -57,8 +52,8 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
             // todo: get available servers
             // think: this may lead to multiple connections with different servers if not properly re worked.
             // scenarios: server unreachable(maybe some network issue, in this case the data in SS persists), server down(SS data lost)
-            var serverId = serverInfoService.GetAvailableServerId();
-            server = serverInfoService.GetServerById(serverId);
+            var serverId = relationService.GetAvailableServerId();
+            server = serverInfoProvider.GetById(serverId);
             return CreateClientToken(conn, server, channels.Select(c => c.ChannelId).ToArray());
         }
 
@@ -67,10 +62,10 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
         {
             ClientName = req.ClientName,
             ClientUniqueId = req.ClientUniqueId,
-            ServerId = serverInfoService.GetAvailableServerId()
+            ServerId = relationService.GetAvailableServerId()
         };
 
-        server = serverInfoService.GetServerById(conn.ServerId);
+        server = serverInfoProvider.GetById(conn.ServerId);
         var token = CreateClientToken(conn, server, channels.Select(c => c.ChannelId).ToArray());
 
         return token;

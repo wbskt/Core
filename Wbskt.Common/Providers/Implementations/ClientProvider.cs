@@ -55,6 +55,28 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         return -1;
     }
 
+    public IReadOnlyCollection<ClientConnection> GetAll()
+    {
+        logger.LogTrace("DB operation: {functionName}", nameof(GetAll));
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.ClientConnections_GetAll";
+
+        var result = new List<ClientConnection>();
+        using var reader = command.ExecuteReader();
+        var mapping = GetColumnMapping(reader);
+
+        while (reader.Read())
+        {
+            result.Add(ParseData(reader, mapping));
+        }
+
+        return result;
+    }
+
     public IReadOnlyCollection<ClientConnection> GetAllByChannelId(int channelId)
     {
         logger.LogTrace("DB operation: {functionName}", nameof(GetAllByChannelId));
@@ -92,7 +114,6 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         var param = command.Parameters.AddWithValue("@Ids", clientIds.ToDataTable());
         param.SqlDbType = SqlDbType.Structured;
         param.TypeName = "dbo.IdListTableType";
-
 
         var result = new List<ClientConnection>();
         using var reader = command.ExecuteReader();

@@ -42,4 +42,9 @@ public static class WbsktExceptions
     {
         return new UnauthorizedAccessException("client does not have permission to subscribe to all of the requested channels");
     }
+
+    public static InvalidOperationException SocketServerUnavailable()
+    {
+        return new InvalidOperationException($"the are no socket servers registered");
+    }
 }
