@@ -19,4 +19,7 @@ public interface IClientProvider
     ClientConnection? GetByClientId(int clientId);
 
     int Upsert(ClientConnection clientConnection);
+    void AddClientChannel(int clientId, int channelId);
+    void RemoveClientChannel(int clientId, int channelId);
+    void SetClientChannels(int clientId, int[] channelIds);
 }

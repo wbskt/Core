@@ -44,5 +44,20 @@ namespace Wbskt.Common.Providers.Cache
         {
             throw new NotImplementedException();
         }
+
+        public void AddClientChannel(int clientId, int channelId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveClientChannel(int clientId, int channelId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetClientChannels(int clientId, int[] channelIds)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
