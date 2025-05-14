@@ -199,6 +199,53 @@ internal sealed class ClientProvider(ILogger<ClientProvider> logger, IConnection
         return clientConnection.ClientId = (int)(ProviderExtensions.ReplaceDbNulls(id.Value) ?? 0);
     }
 
+    public void AddClientChannel(int clientId, int channelId)
+    {
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.ClientConnectionsChannels_Add";
+
+        command.Parameters.Add(new SqlParameter("@ClientId", clientId));
+        command.Parameters.Add(new SqlParameter("@ChannelId", channelId));
+
+        command.ExecuteNonQuery();
+    }
+
+    public void RemoveClientChannel(int clientId, int channelId)
+    {
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.ClientConnectionsChannels_Remove";
+
+        command.Parameters.Add(new SqlParameter("@ClientId", clientId));
+        command.Parameters.Add(new SqlParameter("@ChannelId", channelId));
+
+        command.ExecuteNonQuery();
+    }
+
+    public void SetClientChannels(int clientId, int[] channelIds)
+    {
+        using var connection = new SqlConnection(connectionStringProvider.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "dbo.ClientConnectionsChannels_SetForClient";
+
+        command.Parameters.Add(new SqlParameter("@ClientId", clientId));
+        var param = command.Parameters.AddWithValue("@ChannelIds", channelIds.ToDataTable());
+        param.SqlDbType = SqlDbType.Structured;
+        param.TypeName = "dbo.IdListTableType";
+
+        command.ExecuteNonQuery();
+    }
+
     private static ClientConnection ParseData(SqlDataReader reader, OrdinalColumnMapping mapping)
     {
         var data = new ClientConnection
