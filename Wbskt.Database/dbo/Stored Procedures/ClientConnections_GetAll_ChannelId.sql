@@ -6,9 +6,7 @@
 /* Description: Self explanatory      */
 /* ---------------------------------- */
 CREATE PROCEDURE dbo.ClientConnections_GetAll_ChannelId
-(
   @ChannelId INT
-)
 AS
 BEGIN
   SET NOCOUNT ON;

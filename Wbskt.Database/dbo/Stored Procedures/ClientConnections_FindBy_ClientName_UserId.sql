@@ -6,10 +6,8 @@
 /* Description: Self explanatory                */
 /* -------------------------------------------- */
 CREATE PROCEDURE dbo.ClientConnections_FindBy_ClientName_UserId
-(
     @UserId         INT,
     @ClientName     VARCHAR (100)
-)
 AS
 BEGIN
     SET NOCOUNT ON;

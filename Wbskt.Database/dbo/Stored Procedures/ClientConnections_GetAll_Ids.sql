@@ -6,9 +6,7 @@
 /* Description: Get clients by IDs  */
 /* -------------------------------- */
 CREATE PROCEDURE dbo.ClientConnections_GetAll_Ids
-(
     @Ids dbo.IdListTableType READONLY
-)
 AS
 BEGIN
     SET NOCOUNT ON;

@@ -6,9 +6,7 @@
 /* Description: Self explanatory    */
 /* -------------------------------- */
 CREATE PROCEDURE dbo.Users_GetBy_EmailId
-(
   @EmailId VARCHAR(100)
-)
 AS
 BEGIN
   SET NOCOUNT ON;

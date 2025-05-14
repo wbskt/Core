@@ -1,4 +1,4 @@
-﻿/* ------------------------------------ */
+/* ------------------------------------ */
 /* Channels_GetAll_ChannelPublisherId   */
 /* Author: Richard Joy                  */
 /* Updated by: Richard Joy              */
@@ -6,19 +6,17 @@
 /* Description: Self explanatory        */
 /* ------------------------------------ */
 CREATE PROCEDURE dbo.Channels_GetAll_ChannelPublisherId
-(
-  @ChannelPublisherId UNIQUEIDENTIFIER
-)
+    @ChannelPublisherId UNIQUEIDENTIFIER
 AS
 BEGIN
-  SET NOCOUNT ON;
+    SET NOCOUNT ON;
 
-  SELECT Id
-       , ChannelName
-       , ChannelPublisherId
-       , ChannelSubscriberId
-       , UserId
-       , ChannelSecret
-    FROM dbo.Channels
-   WHERE ChannelPublisherId = @ChannelPublisherId
+    SELECT  Id,
+            ChannelName,
+            ChannelPublisherId,
+            ChannelSubscriberId,
+            UserId,
+            ChannelSecret
+    FROM    dbo.Channels
+    WHERE   ChannelPublisherId = @ChannelPublisherId
 END;

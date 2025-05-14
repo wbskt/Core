@@ -6,9 +6,7 @@
 /* Description: Self explanatory    */
 /* -------------------------------- */
 CREATE PROCEDURE dbo.Users_GetBy_Id
-(
   @Id INT
-)
 AS
 BEGIN
   SET NOCOUNT ON;

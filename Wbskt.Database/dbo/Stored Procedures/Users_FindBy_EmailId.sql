@@ -6,9 +6,7 @@
 /* Description: Self explanatory    */
 /* -------------------------------- */
 CREATE PROCEDURE dbo.Users_FindBy_EmailId
-(
     @EmailId VARCHAR(100)
-)
 AS
 BEGIN
     SET NOCOUNT ON;

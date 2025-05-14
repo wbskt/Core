@@ -6,13 +6,11 @@
 /* Description: Insert or update a client based on ClientUniqueId   */
 /* ---------------------------------------------------------------- */
 CREATE PROCEDURE dbo.ClientConnections_Upsert
-(
     @Id                     INT                 OUTPUT,
     @ClientName             VARCHAR(100),
     @ClientUniqueId         UNIQUEIDENTIFIER,
     @UserId                 INT,
     @ServerId               INT
-)
 AS
 BEGIN
     SET NOCOUNT ON;

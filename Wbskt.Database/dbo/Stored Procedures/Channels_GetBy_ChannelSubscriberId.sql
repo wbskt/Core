@@ -1,4 +1,4 @@
-/* ------------------------------------ */
+﻿/* ------------------------------------ */
 /* Channels_GetBy_ChannelSubscriberId   */
 /* Author: Richard Joy                  */
 /* Updated by: Richard Joy              */
@@ -6,9 +6,7 @@
 /* Description: Self explanatory        */
 /* ------------------------------------ */
 CREATE PROCEDURE dbo.Channels_GetBy_ChannelSubscriberId
-(
     @ChannelSubscriberId UNIQUEIDENTIFIER
-)
 AS
 BEGIN
     SET NOCOUNT ON;

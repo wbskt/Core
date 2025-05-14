@@ -6,10 +6,8 @@
 /* Description: Self explanatory    */
 /* -------------------------------- */
 CREATE PROCEDURE dbo.Servers_UpdateStatus
-(
   @Id     INT,
   @Active BIT
-)
 AS
 BEGIN
   SET NOCOUNT ON;

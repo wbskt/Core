@@ -6,14 +6,12 @@
 /* Description: Self explanatory    */
 /* -------------------------------- */
 CREATE PROCEDURE dbo.Channels_Insert
-(
   @Id                   INT OUTPUT
 , @ChannelName	        VARCHAR(100)
 , @ChannelSecret        VARCHAR(100)
 , @UserId               INT
 , @ChannelPublisherId   UNIQUEIDENTIFIER
 , @ChannelSubscriberId  UNIQUEIDENTIFIER
-)
 AS
 BEGIN
     SET NOCOUNT ON;

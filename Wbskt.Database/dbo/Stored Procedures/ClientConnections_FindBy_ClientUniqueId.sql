@@ -6,9 +6,7 @@
 /* Description: Self explanatory            */
 /* ---------------------------------------- */
 CREATE PROCEDURE dbo.ClientConnections_FindBy_ClientUniqueId
-(
   @ClientUniqueId UNIQUEIDENTIFIER
-)
 AS
 BEGIN
     SET NOCOUNT ON;

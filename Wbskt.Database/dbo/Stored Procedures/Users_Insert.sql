@@ -6,13 +6,11 @@
 /* Description: Self explanatory    */
 /* -------------------------------- */
 CREATE PROCEDURE dbo.Users_Insert
-(
   @Id			INT OUTPUT
 , @UserName		VARCHAR(100)
 , @EmailId		VARCHAR(100)
 , @PasswordHash VARCHAR(512)
 , @PasswordSalt VARCHAR(50)
-)
 AS
 BEGIN
     SET NOCOUNT ON;

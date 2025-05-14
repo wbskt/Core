@@ -6,19 +6,17 @@
 /* Description: Self explanatory    */
 /* -------------------------------- */
 CREATE PROCEDURE dbo.Channels_GetAll_UserId
-(
-  @UserId INT
-)
+    @UserId INT
 AS
 BEGIN
-  SET NOCOUNT ON;
+    SET NOCOUNT ON;
 
-  SELECT Id
+    SELECT Id
        , ChannelName
        , ChannelPublisherId
        , ChannelSubscriberId
        , UserId
        , ChannelSecret
     FROM dbo.Channels
-   WHERE UserId = @UserId
+    WHERE UserId = @UserId
 END;
