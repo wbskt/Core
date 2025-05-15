@@ -34,13 +34,12 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
             var exSubIds = exConn.Channels.Select(c => c.ChannelSubscriberId).ToArray();
             var union = reqSubIds.Union(exSubIds).ToArray();
 
-            // no need of any db updates
+            var ids = channelsProvider.GetAllByChannelSubscriberIds(union).Select(c => c.ChannelId).ToArray();
             if (union.Length != exSubIds.Length)
             {
-                reqSubIds = union;
-                channels = channelsProvider.GetAllByChannelSubscriberIds(reqSubIds);
-                // todo: update dbo.ClientConnectionsChannels
+                clientProvider.SetClientChannels(exConn.ClientId, ids);
             }
+            // else - no need of any db updates
 
             if (exConn.ClientName != req.ClientName)
             {
@@ -51,12 +50,11 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
 
             // todo: get available servers
             // think: this may lead to multiple connections with different servers if not properly re worked.
-            // scenarios: server unreachable(maybe some network issue, in this case the data in SS persists), server down(SS data lost)
+            // scenarios: server unreachable(maybe some network issue or an overload, in this case the data in SS persists), server down(SS data lost)
             var serverId = relationService.GetAvailableServerId();
             server = serverInfoProvider.GetById(serverId);
-            return CreateClientToken(conn, server, channels.Select(c => c.ChannelId).ToArray());
+            return CreateClientToken(conn, server, ids);
         }
-
 
         conn ??= new ClientConnection
         {
@@ -65,8 +63,13 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
             ServerId = relationService.GetAvailableServerId()
         };
 
+        var channelIds = channels.Select(c => c.ChannelId).ToArray();
+
+        clientProvider.Upsert(conn);
+        clientProvider.SetClientChannels(conn.ClientId, channelIds);
+
         server = serverInfoProvider.GetById(conn.ServerId);
-        var token = CreateClientToken(conn, server, channels.Select(c => c.ChannelId).ToArray());
+        var token = CreateClientToken(conn, server, channelIds);
 
         return token;
     }

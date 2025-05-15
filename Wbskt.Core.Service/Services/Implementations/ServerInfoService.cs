@@ -22,31 +22,31 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerI
     {
         var publisherId = payload.PublisherId;
 
-        var channels = channelsService.GetAll()
-            .GroupBy(c => c.ChannelPublisherId)
-            .ToDictionary(g => g.Key, g => g.Select(c => c.ChannelId).ToArray());
+        var channelIds = channelsService.GetAllByChannelPublisherId(publisherId).Select(c => c.ChannelId).ToArray();
 
         var tasks = new List<Task>();
 
-        if (channels.TryGetValue(publisherId, out var channelIds))
+        if (channelIds.Length == 0)
         {
-            foreach (var serverChannel in serverChannelMap)
-            {
-                // Faster overlap check without creating a new collection
-                // `channelIds` is the array of channels where payload needs to be dispatched
-                // `serverChannel.Value` is the list of channels that the given S.S has
-                // we just need to find if there is an overlap. if yes, dispatch
-                if (serverChannel.Value.Any(channel => channelIds.Contains(channel)))
-                {
-                    logger.LogDebug("Dispatcher task queued for socket server: {serverId}, publisherId: {publisherId}", serverChannel.Key, payload);
-                    tasks.Add(DispatchPayloadToServer(serverChannel.Key, payload));
-                }
-            }
-            await Task.WhenAll(tasks);
-            return true;
+            logger.LogWarning("there are no channels with publisherId: {publisherId}", publisherId);
+            return false;
         }
 
-        return false;
+        foreach (var serverChannel in serverChannelMap)
+        {
+            // Faster overlap check without creating a new collection
+            // `channelIds` is the array of channels where payload needs to be dispatched
+            // `serverChannel.Value` is the list of channels that the given S.S has
+            // we just need to find if there is an overlap. if yes, dispatch
+            if (serverChannel.Value.Any(channel => channelIds.Contains(channel)))
+            {
+                logger.LogDebug("Dispatcher task queued for socket server: {serverId}, publisherId: {publisherId}", serverChannel.Key, payload);
+                tasks.Add(DispatchPayloadToServer(serverChannel.Key, payload));
+            }
+        }
+        await Task.WhenAll(tasks);
+        return true;
+
     }
 
     public void UpdateServerStatus(int id, bool active)
@@ -55,11 +55,11 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerI
         serverInfoProvider.UpdateServerStatus(id, active);
     }
 
-    private async Task DispatchPayloadToServer(int serverKey, ClientPayload payload)
+    private async Task DispatchPayloadToServer(int serverId, ClientPayload payload)
     {
         var token = authService.CreateCoreServerToken();
         var authHeader = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
-        var server = allServers[serverKey];
+        var server = allServers[serverId];
 
         var httpClient = new HttpClient
         {
