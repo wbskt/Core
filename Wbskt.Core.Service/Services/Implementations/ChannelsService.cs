@@ -4,11 +4,8 @@ using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
 
-public class ChannelsService(ILogger<ChannelsService> logger, IChannelsProvider channelsProvider) : IChannelsService
+public class ChannelsService(ILogger<ChannelsService> logger, ICachedChannelsProvider channelsProvider) : IChannelsService
 {
-    private readonly ILogger<ChannelsService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IChannelsProvider channelsProvider = channelsProvider ?? throw new ArgumentNullException(nameof(channelsProvider));
-
     public ChannelDetails CreateChannel(ChannelCreationRequest channelCreation)
     {
         if (CheckIfUserHasSameChannelName(channelCreation.UserId, channelCreation.ChannelName))

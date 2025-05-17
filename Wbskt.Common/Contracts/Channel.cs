@@ -7,6 +7,7 @@ public class ChannelDetails : ChannelCreationRequest
     /// <summary>
     /// [Internal] ID
     /// </summary>
+    [JsonIgnore]
     public int ChannelId { get; set; }
 
     /// <summary>

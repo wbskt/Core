@@ -1,7 +1,13 @@
-﻿namespace Wbskt.Common.Contracts;
+﻿using System.Text.Json.Serialization;
+
+namespace Wbskt.Common.Contracts;
 
 public class ClientPayload
 {
+
+    [JsonIgnore]
+    public int ChannelId { get; set; }
+    
     public string Data { get; set; } = string.Empty;
 
     public Guid PublisherId { get; set; }
