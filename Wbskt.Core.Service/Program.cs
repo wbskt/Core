@@ -1,11 +1,9 @@
-﻿using System.Data.SqlClient;
-using System.Security.Authentication;
+﻿using System.Security.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Extensions;
-using Wbskt.Common.Providers;
 using Wbskt.Common.Services;
 using Wbskt.Core.Service.Pipeline;
 using Wbskt.Core.Service.Services;
@@ -87,9 +85,6 @@ public static class Program
 
         app.MapControllers();
 
-        var connectionString = app.Services.GetRequiredService<IConnectionStringProvider>().ConnectionString;
-        SqlDependency.Start(connectionString);
-
         var cancellationService = app.Services.GetRequiredService<ICancellationService>();
         var relationService = app.Services.GetRequiredService<IRelationService>();
         app.Lifetime.ApplicationStarted.Register(() =>
@@ -100,7 +95,6 @@ public static class Program
         app.Lifetime.ApplicationStopping.Register(() =>
         {
             cancellationService.Cancel().Wait();
-            SqlDependency.Stop(connectionString);
         });
 
         await app.RunAsync(cancellationService.GetToken());

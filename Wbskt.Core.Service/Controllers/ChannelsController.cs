@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Wbskt.Common;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Extensions;
+using Wbskt.Common.Providers;
 using Wbskt.Core.Service.Services;
 
 namespace Wbskt.Core.Service.Controllers;
@@ -11,11 +12,6 @@ namespace Wbskt.Core.Service.Controllers;
 [Route("api/[controller]")]
 public class ChannelsController(ILogger<ChannelsController> logger, IChannelsService channelsService, IClientService clientService, IServerInfoService serverInfoService) : ControllerBase
 {
-    private readonly ILogger<ChannelsController> logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IChannelsService channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
-    private readonly IClientService clientService = clientService ?? throw new ArgumentNullException(nameof(clientService));
-    private readonly IServerInfoService serverInfoService = serverInfoService ?? throw new ArgumentNullException(nameof(serverInfoService));
-
     [HttpGet]
     [Authorize(AuthenticationSchemes = Constants.AuthSchemes.UserScheme)]
     public IActionResult GetAll()

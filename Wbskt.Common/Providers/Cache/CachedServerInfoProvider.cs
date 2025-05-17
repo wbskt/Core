@@ -1,137 +1,135 @@
 ﻿using Microsoft.Extensions.Logging;
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Exceptions;
-using Wbskt.Common.Providers.Implementations;
 
-namespace Wbskt.Common.Providers.Cache
+namespace Wbskt.Common.Providers.Cache;
+
+internal sealed class CachedServerInfoProvider(ILogger<CachedServerInfoProvider> logger, IServerInfoProvider serverInfoProvider) : ICachedServerInfoProvider
 {
-    internal sealed class CachedServerInfoProvider(ILogger<CachedServerInfoProvider> logger, ServerInfoProvider serverInfoProvider) : ICachedServerInfoProvider
+    private static readonly string ServerType = Environment.GetEnvironmentVariable(nameof(ServerType)) ?? Constants.ServerType.CoreServer.ToString();
+
+    private readonly List<ServerInfo> serverInfos = [];
+    private readonly object @lock = new();
+
+    public IReadOnlyCollection<ServerInfo> GetAll()
     {
-        private static readonly string ServerType = Environment.GetEnvironmentVariable(nameof(ServerType)) ?? Constants.ServerType.CoreServer.ToString();
-
-        private readonly List<ServerInfo> serverInfos = [];
-        private readonly object @lock = new();
-
-        public IReadOnlyCollection<ServerInfo> GetAll()
+        lock (@lock)
         {
-            lock (@lock)
+            if (serverInfos.Count != 0)
             {
-                if (serverInfos.Count != 0)
-                {
-                    return [.. serverInfos]; // return a copy to prevent external mutation
-                }
-
-                var records = serverInfoProvider.GetAll();
-                serverInfos.AddRange(records);
-
                 return [.. serverInfos]; // return a copy to prevent external mutation
             }
+
+            var records = serverInfoProvider.GetAll();
+            serverInfos.AddRange(records);
+
+            return [.. serverInfos]; // return a copy to prevent external mutation
+        }
+    }
+
+    public int Insert(ServerInfo serverInfo)
+    {
+        var serverId = serverInfoProvider.Insert(serverInfo);
+        RefreshCache();
+        return serverId;
+    }
+
+    public void UpdatePublicDomainName(int id, string publicDomainName)
+    {
+        if (id <= 0)
+        {
+            logger.LogError("invalid id provided: {id}", id);
+            throw WbsktExceptions.InvalidId(id, "Server");
         }
 
-        public int Insert(ServerInfo serverInfo)
+        if (ServerType == Constants.ServerType.CoreServer.ToString())
         {
-            var serverId = serverInfoProvider.Insert(serverInfo);
+            logger.LogError("core server cannot perform this operation: {operationName}", nameof(UpdatePublicDomainName));
+            return;
+        }
+
+        if (GetAll().All(s => s.ServerId == id))
+        {
+            logger.LogError("server with id: {serverId} does not exists", id);
+            throw WbsktExceptions.UnknownSocketServer(id);
+        }
+
+        serverInfoProvider.UpdatePublicDomainName(id, publicDomainName);
+        lock (@lock)
+        {
+            var info = serverInfos.FirstOrDefault(s => s.ServerId == id);
+            if (info != null)
+            {
+                info.PublicDomainName = publicDomainName;
+            }
+        }
+    }
+
+    public void UpdateServerStatus(int id, bool active)
+    {
+        if (id <= 0)
+        {
+            logger.LogError("invalid id provided: {id}", id);
+            throw WbsktExceptions.InvalidId(id, "Server");
+        }
+
+        if (GetAll().All(s => s.ServerId == id))
+        {
             RefreshCache();
-            return serverId;
-        }
-
-        public void UpdatePublicDomainName(int id, string publicDomainName)
-        {
-            if (id <= 0)
-            {
-                logger.LogError("invalid id provided: {id}", id);
-                throw WbsktExceptions.InvalidId(id, "Server");
-            }
-
-            if (ServerType == Constants.ServerType.CoreServer.ToString())
-            {
-                logger.LogError("core server cannot perform this operation: {operationName}", nameof(UpdatePublicDomainName));
-                return;
-            }
-
             if (GetAll().All(s => s.ServerId == id))
             {
                 logger.LogError("server with id: {serverId} does not exists", id);
                 throw WbsktExceptions.UnknownSocketServer(id);
             }
-
-            serverInfoProvider.UpdatePublicDomainName(id, publicDomainName);
-            lock (@lock)
-            {
-                var info = serverInfos.FirstOrDefault(s => s.ServerId == id);
-                if (info != null)
-                {
-                    info.PublicDomainName = publicDomainName;
-                }
-            }
         }
 
-        public void UpdateServerStatus(int id, bool active)
+        serverInfoProvider.UpdateServerStatus(id, active);
+        lock (@lock)
         {
-            if (id <= 0)
+            var info = serverInfos.FirstOrDefault(s => s.ServerId == id);
+            if (info != null)
             {
-                logger.LogError("invalid id provided: {id}", id);
-                throw WbsktExceptions.InvalidId(id, "Server");
-            }
-
-            if (GetAll().All(s => s.ServerId == id))
-            {
-                RefreshCache();
-                if (GetAll().All(s => s.ServerId == id))
-                {
-                    logger.LogError("server with id: {serverId} does not exists", id);
-                    throw WbsktExceptions.UnknownSocketServer(id);
-                }
-            }
-
-            serverInfoProvider.UpdateServerStatus(id, active);
-            lock (@lock)
-            {
-                var info = serverInfos.FirstOrDefault(s => s.ServerId == id);
-                if (info != null)
-                {
-                    info.Active = active;
-                }
+                info.Active = active;
             }
         }
+    }
 
-        public IReadOnlyCollection<ServerInfo> GetAllSocketServerInfo()
+    public IReadOnlyCollection<ServerInfo> GetAllSocketServerInfo()
+    {
+        var servers = GetAll();
+        return [..servers.Where(s => s.Type == Constants.ServerType.SocketServer)];
+    }
+
+    public IReadOnlyCollection<ServerInfo> GetAllCoreServerInfo()
+    {
+        var servers = GetAll();
+        return [..servers.Where(s => s.Type == Constants.ServerType.CoreServer)];
+    }
+
+    public ServerInfo GetById(int serverId)
+    {
+        if (serverId <= 0)
         {
-            var servers = GetAll();
-            return [..servers.Where(s => s.Type == Constants.ServerType.SocketServer)];
+            throw WbsktExceptions.InvalidId(serverId, "Server");
         }
 
-        public IReadOnlyCollection<ServerInfo> GetAllCoreServerInfo()
+        var servers = GetAll();
+        var server = servers.FirstOrDefault(s => s.ServerId == serverId);
+        if (server == null)
         {
-            var servers = GetAll();
-            return [..servers.Where(s => s.Type == Constants.ServerType.CoreServer)];
+            throw WbsktExceptions.UnknownSocketServer(serverId);
         }
 
-        public ServerInfo GetById(int serverId)
+        return server;
+    }
+
+    private void RefreshCache()
+    {
+        var records = serverInfoProvider.GetAll();
+        lock (@lock)
         {
-            if (serverId <= 0)
-            {
-                throw WbsktExceptions.InvalidId(serverId, "Server");
-            }
-
-            var servers = GetAll();
-            var server = servers.FirstOrDefault(s => s.ServerId == serverId);
-            if (server == null)
-            {
-                throw WbsktExceptions.UnknownSocketServer(serverId);
-            }
-
-            return server;
-        }
-
-        private void RefreshCache()
-        {
-            var records = serverInfoProvider.GetAll();
-            lock (@lock)
-            {
-                serverInfos.Clear();
-                serverInfos.AddRange(records);
-            }
+            serverInfos.Clear();
+            serverInfos.AddRange(records);
         }
     }
 }
