@@ -71,13 +71,17 @@ namespace Wbskt.Common.Providers.Cache
             if (id <= 0)
             {
                 logger.LogError("invalid id provided: {id}", id);
-                throw new ArgumentException("invalid id provided", nameof(id));
+                throw WbsktExceptions.InvalidId(id, "Server");
             }
 
             if (GetAll().All(s => s.ServerId == id))
             {
-                logger.LogError("server with id: {serverId} does not exists", id);
-                throw WbsktExceptions.UnknownSocketServer(id);
+                RefreshCache();
+                if (GetAll().All(s => s.ServerId == id))
+                {
+                    logger.LogError("server with id: {serverId} does not exists", id);
+                    throw WbsktExceptions.UnknownSocketServer(id);
+                }
             }
 
             serverInfoProvider.UpdateServerStatus(id, active);

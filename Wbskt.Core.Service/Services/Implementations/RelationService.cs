@@ -2,24 +2,19 @@
 using Wbskt.Common.Contracts;
 using Wbskt.Common.Exceptions;
 using Wbskt.Common.Providers;
+using Wbskt.Common.Utilities;
 
 namespace Wbskt.Core.Service.Services.Implementations;
-
-public interface IRelationService
-{
-    int GetAvailableServerId();
-    void InitializeRelations();
-}
 
 public class RelationService(ILogger<RelationService> logger, IClientProvider clientProvider, ICachedServerInfoProvider serverInfoProvider, ICachedChannelsProvider channelsProvider) : IRelationService
 {
     // server - [channels]
     // used for: re-balancing when a particulate server becomes offline
-    private readonly ConcurrentDictionary<int, ConcurrentBag<int>> serverChannelsMap = new();
+    private readonly ConcurrentDictionary<int, ConcurrentKeys<int>> serverChannelsMap = new();
 
     // channel - [servers]
     // used for: dispatching messages to servers based on the channelId (gets the list of servers to which a message needs to be dispatched for a channel)
-    private readonly ConcurrentDictionary<int, ConcurrentBag<int>> channelServersMap = new();
+    private readonly ConcurrentDictionary<int, ConcurrentKeys<int>> channelServersMap = new();
     //<------------------------------->
 
     // client - [server]
@@ -28,12 +23,12 @@ public class RelationService(ILogger<RelationService> logger, IClientProvider cl
 
     // server - [client]
     // used for: health purposes and re-balancing. to know how many clients are assigned to a particular server.
-    private readonly ConcurrentDictionary<int, ConcurrentBag<int>> serverClientsMap = new();
+    private readonly ConcurrentDictionary<int, ConcurrentKeys<int>> serverClientsMap = new();
     //<------------------------------->
 
     // channel - [clients]
     // used for: validation, n clients per channel, and look up for re-balancing
-    private readonly ConcurrentDictionary<int, ConcurrentBag<int>> channelClientsMap = new();
+    private readonly ConcurrentDictionary<int, ConcurrentKeys<int>> channelClientsMap = new();
 
     public int GetAvailableServerId()
     {
@@ -42,12 +37,11 @@ public class RelationService(ILogger<RelationService> logger, IClientProvider cl
             throw WbsktExceptions.SocketServerUnavailable();
         }
 
-        var serverId = serverClientsMap.MinBy(m => m.Value?.Count ?? 0).Key;
+        var serverId = serverClientsMap.MinBy(m => m.Value.GetKeys().Count).Key;
         logger.LogDebug("available serverId: {serverId}", serverId);
         return serverId;
     }
 
-    #region Initialization
     public void InitializeRelations()
     {
         var servers = serverInfoProvider.GetAllSocketServerInfo();
@@ -58,13 +52,77 @@ public class RelationService(ILogger<RelationService> logger, IClientProvider cl
         MapAllClientServers(clients, servers);
     }
 
+    public void AssignClientToServer(int clientId, int serverId)
+    {
+        clientServerMap[clientId] = serverId;
+
+        // updating server client map since it's useful to have a list/number of clients per server. `GetAvailableServerId()`
+
+        // if server already contains client ... just return
+        if (serverClientsMap[serverId].Contains(clientId))
+        {
+            return;
+        }
+
+        foreach (var serverClients in serverClientsMap)
+        {
+            serverClients.Value.Remove(clientId);
+        }
+
+        // if server already contains client ... just return
+        serverClientsMap.AddOrUpdate(
+            serverId,
+            new ConcurrentKeys<int>([clientId]),
+            (_, clients) =>
+            {
+                clients.Add(clientId);
+                return clients;
+            }
+        );
+    }
+
+    public void SetClientChannels(int clientId, int[] channelIds)
+    {
+        foreach (var channelId in channelIds)
+        {
+            channelClientsMap[channelId].Add(clientId);
+        }
+    }
+
+    public void RemoveServerMappings(int serverId)
+    {
+        serverClientsMap.Remove(serverId, out var clientIds);
+        serverChannelsMap.Remove(serverId, out var channelIds);
+
+        foreach (var cliId in clientIds?.GetKeys() ?? Array.Empty<int>())
+        {
+            clientServerMap.Remove(cliId, out _);
+        }
+
+        // todo: optimise, use dictionary maybe
+        foreach (var chlId in channelIds?.GetKeys() ?? [])
+        {
+            if (channelServersMap.TryGetValue(chlId, out var servers))
+            {
+                var currentServers = servers.GetKeys();
+                currentServers.Remove(serverId);
+                servers.Clear();
+                foreach (var server in currentServers)
+                {
+                    servers.Add(server);
+                }
+            }
+        }
+    }
+
+    #region Initialization
     private void MapAllServerChannels(IReadOnlyCollection<ServerInfo> servers)
     {
         serverChannelsMap.Clear();
         channelServersMap.Clear();
         foreach (var server in servers)
         {
-            var channelIds = new ConcurrentBag<int>();
+            var channelIds = new ConcurrentKeys<int>();
             foreach (var channel in channelsProvider.GetAllByServerIds([server.ServerId]))
             {
                 channelIds.Add(channel.ChannelId);
@@ -75,7 +133,7 @@ public class RelationService(ILogger<RelationService> logger, IClientProvider cl
                 }
                 else
                 {
-                    if (!channelServersMap.TryAdd(channel.ChannelId, new ConcurrentBag<int>([server.ServerId])))
+                    if (!channelServersMap.TryAdd(channel.ChannelId, new ConcurrentKeys<int>([server.ServerId])))
                     {
                         logger.LogError("couldn't add value to 'channelServersMap'");
                     }
@@ -91,7 +149,7 @@ public class RelationService(ILogger<RelationService> logger, IClientProvider cl
         channelClientsMap.Clear();
         foreach (var channel in channels)
         {
-            var clientIds = new ConcurrentBag<int>();
+            var clientIds = new ConcurrentKeys<int>();
             foreach (var client in clients.Where(c => c.Channels.Select(chan => chan.ChannelSubscriberId).Contains(channel.ChannelSubscriberId)))
             {
                 clientIds.Add(client.ClientId);
@@ -107,7 +165,7 @@ public class RelationService(ILogger<RelationService> logger, IClientProvider cl
         clientServerMap.Clear();
         foreach (var server in servers)
         {
-            var clientIds = new ConcurrentBag<int>();
+            var clientIds = new ConcurrentKeys<int>();
             foreach (var client in clients.Where(c => c.ServerId == server.ServerId))
             {
                 clientIds.Add(client.ClientId);

@@ -47,4 +47,9 @@ public static class WbsktExceptions
     {
         return new InvalidOperationException($"the are no socket servers registered");
     }
+
+    public static InvalidOperationException FailedToInsertOrUpdateClient(Guid clientUniqueId)
+    {
+        return new InvalidOperationException($"unexpected error while trying to upsert client with uniqueId: '{clientUniqueId}'");
+    }
 }

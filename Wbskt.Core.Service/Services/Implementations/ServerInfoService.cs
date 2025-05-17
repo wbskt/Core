@@ -5,7 +5,7 @@ using Wbskt.Common.Providers;
 
 namespace Wbskt.Core.Service.Services.Implementations;
 
-public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerInfoProvider serverInfoProvider, ICachedChannelsProvider channelsService, IAuthService authService) : IServerInfoService
+public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerInfoProvider serverInfoProvider, ICachedChannelsProvider channelsService, IAuthService authService, IRelationService relationService) : IServerInfoService
 {
     /// <summary>
     /// Map of each S.S with the list of channels assigned to it.
@@ -16,7 +16,6 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerI
     private readonly ICachedServerInfoProvider serverInfoProvider = serverInfoProvider ?? throw new ArgumentNullException(nameof(serverInfoProvider));
     private readonly ICachedChannelsProvider channelsService = channelsService ?? throw new ArgumentNullException(nameof(channelsService));
     private readonly IAuthService authService = authService ?? throw new ArgumentNullException(nameof(authService));
-
 
     public async Task<bool> DispatchPayload(ClientPayload payload)
     {
@@ -49,10 +48,14 @@ public class ServerInfoService(ILogger<ServerInfoService> logger, ICachedServerI
 
     }
 
-    public void UpdateServerStatus(int id, bool active)
+    public void UpdateServerStatus(int serverId, bool active)
     {
-        logger.LogDebug("updating status of server: {serverId} - {active}", id, active);
-        serverInfoProvider.UpdateServerStatus(id, active);
+        logger.LogDebug("updating status of server: {serverId} - {active}", serverId, active);
+        serverInfoProvider.UpdateServerStatus(serverId, active);
+        if (active == false)
+        {
+            relationService.RemoveServerMappings(serverId);
+        }
     }
 
     private async Task DispatchPayloadToServer(int serverId, ClientPayload payload)

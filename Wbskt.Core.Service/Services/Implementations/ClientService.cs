@@ -37,7 +37,7 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
             var ids = channelsProvider.GetAllByChannelSubscriberIds(union).Select(c => c.ChannelId).ToArray();
             if (union.Length != exSubIds.Length)
             {
-                clientProvider.SetClientChannels(exConn.ClientId, ids);
+                SetClientChannels(exConn.ClientId, ids);
             }
             // else - no need of any db updates
 
@@ -45,7 +45,7 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
             {
                 logger.LogWarning("mismatch between the name of the client in the DB({dbName}) and the request({reqName}). (name in the DB will be updated)", exConn.ClientName, req.ClientName);
                 conn.ClientName = req.ClientName;
-                clientProvider.Upsert(conn); // updates only the name. todo: remove upsert, use dedicated sp for name updation
+                Upsert(conn); // updates only the name. todo: remove upsert, use dedicated sp for name updation
             }
 
             // todo: get available servers
@@ -65,13 +65,31 @@ public class ClientService(ILogger<ClientService> logger, IClientProvider client
 
         var channelIds = channels.Select(c => c.ChannelId).ToArray();
 
-        clientProvider.Upsert(conn);
-        clientProvider.SetClientChannels(conn.ClientId, channelIds);
+        Upsert(conn);
+        SetClientChannels(conn.ClientId, channelIds);
 
         server = serverInfoProvider.GetById(conn.ServerId);
         var token = CreateClientToken(conn, server, channelIds);
 
         return token;
+    }
+
+    private void Upsert(ClientConnection conn)
+    {
+        if (clientProvider.Upsert(conn) > 0)
+        {
+            relationService.AssignClientToServer(conn.ClientId, conn.ServerId);
+        }
+        else
+        {
+            throw WbsktExceptions.FailedToInsertOrUpdateClient(conn.ClientUniqueId);
+        }
+    }
+
+    private void SetClientChannels(int clientId, int[] channelIds)
+    {
+        clientProvider.SetClientChannels(clientId, channelIds);
+        relationService.SetClientChannels(clientId, channelIds);
     }
 
     private string CreateClientToken(ClientConnection conn, ServerInfo server, int[] channelIds)

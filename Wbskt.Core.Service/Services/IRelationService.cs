@@ -1,4 +1,4 @@
-﻿namespace Wbskt.Core.Service.Services.Implementations;
+﻿namespace Wbskt.Core.Service.Services;
 
 public interface IRelationService
 {

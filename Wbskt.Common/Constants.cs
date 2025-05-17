@@ -35,7 +35,7 @@ public static class Constants
 
     public static class ExpiryTimes // in minutes
     {
-        public const int ClientTokenExpiry = 5; // 5 minutes
+        public const int ClientTokenExpiry = 1; // 1 minute
         public const int ServerTokenExpiry = 60 * 24; // one day
     }
 

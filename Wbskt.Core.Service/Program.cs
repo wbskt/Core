@@ -51,6 +51,7 @@ public static class Program
         builder.Services.AddSingleton<IAuthService, AuthService>();
         builder.Services.AddSingleton<IUsersService, UsersService>();
         builder.Services.AddSingleton<IClientService, ClientService>();
+        builder.Services.AddSingleton<IRelationService, RelationService>();
         builder.Services.AddSingleton<IChannelsService, ChannelsService>();
         builder.Services.AddSingleton<IServerInfoService, ServerInfoService>();
         builder.Services.AddSingleton<ICancellationService, CancellationService>();
@@ -90,8 +91,10 @@ public static class Program
         SqlDependency.Start(connectionString);
 
         var cancellationService = app.Services.GetRequiredService<ICancellationService>();
+        var relationService = app.Services.GetRequiredService<IRelationService>();
         app.Lifetime.ApplicationStarted.Register(() =>
         {
+            relationService.InitializeRelations();
         });
 
         app.Lifetime.ApplicationStopping.Register(() =>
